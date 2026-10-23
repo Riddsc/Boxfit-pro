@@ -44,6 +44,11 @@
 </head>
 <body class="bg-zinc-950 text-white h-screen w-screen overflow-hidden flex flex-col items-center justify-center relative">
 
+    <!-- Notificación flotante para salir con doble toque -->
+    <div id="exitToast" class="fixed top-12 left-1/2 -translate-x-1/2 bg-zinc-800 text-white px-6 py-2 rounded-full font-bold text-sm shadow-2xl z-[100] transition-all duration-300 opacity-0 pointer-events-none">
+        Presiona atrás de nuevo para salir
+    </div>
+
     <!-- Logo Superior Izquierdo -->
     <div class="absolute top-4 left-4 z-[60] pointer-events-none flex items-center bg-zinc-900/80 rounded-full pr-4 p-1 shadow-lg border border-zinc-800">
         <div class="w-10 h-10 flex items-center justify-center glove-glow">
@@ -178,7 +183,7 @@
     </div>
 
     <script>
-        // --- 1. SINTETIZADOR NATIVO DE AUDIO (Cero Descargas, Cero Internet) ---
+        // --- 1. SINTETIZADOR NATIVO DE AUDIO ---
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         
         function playBell() {
@@ -198,6 +203,11 @@
             });
         }
 
+        function playDoubleBell() {
+            playBell();
+            setTimeout(() => { playBell(); }, 500);
+        }
+
         function playWhistle() {
             if (audioCtx.state === 'suspended') audioCtx.resume();
             const t = audioCtx.currentTime;
@@ -206,7 +216,6 @@
             osc.type = 'triangle';
             osc.frequency.value = 2500;
             
-            // Vibrato característico del silbato
             const vib = audioCtx.createOscillator();
             const vibGain = audioCtx.createGain();
             vib.type = 'sine';
@@ -226,29 +235,69 @@
             vib.stop(t + 0.4); osc.stop(t + 0.4);
         }
 
-        // --- 2. SISTEMA DE NAVEGACIÓN Y BOTÓN "ATRÁS" DEL CELULAR ---
+        // --- 2. CONTROL DE PANTALLA ACTIVA (WAKE LOCK) ---
+        let wakeLock = null;
+        async function requestWakeLock() {
+            try {
+                if ('wakeLock' in navigator) wakeLock = await navigator.wakeLock.request('screen');
+            } catch (err) { console.log(err); }
+        }
+        async function releaseWakeLock() {
+            if (wakeLock !== null) {
+                try { await wakeLock.release(); wakeLock = null; } catch (err) { console.log(err); }
+            }
+        }
+        document.addEventListener('visibilitychange', async () => {
+            if (wakeLock !== null && document.visibilityState === 'visible') await requestWakeLock();
+        });
+
+        // --- 3. NAVEGACIÓN Y DOBLE TOQUE PARA SALIR (BOTÓN FÍSICO ATRÁS) ---
+        let activeModal = null;
+        let lastBackPress = 0;
+
         function openModal(id) {
+            activeModal = id;
             document.getElementById(id).classList.remove('hidden');
-            window.location.hash = 'modal';
+            history.pushState({ modal: id }, '');
         }
 
         function hideAllModals() {
             document.getElementById('settingsModal').classList.add('hidden');
             document.getElementById('rouletteModal').classList.add('hidden');
+            activeModal = null;
         }
 
-        window.addEventListener('hashchange', () => {
-            if (window.location.hash !== '#modal') {
+        window.addEventListener('popstate', (e) => {
+            if (activeModal) {
+                // Si hay un modal abierto, el botón atrás del celular lo cierra y vuelve al inicio
                 hideAllModals();
+                history.pushState(null, ''); // Mantiene el estado base
+            } else {
+                // Si estamos en la pantalla principal, exige doble toque para salir
+                let now = Date.now();
+                if (now - lastBackPress < 2000) {
+                    navigator.app?.exitApp?.() || window.close(); // Cierra la app si se presiona 2 veces rápido
+                } else {
+                    lastBackPress = now;
+                    let toast = document.getElementById('exitToast');
+                    toast.style.opacity = '1';
+                    setTimeout(() => { toast.style.opacity = '0'; }, 2000);
+                    history.pushState(null, ''); // Restablece el historial para atrapar el segundo toque
+                }
             }
         });
 
+        // Inicializa el historial de navegación para capturar el botón físico
+        history.pushState(null, '');
+
         function closeModalBtn() {
-            if (window.location.hash === '#modal') history.back();
-            else hideAllModals();
+            if (activeModal) {
+                hideAllModals();
+                history.pushState(null, '');
+            }
         }
 
-        // --- 3. LÓGICA DEL TIMER Y ARREGLO DEL BUG DE CRONÓMETROS MÚLTIPLES ---
+        // --- 4. LÓGICA DEL TIMER ---
         const states = { PREP: 'prep', WORK: 'work', REST: 'rest', DONE: 'done', PAUSED: 'paused' };
         let currentState = states.DONE;
         let config = { work: 180, rest: 60, rounds: 3 };
@@ -360,7 +409,6 @@
             let now = Date.now();
             timeLeft = Math.max(0, Math.ceil((endTime - now) / 1000));
 
-            // Silbato a los 30s
             if (currentState === states.WORK && timeLeft === 30 && !thirtySecPlayed) {
                 playWhistle();
                 triggerFlash();
@@ -376,8 +424,8 @@
                     } else {
                         currentState = states.DONE;
                         clearInterval(timerInterval);
-                        playBell();
-                        setTimeout(() => playBell(), 600); // Doble campana de finalización
+                        releaseWakeLock();
+                        playDoubleBell();
                         ui.btnStart.innerText = "INICIAR";
                         ui.btnStart.classList.replace('bg-yellow-600', 'bg-red-600');
                     }
@@ -390,21 +438,22 @@
         }
 
         function toggleTimer(e) {
-            // Esto bloquea clics fantasmas simultáneos
             if (e) e.stopPropagation(); 
             if (audioCtx.state === 'suspended') audioCtx.resume();
 
             if (currentState === states.DONE) {
                 currentRound = 1;
                 switchState(states.PREP);
-                if (timerInterval) clearInterval(timerInterval); // Asesina cronómetros anteriores (Bug de salto)
+                if (timerInterval) clearInterval(timerInterval);
                 timerInterval = setInterval(tick, 100);
+                requestWakeLock();
                 ui.btnStart.innerText = "PAUSAR";
                 ui.btnStart.classList.replace('bg-red-600', 'bg-yellow-600');
             } else if (currentState === states.PAUSED) {
                 endTime = Date.now() + (timeLeft * 1000);
                 if (timerInterval) clearInterval(timerInterval);
                 timerInterval = setInterval(tick, 100);
+                requestWakeLock();
                 if(ui.status.innerText === "PAUSADO") {
                     currentState = ui.ring.style.stroke === "rgb(239, 68, 68)" ? states.WORK : states.REST;
                 }
@@ -413,6 +462,7 @@
             } else {
                 if (timerInterval) clearInterval(timerInterval);
                 currentState = states.PAUSED;
+                releaseWakeLock();
                 ui.status.innerText = "PAUSADO";
                 ui.status.style.color = "#a1a1aa";
                 ui.tStatus.innerText = "PAUSADO";
@@ -429,6 +479,7 @@
             currentState = states.DONE;
             timeLeft = config.work;
             currentRound = 1;
+            releaseWakeLock();
             ui.btnStart.innerText = "INICIAR";
             ui.btnStart.classList.replace('bg-yellow-600', 'bg-red-600');
             updateUI();
@@ -462,7 +513,6 @@
         navBtns.settings.addEventListener('click', () => { openModal('settingsModal'); });
         navBtns.roulette.addEventListener('click', () => { openModal('rouletteModal'); drawRoulette(); });
 
-        // --- BOTONES DE MODALES ---
         document.getElementById('btnCancelSettings').addEventListener('click', closeModalBtn);
         document.getElementById('btnCloseRoulette').addEventListener('click', closeModalBtn);
         
@@ -583,7 +633,7 @@
                     const finalAngle = normalizedAngle < 0 ? normalizedAngle + Math.PI * 2 : normalizedAngle;
                     const winningIndex = Math.floor(finalAngle / arc);
                     document.getElementById('rouletteResult').innerText = "🔥 " + items[winningIndex].toUpperCase() + " 🔥";
-                    playBell(); // La ruleta también tiene campana matemática
+                    playBell();
                 }
             }
             animate();
