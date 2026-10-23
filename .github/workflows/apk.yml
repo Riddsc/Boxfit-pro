@@ -25,13 +25,23 @@ jobs:
 
     - name: 4. Preparar proyecto y Capacitor
       run: |
-        mkdir -p www
+        mkdir -p www/fonts
         cp index.html www/
         npm init -y
-        npm install @capacitor/core @capacitor/cli @capacitor/android
+        npm install @capacitor/core @capacitor/cli @capacitor/android @capacitor/app @capacitor/haptics @fontsource/bebas-neue @fontsource/barlow-condensed
+        # Fuentes dentro del APK (la app funciona sin internet)
+        cp node_modules/@fontsource/bebas-neue/files/bebas-neue-latin-400-normal.woff2 www/fonts/
+        for w in 400 600 700; do cp node_modules/@fontsource/barlow-condensed/files/barlow-condensed-latin-$w-normal.woff2 www/fonts/; done
+        ls -la www/fonts
         npx cap init "Boxfit Pro" "com.riddsc.boxfitpro" --web-dir www
         npx cap add android
+        # Código nativo propio: pantalla encendida durante el timer
+        JAVA_DIR=android/app/src/main/java/com/riddsc/boxfitpro
+        cp native/MainActivity.java native/KeepAwakePlugin.java $JAVA_DIR/
         npx cap sync android
+        # Versión 2.0
+        sed -i 's/versionCode 1$/versionCode 20/; s/versionName "1.0"/versionName "2.0"/' android/app/build.gradle
+        grep -n "version" android/app/build.gradle
 
     - name: 5. Generar e Inyectar Ícono de Guantes de Boxeo
       run: |
@@ -87,6 +97,8 @@ jobs:
     - name: 7. Compilar el APK (Android Studio)
       working-directory: ./android
       run: |
+        # Firma fija: así las actualizaciones se instalan encima sin desinstalar
+        mkdir -p ~/.android && cp ../keystore/boxfit.keystore ~/.android/debug.keystore
         chmod +x gradlew
         ./gradlew assembleDebug --stacktrace
 
