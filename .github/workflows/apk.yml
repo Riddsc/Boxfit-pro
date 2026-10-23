@@ -40,7 +40,7 @@ jobs:
         cp native/MainActivity.java native/KeepAwakePlugin.java $JAVA_DIR/
         npx cap sync android
         # Versión 2.0
-        sed -i 's/versionCode 1$/versionCode 20/; s/versionName "1.0"/versionName "2.0"/' android/app/build.gradle
+        sed -i 's/versionCode 1$/versionCode 20/; s/versionName "1.0"/versionName "2.1"/' android/app/build.gradle
         grep -n "version" android/app/build.gradle
 
     - name: 5. Generar e Inyectar Ícono de Guantes de Boxeo

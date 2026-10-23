@@ -288,7 +288,7 @@ nav button.on svg{transform:translateY(-2px) scale(1.12);color:var(--accent)}
     <span style="flex:1;text-align:left"><small id="rbLabel">Entrenamiento en curso</small><b id="rbTime">00:00</b></span>
     <span style="font-weight:700;color:var(--phase)">VOLVER ›</span>
   </button>
-  <div class="stats">
+  <div class="stats" id="statsStrip">
     <div class="stat"><b id="stSessions">0</b><span>Sesiones</span></div>
     <div class="stat"><b id="stRounds">0</b><span>Rounds</span></div>
     <div class="stat"><b id="stMinutes">0</b><span>Min. pelea</span></div>
@@ -390,12 +390,13 @@ nav button.on svg{transform:translateY(-2px) scale(1.12);color:var(--accent)}
     <div class="row"><div class="l"><b>Semáforo al iniciar</b><small>Pasa a pantalla completa al darle play</small></div><button class="switch" data-set="autoTraffic"></button></div>
     <div class="row"><div class="l"><b>Pantalla siempre encendida</b><small>Mientras el timer está corriendo</small></div><button class="switch" data-set="keepAwake"></button></div>
     <div class="row"><div class="l"><b>Destello de color</b><small>Flash en cada cambio de fase</small></div><button class="switch" data-set="flash"></button></div>
+    <div class="row"><div class="l"><b>Modo gimnasio</b><small>Uso general para clases: no guarda sesiones, rounds ni minutos</small></div><button class="switch" data-set="gymMode"></button></div>
   </div>
   <div class="sect" style="--i:3"><h4>DATOS</h4>
     <div class="row"><div class="l"><b>Estadísticas</b><small id="statsLine">—</small></div><button class="smallbtn danger" id="resetStats">BORRAR</button></div>
     <div class="row"><div class="l"><b>Entrenamientos originales</b><small>Recupera los perfiles de fábrica</small></div><button class="smallbtn danger" id="resetProfiles">RESTAURAR</button></div>
   </div>
-  <p class="foot">Boxfit Pro · versión 2.0</p>
+  <p class="foot">Boxfit Pro · versión 2.1</p>
 </section>
 
 <!-- ================= EDITOR ================= -->
@@ -462,7 +463,7 @@ const DEFAULT_PROFILES = [
   { id:'tabata',  name:'Tabata',        icon:'⚡', color:'#22c55e', work:20,  rest:10,  rounds:8,  prep:10, warn:5  },
   { id:'saco',    name:'Saco y Sombra', icon:'💥', color:'#ec4899', work:120, rest:30,  rounds:6,  prep:10, warn:15 },
 ];
-const DEFAULT_SETTINGS = { sound:true, volume:80, countdown:true, warnSound:true, vibrate:true, askAtStart:true, autoTraffic:false, keepAwake:true, flash:true };
+const DEFAULT_SETTINGS = { sound:true, volume:80, countdown:true, warnSound:true, vibrate:true, askAtStart:true, autoTraffic:false, keepAwake:true, flash:true, gymMode:false };
 
 let profiles = load('profiles', null) || JSON.parse(JSON.stringify(DEFAULT_PROFILES));
 let S = Object.assign({}, DEFAULT_SETTINGS, load('settings', {}));
@@ -553,7 +554,7 @@ function advance(base){
   const p = getProfile();
   if (T.phase === 'prep') return enterPhase('work', base);
   if (T.phase === 'work'){
-    stats.rounds++; stats.workSec += p.work; save('stats', stats);
+    if (!S.gymMode){ stats.rounds++; stats.workSec += p.work; save('stats', stats); }
     if (T.round >= p.rounds) return finish();
     if (p.rest > 0) return enterPhase('rest', base);
     T.round++; return enterPhase('work', base);
@@ -576,7 +577,7 @@ function reset(){ T.phase = 'idle'; T.paused = false; T.round = 1; T.lastSec = -
 function skip(){
   if (!isActive()) return;
   const wasPaused = T.paused;
-  if (T.phase === 'work'){ const p = getProfile(); stats.rounds--; stats.workSec -= p.work; } // no cuenta un round saltado
+  if (T.phase === 'work' && !S.gymMode){ const p = getProfile(); stats.rounds--; stats.workSec -= p.work; } // no cuenta un round saltado
   advance(Date.now());
   if (wasPaused && isActive()){ T.remMs = T.dur*1000; }
   render(true);
@@ -584,7 +585,7 @@ function skip(){
 function finish(){
   const p = getProfile();
   T.phase = 'done'; T.paused = false;
-  stats.sessions++; save('stats', stats);
+  if (!S.gymMode){ stats.sessions++; save('stats', stats); }
   Sound.bell(3); vibrate([400,150,400,150,600]); flash('work');
   keepAwake(false);
   $('#doneSummary').textContent = `${p.rounds} rounds · ${fmtShort(p.work*p.rounds)} de ${p.name}`;
@@ -780,6 +781,7 @@ else { // navegador: emula el botón atrás con el historial
    6. INICIO: SELECCIÓN DE ENTRENAMIENTO
    ========================================================= */
 function renderStats(){
+  $('#statsStrip').style.display = S.gymMode ? 'none' : '';
   $('#stSessions').textContent = stats.sessions;
   $('#stRounds').textContent = stats.rounds;
   $('#stMinutes').textContent = Math.round(stats.workSec/60);
@@ -831,6 +833,7 @@ function renderSettings(){
 $$('[data-set]').forEach(sw => sw.addEventListener('click', () => {
   const k = sw.dataset.set; S[k] = !S[k]; saveSettings(); sw.classList.toggle('on', S[k]); hapticTap();
   if (k === 'keepAwake') keepAwake(isActive() && !T.paused);
+  if (k === 'gymMode'){ renderStats(); toast(S.gymMode ? 'Modo gimnasio activado' : 'Estadísticas activadas'); }
 }));
 $('#volume').addEventListener('input', e => { S.volume = +e.target.value; saveSettings(); if (master) master.gain.value = S.volume/100; });
 $('#testSound').addEventListener('click', () => { const s = S.sound; S.sound = true; Sound.bell(1); S.sound = s; });
