@@ -251,51 +251,49 @@
             if (wakeLock !== null && document.visibilityState === 'visible') await requestWakeLock();
         });
 
-        // --- 3. NAVEGACIÓN Y DOBLE TOQUE PARA SALIR (BOTÓN FÍSICO ATRÁS) ---
-        let activeModal = null;
+        // --- 3. GESTIÓN NATIVA DE MODALES Y BOTÓN ATRÁS (ANDROID BACK BUTTON) ---
         let lastBackPress = 0;
 
-        function openModal(id) {
-            activeModal = id;
-            document.getElementById(id).classList.remove('hidden');
-            history.pushState({ modal: id }, '');
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.remove('hidden');
         }
 
-        function hideAllModals() {
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.add('hidden');
+        }
+
+        function closeAllModals() {
             document.getElementById('settingsModal').classList.add('hidden');
             document.getElementById('rouletteModal').classList.add('hidden');
-            activeModal = null;
         }
 
+        // Intercepta el evento de retroceso físico de Android de manera nativa
         window.addEventListener('popstate', (e) => {
-            if (activeModal) {
-                // Si hay un modal abierto, el botón atrás del celular lo cierra y vuelve al inicio
-                hideAllModals();
-                history.pushState(null, ''); // Mantiene el estado base
+            // Evita que la app se salga sola al navegar
+            history.pushState(null, '', window.location.href);
+
+            const settingsOpen = !document.getElementById('settingsModal').classList.contains('hidden');
+            const rouletteOpen = !document.getElementById('rouletteModal').classList.contains('hidden');
+
+            if (settingsOpen || rouletteOpen) {
+                // Si hay un modal abierto, lo cierra y regresa al timer
+                closeAllModals();
             } else {
-                // Si estamos en la pantalla principal, exige doble toque para salir
+                // Si está en la pantalla principal, exige doble toque para cerrar la app
                 let now = Date.now();
                 if (now - lastBackPress < 2000) {
-                    navigator.app?.exitApp?.() || window.close(); // Cierra la app si se presiona 2 veces rápido
+                    navigator.app?.exitApp?.() || window.close();
                 } else {
                     lastBackPress = now;
                     let toast = document.getElementById('exitToast');
                     toast.style.opacity = '1';
                     setTimeout(() => { toast.style.opacity = '0'; }, 2000);
-                    history.pushState(null, ''); // Restablece el historial para atrapar el segundo toque
                 }
             }
         });
 
-        // Inicializa el historial de navegación para capturar el botón físico
-        history.pushState(null, '');
-
-        function closeModalBtn() {
-            if (activeModal) {
-                hideAllModals();
-                history.pushState(null, '');
-            }
-        }
+        // Fuerza un estado inicial en el historial para capturar el botón atrás
+        history.pushState(null, '', window.location.href);
 
         // --- 4. LÓGICA DEL TIMER ---
         const states = { PREP: 'prep', WORK: 'work', REST: 'rest', DONE: 'done', PAUSED: 'paused' };
@@ -472,7 +470,15 @@
         }
 
         ui.btnStart.addEventListener('click', toggleTimer);
-        ui.tView.addEventListener('click', toggleTimer);
+        
+        // Bloqueo estricto para evitar doble trigger fantasma en el semáforo
+        let semaforoLock = false;
+        ui.tView.addEventListener('click', (e) => {
+            if (semaforoLock) return;
+            semaforoLock = true;
+            setTimeout(() => { semaforoLock = false; }, 300); // 300ms de inmunidad contra toques dobles
+            toggleTimer(e);
+        });
 
         document.getElementById('btnReset').addEventListener('click', () => {
             if (timerInterval) clearInterval(timerInterval);
@@ -513,14 +519,14 @@
         navBtns.settings.addEventListener('click', () => { openModal('settingsModal'); });
         navBtns.roulette.addEventListener('click', () => { openModal('rouletteModal'); drawRoulette(); });
 
-        document.getElementById('btnCancelSettings').addEventListener('click', closeModalBtn);
-        document.getElementById('btnCloseRoulette').addEventListener('click', closeModalBtn);
+        document.getElementById('btnCancelSettings').addEventListener('click', () => { closeModal('settingsModal'); });
+        document.getElementById('btnCloseRoulette').addEventListener('click', () => { closeModal('rouletteModal'); });
         
         document.getElementById('btnCloseSettings').addEventListener('click', () => {
             config.work = parseTime(document.getElementById('inpWork').value);
             config.rest = parseTime(document.getElementById('inpRest').value);
             config.rounds = parseInt(document.getElementById('inpRounds').value);
-            closeModalBtn();
+            closeModal('settingsModal');
             document.getElementById('btnReset').click();
         });
 
