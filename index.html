@@ -129,57 +129,63 @@
     </nav>
 
     <!-- MODAL AJUSTES -->
-    <div id="settingsModal" class="hidden absolute inset-0 z-[70] bg-zinc-950/95 backdrop-blur-sm flex flex-col p-6 items-center pt-20">
-        <h2 class="font-bebas text-5xl text-white mb-6">AJUSTES DE RUTINA</h2>
-        <div class="w-full max-w-md bg-zinc-900 rounded-2xl p-6 border border-zinc-800 mb-6 shadow-xl">
-            <h3 class="text-xl text-zinc-400 mb-4 font-bold">PERFILES RÁPIDOS</h3>
-            <div class="grid grid-cols-2 gap-3 mb-6">
-                <button class="preset-btn bg-zinc-800 hover:bg-red-600 text-white py-3 rounded-lg font-bold transition-colors" data-w="180" data-r="60" data-rd="3">AMATEUR (3x3)</button>
-                <button class="preset-btn bg-zinc-800 hover:bg-red-600 text-white py-3 rounded-lg font-bold transition-colors" data-w="180" data-r="60" data-rd="12">PRO (12x3)</button>
-                <button class="preset-btn bg-zinc-800 hover:bg-red-600 text-white py-3 rounded-lg font-bold transition-colors" data-w="300" data-r="60" data-rd="5">MMA (5x5)</button>
-                <button class="preset-btn bg-zinc-800 hover:bg-red-600 text-white py-3 rounded-lg font-bold transition-colors" data-w="20" data-r="10" data-rd="8">TABATA (8x20s)</button>
+    <div id="settingsModal" class="hidden absolute inset-0 z-[70] bg-zinc-950/95 backdrop-blur-sm flex flex-col p-6 items-center pt-16">
+        <h2 class="font-bebas text-4xl text-white mb-4">AJUSTES DE RUTINA</h2>
+        <div class="w-full max-w-md bg-zinc-900 rounded-2xl p-5 border border-zinc-800 mb-4 shadow-xl">
+            <h3 class="text-lg text-zinc-400 mb-3 font-bold">PERFILES RÁPIDOS</h3>
+            <div class="grid grid-cols-2 gap-2 mb-4">
+                <button class="preset-btn bg-zinc-800 hover:bg-red-600 text-white py-2 rounded-lg font-bold text-sm transition-colors" data-w="180" data-r="60" data-rd="3">AMATEUR (3x3)</button>
+                <button class="preset-btn bg-zinc-800 hover:bg-red-600 text-white py-2 rounded-lg font-bold text-sm transition-colors" data-w="180" data-r="60" data-rd="12">PRO (12x3)</button>
+                <button class="preset-btn bg-zinc-800 hover:bg-red-600 text-white py-2 rounded-lg font-bold text-sm transition-colors" data-w="300" data-r="60" data-rd="5">MMA (5x5)</button>
+                <button class="preset-btn bg-zinc-800 hover:bg-red-600 text-white py-2 rounded-lg font-bold text-sm transition-colors" data-w="20" data-r="10" data-rd="8">TABATA (8x20s)</button>
             </div>
-            <div class="space-y-4">
+            <div class="space-y-3">
                 <div class="flex justify-between items-center">
-                    <label class="font-bold text-lg text-zinc-300">Tiempo de Round (min:seg)</label>
-                    <input type="text" id="inpWork" value="03:00" class="w-24 bg-zinc-800 text-center text-xl font-bold py-1 rounded text-white border border-zinc-700">
+                    <label class="font-bold text-base text-zinc-300">Tiempo de Round</label>
+                    <input type="text" id="inpWork" value="03:00" class="w-24 bg-zinc-800 text-center text-lg font-bold py-1 rounded text-white border border-zinc-700">
                 </div>
                 <div class="flex justify-between items-center">
-                    <label class="font-bold text-lg text-zinc-300">Descanso (min:seg)</label>
-                    <input type="text" id="inpRest" value="01:00" class="w-24 bg-zinc-800 text-center text-xl font-bold py-1 rounded text-white border border-zinc-700">
+                    <label class="font-bold text-base text-zinc-300">Descanso</label>
+                    <input type="text" id="inpRest" value="01:00" class="w-24 bg-zinc-800 text-center text-lg font-bold py-1 rounded text-white border border-zinc-700">
                 </div>
                 <div class="flex justify-between items-center">
-                    <label class="font-bold text-lg text-zinc-300">Total de Rounds</label>
-                    <input type="number" id="inpRounds" value="3" min="1" max="50" class="w-24 bg-zinc-800 text-center text-xl font-bold py-1 rounded text-white border border-zinc-700">
+                    <label class="font-bold text-base text-zinc-300">Total de Rounds</label>
+                    <input type="number" id="inpRounds" value="3" min="1" max="50" class="w-24 bg-zinc-800 text-center text-lg font-bold py-1 rounded text-white border border-zinc-700">
                 </div>
             </div>
         </div>
         <div class="flex gap-4 w-full max-w-md mt-auto mb-6">
-            <button id="btnCancelSettings" class="flex-1 bg-zinc-800 text-white font-bebas text-3xl py-3 rounded-xl shadow-lg">VOLVER</button>
-            <button id="btnCloseSettings" class="flex-1 bg-red-600 text-white font-bebas text-3xl py-3 rounded-xl shadow-lg">GUARDAR</button>
+            <button id="btnCancelSettings" class="flex-1 bg-zinc-800 text-white font-bebas text-3xl py-4 rounded-xl shadow-lg">VOLVER</button>
+            <button id="btnCloseSettings" class="flex-1 bg-red-600 text-white font-bebas text-3xl py-4 rounded-xl shadow-lg">GUARDAR</button>
         </div>
     </div>
 
-    <!-- MODAL RULETAS -->
-    <div id="rouletteModal" class="hidden absolute inset-0 z-[70] bg-zinc-950/95 backdrop-blur-sm flex flex-col p-4 items-center pt-20">
-        <div class="flex bg-zinc-900 rounded-full p-1 mb-4">
-            <button id="tabSparring" class="px-6 py-2 rounded-full font-bold text-white bg-blue-600 transition-colors">SPARRING</button>
-            <button id="tabPenitencia" class="px-6 py-2 rounded-full font-bold text-zinc-400 transition-colors">PENITENCIA</button>
+    <!-- MODAL RULETAS (Proporción mejorada) -->
+    <div id="rouletteModal" class="hidden absolute inset-0 z-[70] bg-zinc-950/95 backdrop-blur-sm flex flex-col p-4 items-center pt-12 overflow-y-auto">
+        <div class="flex bg-zinc-900 rounded-full p-1 mb-3">
+            <button id="tabSparring" class="px-6 py-2 rounded-full font-bold text-white bg-blue-600 transition-colors text-sm">SPARRING</button>
+            <button id="tabPenitencia" class="px-6 py-2 rounded-full font-bold text-zinc-400 transition-colors text-sm">PENITENCIA</button>
         </div>
-        <div class="relative w-72 h-72 mb-6">
-            <canvas id="rouletteCanvas" width="288" height="288" class="w-full h-full rounded-full shadow-2xl border-4 border-zinc-800"></canvas>
-            <div class="absolute top-0 left-1/2 -translate-x-1/2 -mt-2 w-0 h-0 border-l-[15px] border-r-[15px] border-t-[25px] border-l-transparent border-r-transparent border-t-white z-10 drop-shadow-md"></div>
-            <button id="btnSpin" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 bg-zinc-900 text-white rounded-full font-bebas text-2xl border-2 border-zinc-700 shadow-lg z-10">GIRAR</button>
+        
+        <!-- Ruleta más grande y proporcionada -->
+        <div class="relative w-64 h-64 mb-3">
+            <canvas id="rouletteCanvas" width="256" height="256" class="w-full h-full rounded-full shadow-2xl border-4 border-zinc-800"></canvas>
+            <div class="absolute top-0 left-1/2 -translate-x-1/2 -mt-2 w-0 h-0 border-l-[12px] border-r-[12px] border-t-[20px] border-l-transparent border-r-transparent border-t-white z-10 drop-shadow-md"></div>
+            <button id="btnSpin" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-14 h-14 bg-zinc-900 text-white rounded-full font-bebas text-xl border-2 border-zinc-700 shadow-lg z-10">GIRAR</button>
         </div>
-        <div id="rouletteResult" class="font-bebas text-4xl text-center min-h-[40px] text-white mb-4 drop-shadow-md"></div>
-        <div class="w-full max-w-sm bg-zinc-900 rounded-xl p-4 flex flex-col gap-2">
+
+        <div id="rouletteResult" class="font-bebas text-3xl text-center min-h-[35px] text-white mb-2 drop-shadow-md"></div>
+
+        <div class="w-full max-w-sm bg-zinc-900 rounded-xl p-3 flex flex-col gap-2 mb-4">
             <div class="flex gap-2">
-                <input type="text" id="inpRouletteItem" placeholder="Añadir opción..." class="flex-1 bg-zinc-800 rounded px-3 text-white border border-zinc-700">
-                <button id="btnAddItem" class="bg-zinc-700 px-4 py-2 rounded font-bold hover:bg-zinc-600">+</button>
+                <input type="text" id="inpRouletteItem" placeholder="Añadir opción..." class="flex-1 bg-zinc-800 rounded px-3 py-1 text-sm text-white border border-zinc-700">
+                <button id="btnAddItem" class="bg-zinc-700 px-4 py-1 rounded font-bold hover:bg-zinc-600 text-sm">+</button>
             </div>
-            <div id="rouletteList" class="max-h-32 overflow-y-auto mt-2 space-y-1"></div>
+            <div id="rouletteList" class="max-h-24 overflow-y-auto space-y-1"></div>
         </div>
-        <button id="btnCloseRoulette" class="mt-auto mb-4 bg-zinc-800 text-white font-bebas text-2xl px-8 py-2 rounded-xl">VOLVER</button>
+
+        <!-- Botón Volver proporcionado y grande -->
+        <button id="btnCloseRoulette" class="w-full max-w-sm bg-zinc-800 text-white font-bebas text-3xl py-4 rounded-xl shadow-lg mb-6">VOLVER</button>
     </div>
 
     <script>
@@ -238,48 +244,35 @@
         // --- 2. CONTROL DE PANTALLA ACTIVA (WAKE LOCK) ---
         let wakeLock = null;
         async function requestWakeLock() {
-            try {
-                if ('wakeLock' in navigator) wakeLock = await navigator.wakeLock.request('screen');
-            } catch (err) { console.log(err); }
+            try { if ('wakeLock' in navigator) wakeLock = await navigator.wakeLock.request('screen'); } catch (err) {}
         }
         async function releaseWakeLock() {
             if (wakeLock !== null) {
-                try { await wakeLock.release(); wakeLock = null; } catch (err) { console.log(err); }
+                try { await wakeLock.release(); wakeLock = null; } catch (err) {}
             }
         }
         document.addEventListener('visibilitychange', async () => {
             if (wakeLock !== null && document.visibilityState === 'visible') await requestWakeLock();
         });
 
-        // --- 3. GESTIÓN NATIVA DE MODALES Y BOTÓN ATRÁS (ANDROID BACK BUTTON) ---
+        // --- 3. GESTIÓN NATIVA DE MODALES Y BOTÓN ATRÁS (ANDROID) ---
         let lastBackPress = 0;
-
-        function openModal(modalId) {
-            document.getElementById(modalId).classList.remove('hidden');
-        }
-
-        function closeModal(modalId) {
-            document.getElementById(modalId).classList.add('hidden');
-        }
 
         function closeAllModals() {
             document.getElementById('settingsModal').classList.add('hidden');
             document.getElementById('rouletteModal').classList.add('hidden');
         }
 
-        // Intercepta el evento de retroceso físico de Android de manera nativa
+        // Interceptor del botón físico de retroceso
         window.addEventListener('popstate', (e) => {
-            // Evita que la app se salga sola al navegar
             history.pushState(null, '', window.location.href);
 
             const settingsOpen = !document.getElementById('settingsModal').classList.contains('hidden');
             const rouletteOpen = !document.getElementById('rouletteModal').classList.contains('hidden');
 
             if (settingsOpen || rouletteOpen) {
-                // Si hay un modal abierto, lo cierra y regresa al timer
                 closeAllModals();
             } else {
-                // Si está en la pantalla principal, exige doble toque para cerrar la app
                 let now = Date.now();
                 if (now - lastBackPress < 2000) {
                     navigator.app?.exitApp?.() || window.close();
@@ -291,11 +284,9 @@
                 }
             }
         });
-
-        // Fuerza un estado inicial en el historial para capturar el botón atrás
         history.pushState(null, '', window.location.href);
 
-        // --- 4. LÓGICA DEL TIMER ---
+        // --- 4. LÓGICA DEL TIMER Y BLINDAJE DE ESTADOS ---
         const states = { PREP: 'prep', WORK: 'work', REST: 'rest', DONE: 'done', PAUSED: 'paused' };
         let currentState = states.DONE;
         let config = { work: 180, rest: 60, rounds: 3 };
@@ -421,7 +412,7 @@
                         switchState(states.REST);
                     } else {
                         currentState = states.DONE;
-                        clearInterval(timerInterval);
+                        if (timerInterval) clearInterval(timerInterval);
                         releaseWakeLock();
                         playDoubleBell();
                         ui.btnStart.innerText = "INICIAR";
@@ -435,48 +426,62 @@
             updateUI();
         }
 
-        function toggleTimer(e) {
-            if (e) e.stopPropagation(); 
+        function startRoutine() {
             if (audioCtx.state === 'suspended') audioCtx.resume();
+            if (timerInterval) clearInterval(timerInterval); // Limpieza absoluta de intervalos fantasmas
+            
+            currentRound = 1;
+            switchState(states.PREP);
+            timerInterval = setInterval(tick, 100);
+            requestWakeLock();
+            
+            ui.btnStart.innerText = "PAUSAR";
+            ui.btnStart.classList.replace('bg-red-600', 'bg-yellow-600');
+        }
 
+        function pauseRoutine() {
+            if (timerInterval) clearInterval(timerInterval);
+            currentState = states.PAUSED;
+            releaseWakeLock();
+            ui.status.innerText = "PAUSADO";
+            ui.status.style.color = "#a1a1aa";
+            ui.tStatus.innerText = "PAUSADO";
+            ui.btnStart.innerText = "REANUDAR";
+            ui.btnStart.classList.replace('bg-yellow-600', 'bg-red-600');
+        }
+
+        function resumeRoutine() {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            endTime = Date.now() + (timeLeft * 1000);
+            if (timerInterval) clearInterval(timerInterval);
+            timerInterval = setInterval(tick, 100);
+            requestWakeLock();
+            
+            if(ui.status.innerText === "PAUSADO") {
+                currentState = ui.ring.style.stroke === "rgb(239, 68, 68)" ? states.WORK : states.REST;
+            }
+            ui.btnStart.innerText = "PAUSAR";
+            ui.btnStart.classList.replace('bg-red-600', 'bg-yellow-600');
+        }
+
+        function toggleTimer(e) {
+            if (e) e.stopPropagation();
             if (currentState === states.DONE) {
-                currentRound = 1;
-                switchState(states.PREP);
-                if (timerInterval) clearInterval(timerInterval);
-                timerInterval = setInterval(tick, 100);
-                requestWakeLock();
-                ui.btnStart.innerText = "PAUSAR";
-                ui.btnStart.classList.replace('bg-red-600', 'bg-yellow-600');
+                startRoutine();
             } else if (currentState === states.PAUSED) {
-                endTime = Date.now() + (timeLeft * 1000);
-                if (timerInterval) clearInterval(timerInterval);
-                timerInterval = setInterval(tick, 100);
-                requestWakeLock();
-                if(ui.status.innerText === "PAUSADO") {
-                    currentState = ui.ring.style.stroke === "rgb(239, 68, 68)" ? states.WORK : states.REST;
-                }
-                ui.btnStart.innerText = "PAUSAR";
-                ui.btnStart.classList.replace('bg-red-600', 'bg-yellow-600');
+                resumeRoutine();
             } else {
-                if (timerInterval) clearInterval(timerInterval);
-                currentState = states.PAUSED;
-                releaseWakeLock();
-                ui.status.innerText = "PAUSADO";
-                ui.status.style.color = "#a1a1aa";
-                ui.tStatus.innerText = "PAUSADO";
-                ui.btnStart.innerText = "REANUDAR";
-                ui.btnStart.classList.replace('bg-yellow-600', 'bg-red-600');
+                pauseRoutine();
             }
         }
 
         ui.btnStart.addEventListener('click', toggleTimer);
-        
-        // Bloqueo estricto para evitar doble trigger fantasma en el semáforo
+
         let semaforoLock = false;
         ui.tView.addEventListener('click', (e) => {
             if (semaforoLock) return;
             semaforoLock = true;
-            setTimeout(() => { semaforoLock = false; }, 300); // 300ms de inmunidad contra toques dobles
+            setTimeout(() => { semaforoLock = false; }, 300);
             toggleTimer(e);
         });
 
@@ -516,17 +521,17 @@
             ui.tView.classList.remove('hidden');
         });
 
-        navBtns.settings.addEventListener('click', () => { openModal('settingsModal'); });
-        navBtns.roulette.addEventListener('click', () => { openModal('rouletteModal'); drawRoulette(); });
+        navBtns.settings.addEventListener('click', () => { document.getElementById('settingsModal').classList.remove('hidden'); });
+        navBtns.roulette.addEventListener('click', () => { document.getElementById('rouletteModal').classList.remove('hidden'); drawRoulette(); });
 
-        document.getElementById('btnCancelSettings').addEventListener('click', () => { closeModal('settingsModal'); });
-        document.getElementById('btnCloseRoulette').addEventListener('click', () => { closeModal('rouletteModal'); });
+        document.getElementById('btnCancelSettings').addEventListener('click', () => { closeAllModals(); });
+        document.getElementById('btnCloseRoulette').addEventListener('click', () => { closeAllModals(); });
         
         document.getElementById('btnCloseSettings').addEventListener('click', () => {
             config.work = parseTime(document.getElementById('inpWork').value);
             config.rest = parseTime(document.getElementById('inpRest').value);
             config.rounds = parseInt(document.getElementById('inpRounds').value);
-            closeModal('settingsModal');
+            closeAllModals();
             document.getElementById('btnReset').click();
         });
 
@@ -601,18 +606,18 @@
                 const angle = currentAngle + i * arc;
                 ctx.beginPath();
                 ctx.fillStyle = colors[i % colors.length];
-                ctx.moveTo(144, 144);
-                ctx.arc(144, 144, 140, angle, angle + arc);
+                ctx.moveTo(128, 128);
+                ctx.arc(128, 128, 124, angle, angle + arc);
                 ctx.fill();
                 ctx.save();
                 
-                ctx.translate(144 + Math.cos(angle + arc / 2) * 80, 144 + Math.sin(angle + arc / 2) * 80);
+                ctx.translate(128 + Math.cos(angle + arc / 2) * 75, 128 + Math.sin(angle + arc / 2) * 75);
                 ctx.rotate(angle + arc / 2);
                 ctx.fillStyle = "#fff";
-                ctx.font = "bold 16px 'Barlow Condensed'";
+                ctx.font = "bold 15px 'Barlow Condensed'";
                 ctx.textAlign = "center";
                 let text = items[i];
-                if(text.length > 15) text = text.substring(0,13)+"...";
+                if(text.length > 14) text = text.substring(0,12)+"...";
                 ctx.fillText(text, 0, 5);
                 ctx.restore();
             }
