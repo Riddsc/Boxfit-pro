@@ -33,7 +33,62 @@ jobs:
         npx cap add android
         npx cap sync android
 
-    - name: 5. Parchear conflicto de Kotlin (Duplicados)
+    - name: 5. Generar e Inyectar Ícono de Guantes de Boxeo (Android Launcher)
+      run: |
+        # 1. Crear carpeta para los recursos nativos
+        mkdir -p resources
+        
+        # 2. Escribir el diseño vectorial premium de BoxFit Pro
+        cat << 'EOF' > resources/icon.svg
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+          <!-- Fondo Oscuro de BoxFit -->
+          <rect width="512" height="512" rx="100" fill="#18181b"/>
+          <!-- Detalle de Fibra/Aura Neón -->
+          <circle cx="256" cy="256" r="220" fill="none" stroke="#ef4444" stroke-width="12" opacity="0.85"/>
+          <!-- Guantes de Boxeo Detallados en 3D -->
+          <g transform="translate(46, 50) scale(4.2)">
+            <!-- Guante Izquierdo -->
+            <path d="M40,30 C34,22 24,24 24,35 L23,45 C20,49 20,53 23,57 C26,60 30,59 34,55 L45,45 C50,38 46,30 40,30 Z" fill="url(#gGloveRed1)" filter="drop-shadow(0 0 6px rgba(239, 68, 68, 0.7))"/>
+            <path d="M20,43 C15,43 13,49 13,54 C13,59 17,59 20,57 C20,51 20,43 20,43 Z" fill="url(#gGloveRed1)"/>
+            
+            <!-- Guante Derecho -->
+            <path d="M50,30 C56,22 66,24 66,35 L67,45 C70,49 70,53 67,57 C64,60 60,59 56,55 L45,45 C40,38 44,30 50,30 Z" fill="url(#gGloveRed2)" filter="drop-shadow(0 0 6px rgba(239, 68, 68, 0.7))"/>
+            <path d="M70,43 C75,43 77,49 77,54 C77,59 73,59 70,57 C70,51 70,43 70,43 Z" fill="url(#gGloveRed2)"/>
+            
+            <!-- Costuras e hilos entrelazados -->
+            <path d="M45,45 L40,55 L45,58 L50,55 Z" fill="#ffffff" opacity="0.85"/>
+            <path d="M43,48 L47,53" stroke="#ffffff" stroke-width="1.5"/>
+            <path d="M47,48 L43,53" stroke="#ffffff" stroke-width="1.5"/>
+          </g>
+          <!-- Texto "BOXFIT PRO" en alta fidelidad tipográfica -->
+          <text x="256" y="440" font-family="'Barlow Condensed', 'Bebas Neue', 'Impact', sans-serif" font-size="52" fill="#ffffff" font-weight="900" text-anchor="middle" letter-spacing="4">BOXFIT PRO</text>
+          
+          <defs>
+            <linearGradient id="gGloveRed1" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#ef4444" />
+              <stop offset="100%" stop-color="#580404" />
+            </linearGradient>
+            <linearGradient id="gGloveRed2" x1="100%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#ef4444" />
+              <stop offset="100%" stop-color="#580404" />
+            </linearGradient>
+          </defs>
+        </svg>
+        EOF
+
+        # 3. Instalar convertidor SVG a PNG y Capacitor Assets
+        sudo apt-get update && sudo apt-get install -y librsvg2-bin
+        rsvg-convert -w 512 -h 512 resources/icon.svg -o resources/icon.png
+        rsvg-convert -w 512 -h 512 resources/icon.svg -o resources/icon-only.png
+        
+        # 4. Crear el archivo de fondo oscuro adaptativo
+        rsvg-convert -w 512 -h 512 resources/icon.svg -o resources/icon-foreground.png
+        
+        # 5. Instalar herramienta de íconos nativos y ejecutarla en el proyecto de Android
+        npm install -D @capacitor/assets
+        npx cap-assets generate --android --icon
+
+    - name: 6. Parchear conflicto de Kotlin (Duplicados)
       run: |
         cat <<EOF >> android/app/build.gradle
         
@@ -45,16 +100,16 @@ jobs:
         }
         EOF
 
-    - name: 6. Compilar el APK (Android Studio)
+    - name: 7. Compilar el APK (Android Studio)
       working-directory: ./android
       run: |
         chmod +x gradlew
         ./gradlew assembleDebug --stacktrace
 
-    - name: 7. Renombrar el archivo APK
+    - name: 8. Renombrar el archivo APK
       run: mv android/app/build/outputs/apk/debug/app-debug.apk android/app/build/outputs/apk/debug/BoxfitPro.apk
 
-    - name: 8. Subir el APK listo
+    - name: 9. Subir el APK listo
       uses: actions/upload-artifact@v4
       with:
         name: BoxfitPro-Instalador
