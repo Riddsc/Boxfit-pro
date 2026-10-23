@@ -2,895 +2,603 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <meta name="theme-color" content="#09090b">
-    <title>BoxFit Pro</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     
-    <!-- Tailwind CSS -->
+    <!-- Identidad de la App (Para el celular) -->
+    <title>Boxfit Pro</title>
+    <meta name="application-name" content="Boxfit Pro">
+    <meta name="apple-mobile-web-app-title" content="Boxfit Pro">
+    <meta name="theme-color" content="#18181b">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    
+    <!-- Ícono Integrado de Guantes de Boxeo (SVG Data URI) -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%2318181b'/><text x='50' y='72' font-size='65' text-anchor='middle'>🥊</text></svg>">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%2318181b'/><text x='50' y='72' font-size='65' text-anchor='middle'>🥊</text></svg>">
+
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700&display=swap" rel="stylesheet">
     
-    <!-- Google Fonts: Bebas Neue for massive timer, Inter for UI -->
-    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
-
-    <!-- Tailwind Configuration -->
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: { 
-                        sans: ['Inter', 'sans-serif'], 
-                        display: ['Bebas Neue', 'sans-serif'] 
-                    },
-                    colors: {
-                        appBg: '#09090b',       // Deep black
-                        appSurface: '#18181b',  // Dark gray
-                        neonYellow: '#eab308',
-                        neonRed: '#ef4444',
-                        neonGreen: '#22c55e'
-                    }
-                }
-            }
-        }
-    </script>
-
     <style>
-        /* Premium App Behavior */
-        body { 
-            -webkit-tap-highlight-color: transparent; 
+        body {
+            font-family: 'Barlow Condensed', sans-serif;
+            user-select: none;
             touch-action: manipulation;
-            background-color: #09090b;
+            -webkit-tap-highlight-color: transparent;
         }
-        .no-select { 
-            user-select: none; 
-            -webkit-user-select: none; 
-        }
+        .font-bebas { font-family: 'Bebas Neue', sans-serif; }
         
-        /* 30s Flash Animation */
-        @keyframes flash-30s {
-            0% { background-color: transparent; }
-            50% { background-color: rgba(234, 179, 8, 0.6); } /* Yellow pulse */
+        /* Animación del guante superior izquierdo */
+        .glove-glow {
+            filter: drop-shadow(0 0 8px rgba(220, 38, 38, 0.8));
+            animation: pulseGlow 2s infinite;
+        }
+        @keyframes pulseGlow {
+            0%, 100% { filter: drop-shadow(0 0 8px rgba(220, 38, 38, 0.6)); }
+            50% { filter: drop-shadow(0 0 15px rgba(220, 38, 38, 1)); }
+        }
+
+        /* Flash de alerta a los 30s */
+        .flash-warning {
+            animation: flashScreen 0.6s ease-out;
+        }
+        @keyframes flashScreen {
+            0% { background-color: #eab308; }
             100% { background-color: transparent; }
         }
-        .flash-active { animation: flash-30s 0.6s ease-in-out 3; }
 
-        /* SVG Circle Smooth Animation */
-        #progress-ring {
-            transition: stroke-dashoffset 0.1s linear, stroke 0.3s ease;
-        }
-
-        /* Hide Scrollbar */
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-
-        /* Glow effects */
-        .glow-red { text-shadow: 0 0 15px rgba(239, 68, 68, 0.6); }
-        .glow-yellow { text-shadow: 0 0 15px rgba(234, 179, 8, 0.6); }
-        .glow-green { text-shadow: 0 0 15px rgba(34, 197, 94, 0.6); }
-
-        /* Animación para el Guante Neón del Logo */
-        @keyframes neonPulse {
-            0% { filter: drop-shadow(0 0 8px rgba(239, 68, 68, 0.6)); transform: scale(1) rotate(-5deg); }
-            50% { filter: drop-shadow(0 0 20px rgba(239, 68, 68, 1)); transform: scale(1.08) rotate(5deg); }
-            100% { filter: drop-shadow(0 0 8px rgba(239, 68, 68, 0.6)); transform: scale(1) rotate(-5deg); }
-        }
-        .glove-glow {
-            animation: neonPulse 2.5s infinite ease-in-out;
-            transform-origin: center;
+        /* Anillo de progreso suave */
+        circle {
+            transition: stroke-dashoffset 0.1s linear;
         }
     </style>
 </head>
-<body class="text-white h-screen w-screen overflow-hidden flex flex-col font-sans relative no-select" id="app-body">
+<body class="bg-zinc-950 text-white h-screen w-screen overflow-hidden flex flex-col items-center justify-center relative">
 
-    <!-- AUDIO ELEMENTS -->
+    <!-- Audios en la nube de Google -->
     <audio id="bellSound" src="https://actions.google.com/sounds/v1/alarms/boxing_bell.ogg" preload="auto"></audio>
     <audio id="whistleSound" src="https://actions.google.com/sounds/v1/sports/referee_whistle.ogg" preload="auto"></audio>
 
-    <!-- FLASH OVERLAY -->
-    <div id="flash-overlay" class="absolute inset-0 pointer-events-none z-[60]"></div>
-
-    <!-- TOAST CONTAINER -->
-    <div id="toast-container" class="fixed top-8 left-1/2 transform -translate-x-1/2 z-[100] flex flex-col gap-2 w-[90%] max-w-sm pointer-events-none transition-all"></div>
-
-    <!-- TOP HEADER -->
-    <header class="absolute top-4 left-4 z-[60] pointer-events-none">
-        <div class="flex items-center gap-3 bg-zinc-900/90 backdrop-blur-md border border-zinc-800 rounded-full px-5 py-2.5 shadow-[0_0_20px_rgba(0,0,0,0.8)]">
-            <!-- Icono de Guante de Boxeo Vistoso SVG (Neón/Glow) -->
-            <svg class="glove-glow" width="38" height="38" viewBox="0 0 24 24" fill="url(#gloveGrad)" stroke="#fca5a5" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Logo Superior Izquierdo -->
+    <div class="absolute top-4 left-4 z-[60] pointer-events-none flex items-center bg-zinc-900/80 rounded-full pr-4 p-1 shadow-lg border border-zinc-800">
+        <div class="w-10 h-10 flex items-center justify-center glove-glow">
+            <svg viewBox="0 0 24 24" fill="url(#grad)" class="w-8 h-8">
                 <defs>
-                    <linearGradient id="gloveGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" stop-color="#ff4b4b" />
-                        <stop offset="50%" stop-color="#ef4444" />
-                        <stop offset="100%" stop-color="#991b1b" />
+                    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" style="stop-color:#ef4444;stop-opacity:1" />
+                        <stop offset="100%" style="stop-color:#991b1b;stop-opacity:1" />
                     </linearGradient>
                 </defs>
-                <!-- Glove body -->
-                <path d="M16 4h-4a5 5 0 0 0-5 5v2.5a5 5 0 0 0 1.5 3.5l1.5 1.5A3 3 0 0 1 11 19v1a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1v-1a3 3 0 0 1 1-2.5l1.5-1.5a5 5 0 0 0 1.5-3.5V9a5 5 0 0 0-5-5Z" />
-                <!-- Inner folds/details -->
-                <path d="M12 12a3 3 0 0 0 0-6" stroke="#991b1b" stroke-width="1.5"/>
-                <path d="M16 11h2.5a2 2 0 0 1 2 2v1.5a2 2 0 0 1-2 2h-1.5a2 2 0 0 1-2-2V11Z" fill="#b91c1c"/>
-                <!-- Wrist cuff -->
-                <path d="M9 19h8v3H9z" fill="#18181b" stroke="#fca5a5" stroke-width="1.5"/>
-                <line x1="11" y1="20.5" x2="15" y2="20.5" stroke="#fff" stroke-width="1.2"/>
+                <path d="M18,6C16.8,6 15.6,6.3 14.6,7L14.3,7.2C13.5,7.7 12.5,8 11.5,8H10C8.3,8 7,9.3 7,11V16C7,17.7 8.3,19 10,19H12.5C13.3,19 14.1,18.8 14.8,18.3L15.3,18C16,17.5 16.8,17.2 17.6,17.1L18.4,17C20.4,16.7 22,15 22,13V10C22,7.8 20.2,6 18,6M7,12H5C3.9,12 3,12.9 3,14V17C3,18.1 3.9,19 5,19H7V12Z" />
             </svg>
-            <h1 class="font-display text-3xl tracking-widest text-zinc-300 drop-shadow-md mt-1">BOXFIT<span class="text-neonRed glow-red">PRO</span></h1>
         </div>
-    </header>
+        <span class="font-bebas text-2xl tracking-wider ml-1 text-zinc-100">BOXFIT PRO</span>
+    </div>
 
-    <!-- ============================================== -->
-    <!-- VIEW: CLASSIC TIMER                            -->
-    <!-- ============================================== -->
-    <main id="view-classic" class="flex-1 flex flex-col items-center justify-center relative z-10 p-4 w-full h-full pb-24 transition-opacity duration-300">
-        
-        <!-- Status Badge -->
-        <div id="status-badge" class="px-8 py-2 rounded-full font-sans font-black text-xl uppercase tracking-[0.2em] bg-zinc-800 text-zinc-400 border border-zinc-700 mb-4 transition-colors">
-            PREPARACIÓN
-        </div>
-        
-        <p class="text-2xl font-display text-zinc-400 tracking-wider mb-8">
-            ROUND <span id="current-round-text" class="text-white text-3xl">1</span> <span class="mx-1">/</span> <span id="total-rounds-text">12</span>
-        </p>
+    <!-- Contenedor del Flash y Semáforo -->
+    <div id="screenOverlay" class="absolute inset-0 z-0 transition-colors duration-300 pointer-events-none"></div>
 
-        <!-- SVG Circular Timer -->
-        <div class="relative w-[320px] h-[320px] md:w-[450px] md:h-[450px] flex items-center justify-center mb-8">
-            <svg class="absolute inset-0 w-full h-full -rotate-90 drop-shadow-2xl" viewBox="0 0 100 100">
-                <circle cx="50" cy="50" r="46" fill="none" stroke="#18181b" stroke-width="4"></circle>
-                <!-- Circumference = 2 * PI * 46 = 289.02 -->
-                <circle id="progress-ring" cx="50" cy="50" r="46" fill="none" stroke="#22c55e" stroke-width="4" stroke-dasharray="289" stroke-dashoffset="0" stroke-linecap="round"></circle>
+    <!-- PANTALLA PRINCIPAL (Temporizador Clásico) -->
+    <main id="mainView" class="z-10 flex flex-col items-center justify-center w-full h-full pb-20">
+        <!-- Indicador de Estado -->
+        <div id="statusText" class="text-4xl font-bold uppercase tracking-widest text-zinc-400 mb-2">Preparado</div>
+        
+        <!-- Timer y Anillo -->
+        <div class="relative w-72 h-72 flex items-center justify-center mb-6">
+            <svg class="absolute inset-0 w-full h-full transform -rotate-90">
+                <circle cx="144" cy="144" r="135" stroke="#27272a" stroke-width="12" fill="none" />
+                <circle id="progressRing" cx="144" cy="144" r="135" stroke="#ef4444" stroke-width="12" fill="none" stroke-linecap="round" 
+                        stroke-dasharray="848" stroke-dashoffset="0" />
             </svg>
-            <div id="timer-display" class="font-display text-[7rem] md:text-[10rem] tabular-nums tracking-normal z-10 text-center leading-none mt-4 glow-green">
-                00:00
-            </div>
+            <div id="timeDisplay" class="font-bebas text-9xl tracking-tight relative z-10 drop-shadow-md">00:00</div>
+        </div>
+        
+        <!-- Rondas -->
+        <div class="text-2xl text-zinc-400 font-semibold bg-zinc-900 px-6 py-2 rounded-full mb-8">
+            ROUND <span id="currentRoundDisplay" class="text-white">1</span> / <span id="totalRoundsDisplay">3</span>
         </div>
 
-        <!-- Main Controls -->
-        <div class="flex gap-4 w-full max-w-sm px-4">
-            <button id="btn-start" class="flex-1 py-5 bg-neonRed text-white font-black text-2xl rounded-2xl uppercase tracking-widest hover:bg-red-400 active:scale-95 transition-transform shadow-[0_0_20px_rgba(239,68,68,0.4)]">
-                INICIAR
-            </button>
-            <button id="btn-pause" class="hidden flex-1 py-5 bg-zinc-800 text-white font-black text-2xl rounded-2xl uppercase tracking-widest hover:bg-zinc-700 active:scale-95 transition-transform shadow-lg border border-zinc-700">
-                PAUSA
-            </button>
-            <button id="btn-reset" class="hidden w-20 bg-zinc-800 text-zinc-400 rounded-2xl flex items-center justify-center hover:text-white active:scale-95 transition-transform shadow-lg border border-zinc-700">
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
-            </button>
+        <!-- Controles Principales -->
+        <div class="flex gap-4">
+            <button id="btnStart" class="bg-red-600 hover:bg-red-500 text-white font-bebas text-4xl px-12 py-4 rounded-2xl shadow-[0_0_20px_rgba(220,38,38,0.4)] transition-all">INICIAR</button>
+            <button id="btnReset" class="bg-zinc-800 hover:bg-zinc-700 text-white font-bebas text-4xl px-8 py-4 rounded-2xl transition-all">↻</button>
         </div>
     </main>
 
-    <!-- ============================================== -->
-    <!-- VIEW: TRAFFIC LIGHT (SEMÁFORO)                 -->
-    <!-- ============================================== -->
-    <main id="view-traffic" class="hidden absolute inset-0 z-30 flex flex-col items-center justify-center cursor-pointer transition-colors duration-300 bg-appBg">
-        <div id="traffic-status-text" class="font-sans font-black text-3xl md:text-5xl uppercase tracking-[0.3em] text-black/50 mb-6 text-center px-4">
-            TOQUE PARA INICIAR
+    <!-- MODO SEMÁFORO (Pantalla Completa) -->
+    <div id="trafficLightView" class="hidden absolute inset-0 z-50 flex flex-col items-center justify-center cursor-pointer transition-colors duration-200">
+        <div id="trafficStatus" class="font-bebas text-5xl opacity-80 mb-4">LISTO</div>
+        <div id="trafficTime" class="font-bebas text-[15rem] leading-none tracking-tighter drop-shadow-lg">00:00</div>
+        <div class="mt-8 text-3xl font-bold bg-black/30 px-8 py-3 rounded-full">
+            ROUND <span id="trafficRound">1</span>/<span id="trafficTotal">3</span>
         </div>
-        <div id="traffic-timer-display" class="font-display text-[12rem] md:text-[20rem] leading-none tabular-nums text-white drop-shadow-[0_10px_30px_rgba(0,0,0,0.5)]">
-            00:00
-        </div>
-        <div id="traffic-round-indicator" class="font-display text-4xl md:text-6xl text-black/40 mt-6 tracking-widest">
-            ROUND 1/12
-        </div>
-    </main>
+    </div>
 
-    <!-- ============================================== -->
-    <!-- BOTTOM NAVIGATION                              -->
-    <!-- ============================================== -->
-    <nav class="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50 bg-appSurface/90 backdrop-blur-md border border-zinc-800 rounded-full flex gap-2 p-2 shadow-2xl">
-        <button id="nav-classic" class="p-4 rounded-full bg-zinc-700 text-white transition-colors" title="Clásico">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+    <!-- NAVEGACIÓN INFERIOR (Glassmorphism) -->
+    <nav class="absolute bottom-6 z-40 bg-zinc-900/80 backdrop-blur-md px-6 py-3 rounded-full flex gap-8 border border-zinc-800 shadow-2xl">
+        <button id="navTimer" class="text-red-500 flex flex-col items-center p-2">
+            <span class="text-2xl">⏱</span>
+            <span class="text-xs font-bold mt-1">TIMER</span>
         </button>
-        <button id="nav-traffic" class="p-4 rounded-full text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors" title="Semáforo">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="4"/><circle cx="12" cy="7" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="17" r="2"/></svg>
+        <button id="navTraffic" class="text-zinc-500 hover:text-white flex flex-col items-center p-2 transition-colors">
+            <span class="text-2xl">🚦</span>
+            <span class="text-xs font-bold mt-1">SEMÁFORO</span>
         </button>
-        <div class="w-px bg-zinc-700 mx-2 my-2"></div> <!-- Separator -->
-        <button id="nav-roulette" class="p-4 rounded-full text-neonYellow hover:text-yellow-300 hover:bg-zinc-800 transition-colors" title="Ruletas">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20"/><path d="M2 12h20"/><circle cx="12" cy="12" r="10"/><path d="m4.9 4.9 14.2 14.2"/><path d="m4.9 19.1 14.2-14.2"/></svg>
+        <button id="navRoulette" class="text-zinc-500 hover:text-white flex flex-col items-center p-2 transition-colors">
+            <span class="text-2xl">🎡</span>
+            <span class="text-xs font-bold mt-1">RULETAS</span>
         </button>
-        <button id="nav-settings" class="p-4 rounded-full text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors" title="Ajustes">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+        <button id="navSettings" class="text-zinc-500 hover:text-white flex flex-col items-center p-2 transition-colors">
+            <span class="text-2xl">⚙️</span>
+            <span class="text-xs font-bold mt-1">AJUSTES</span>
         </button>
     </nav>
 
-    <!-- ============================================== -->
-    <!-- MODAL: SETTINGS & PRESETS                      -->
-    <!-- ============================================== -->
-    <div id="modal-settings" class="hidden absolute inset-0 bg-appBg/95 z-[70] flex flex-col items-center pt-12 px-4 backdrop-blur-xl overflow-y-auto">
-        <div class="w-full max-w-md bg-appSurface border border-zinc-800 rounded-3xl p-6 shadow-2xl mb-24 mt-auto mb-auto relative">
-            
-            <button id="btn-close-settings" class="absolute top-6 right-6 text-zinc-500 hover:text-white active:scale-90 transition">
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-            </button>
-            
-            <h2 class="text-3xl font-display tracking-widest text-white mb-8">CONFIGURACIÓN</h2>
-
-            <!-- Quick Presets -->
-            <div class="mb-8">
-                <label class="block text-zinc-500 font-bold mb-3 uppercase text-xs tracking-[0.2em]">Perfiles Rápidos</label>
-                <div class="grid grid-cols-2 gap-3">
-                    <button onclick="applyPreset(3, 180, 60)" class="bg-zinc-800/50 hover:bg-zinc-700 border border-zinc-700 rounded-2xl py-3 text-sm font-bold text-white transition active:scale-95 text-center">
-                        <span class="block text-neonYellow">AMATEUR</span>3x3m
-                    </button>
-                    <button onclick="applyPreset(12, 180, 60)" class="bg-zinc-800/50 hover:bg-zinc-700 border border-zinc-700 rounded-2xl py-3 text-sm font-bold text-white transition active:scale-95 text-center">
-                        <span class="block text-neonRed">PRO</span>12x3m
-                    </button>
-                    <button onclick="applyPreset(3, 300, 60)" class="bg-zinc-800/50 hover:bg-zinc-700 border border-zinc-700 rounded-2xl py-3 text-sm font-bold text-white transition active:scale-95 text-center">
-                        <span class="block text-white">MMA</span>3x5m
-                    </button>
-                    <button onclick="applyPreset(8, 20, 10)" class="bg-zinc-800/50 hover:bg-zinc-700 border border-zinc-700 rounded-2xl py-3 text-sm font-bold text-white transition active:scale-95 text-center">
-                        <span class="block text-neonGreen">TABATA</span>8x20s
-                    </button>
-                </div>
+    <!-- MODAL AJUSTES -->
+    <div id="settingsModal" class="hidden absolute inset-0 z-[70] bg-zinc-950/95 backdrop-blur-sm flex flex-col p-6 items-center pt-24">
+        <h2 class="font-bebas text-5xl text-white mb-6">AJUSTES DE RUTINA</h2>
+        
+        <div class="w-full max-w-md bg-zinc-900 rounded-2xl p-6 border border-zinc-800 mb-6 shadow-xl">
+            <h3 class="text-xl text-zinc-400 mb-4 font-bold">PERFILES RÁPIDOS</h3>
+            <div class="grid grid-cols-2 gap-3 mb-6">
+                <button class="preset-btn bg-zinc-800 hover:bg-red-600 text-white py-3 rounded-lg font-bold transition-colors" data-w="180" data-r="60" data-rd="3">AMATEUR (3x3)</button>
+                <button class="preset-btn bg-zinc-800 hover:bg-red-600 text-white py-3 rounded-lg font-bold transition-colors" data-w="180" data-r="60" data-rd="12">PRO (12x3)</button>
+                <button class="preset-btn bg-zinc-800 hover:bg-red-600 text-white py-3 rounded-lg font-bold transition-colors" data-w="300" data-r="60" data-rd="5">MMA (5x5)</button>
+                <button class="preset-btn bg-zinc-800 hover:bg-red-600 text-white py-3 rounded-lg font-bold transition-colors" data-w="20" data-r="10" data-rd="8">TABATA (8x20s)</button>
             </div>
 
-            <!-- Manual Settings -->
             <div class="space-y-4">
-                <div class="bg-zinc-900 p-4 rounded-2xl border border-zinc-800 flex justify-between items-center">
-                    <label class="text-zinc-400 font-bold uppercase text-xs tracking-widest">Rounds</label>
-                    <div class="flex items-center gap-4">
-                        <button onclick="adjustSetting('rounds', -1)" class="w-12 h-12 bg-zinc-800 rounded-full text-2xl font-bold active:scale-90">-</button>
-                        <span id="set-rounds" class="text-3xl font-display w-12 text-center text-white">12</span>
-                        <button onclick="adjustSetting('rounds', 1)" class="w-12 h-12 bg-zinc-800 rounded-full text-2xl font-bold active:scale-90">+</button>
-                    </div>
+                <div class="flex justify-between items-center">
+                    <label class="font-bold text-lg text-zinc-300">Tiempo de Round (min:seg)</label>
+                    <input type="text" id="inpWork" value="03:00" class="w-24 bg-zinc-800 text-center text-xl font-bold py-1 rounded text-white border border-zinc-700">
                 </div>
-                <div class="bg-zinc-900 p-4 rounded-2xl border border-zinc-800 flex justify-between items-center">
-                    <label class="text-neonGreen font-bold uppercase text-xs tracking-widest">Trabajo</label>
-                    <div class="flex items-center gap-4">
-                        <button onclick="adjustSetting('work', -15)" class="w-12 h-12 bg-zinc-800 rounded-full text-2xl font-bold active:scale-90">-</button>
-                        <span id="set-work" class="text-3xl font-display w-20 text-center text-white">03:00</span>
-                        <button onclick="adjustSetting('work', 15)" class="w-12 h-12 bg-zinc-800 rounded-full text-2xl font-bold active:scale-90">+</button>
-                    </div>
+                <div class="flex justify-between items-center">
+                    <label class="font-bold text-lg text-zinc-300">Descanso (min:seg)</label>
+                    <input type="text" id="inpRest" value="01:00" class="w-24 bg-zinc-800 text-center text-xl font-bold py-1 rounded text-white border border-zinc-700">
                 </div>
-                <div class="bg-zinc-900 p-4 rounded-2xl border border-zinc-800 flex justify-between items-center">
-                    <label class="text-neonRed font-bold uppercase text-xs tracking-widest">Descanso</label>
-                    <div class="flex items-center gap-4">
-                        <button onclick="adjustSetting('rest', -5)" class="w-12 h-12 bg-zinc-800 rounded-full text-2xl font-bold active:scale-90">-</button>
-                        <span id="set-rest" class="text-3xl font-display w-20 text-center text-white">01:00</span>
-                        <button onclick="adjustSetting('rest', 5)" class="w-12 h-12 bg-zinc-800 rounded-full text-2xl font-bold active:scale-90">+</button>
-                    </div>
+                <div class="flex justify-between items-center">
+                    <label class="font-bold text-lg text-zinc-300">Total de Rounds</label>
+                    <input type="number" id="inpRounds" value="3" min="1" max="50" class="w-24 bg-zinc-800 text-center text-xl font-bold py-1 rounded text-white border border-zinc-700">
                 </div>
             </div>
-            
-            <button id="btn-save-settings" class="w-full mt-8 py-5 bg-white text-black font-black text-xl rounded-2xl uppercase tracking-[0.2em] hover:bg-zinc-200 active:scale-95 transition-transform shadow-[0_0_20px_rgba(255,255,255,0.2)]">
-                GUARDAR
-            </button>
         </div>
+        <button id="btnCloseSettings" class="bg-red-600 text-white font-bebas text-3xl px-12 py-3 rounded-xl shadow-lg">GUARDAR Y CERRAR</button>
     </div>
 
-    <!-- ============================================== -->
-    <!-- MODAL: DOUBLE ROULETTE                         -->
-    <!-- ============================================== -->
-    <div id="modal-roulette" class="hidden absolute inset-0 bg-appBg/95 z-[70] flex flex-col items-center pt-8 px-4 backdrop-blur-xl">
-        <div class="w-full max-w-2xl bg-appSurface border border-zinc-800 rounded-3xl flex flex-col overflow-hidden max-h-[85vh] shadow-2xl relative">
-            
-            <button id="btn-close-roulette" class="absolute top-4 right-4 z-10 p-2 bg-zinc-900/80 rounded-full text-zinc-400 hover:text-white active:scale-90 transition">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-            </button>
-
-            <!-- Tabs -->
-            <div class="flex bg-zinc-900 border-b border-zinc-800">
-                <button id="tab-sparring" class="flex-1 py-4 font-sans font-black text-sm uppercase tracking-widest text-neonYellow border-b-4 border-neonYellow bg-appSurface transition">Sparring</button>
-                <button id="tab-penitencia" class="flex-1 py-4 font-sans font-black text-sm uppercase tracking-widest text-zinc-500 border-b-4 border-transparent hover:text-neonRed transition">Penitencias</button>
-            </div>
-
-            <div class="p-6 flex flex-col md:flex-row gap-8 overflow-y-auto no-scrollbar">
-                
-                <!-- Canvas Area -->
-                <div class="flex-1 flex flex-col items-center justify-center">
-                    <div class="relative w-[280px] h-[280px] mb-6">
-                        <canvas id="roulette-canvas" width="300" height="300" class="w-full h-full drop-shadow-[0_0_15px_rgba(255,255,255,0.05)]"></canvas>
-                        <!-- Pointer -->
-                        <div class="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-2 text-white drop-shadow-lg z-10 rotate-180">
-                            <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L22 20H2L12 2Z"/></svg>
-                        </div>
-                    </div>
-                    <button id="btn-spin" class="w-full max-w-[220px] py-4 bg-neonYellow text-black font-black text-xl rounded-2xl uppercase tracking-widest hover:bg-yellow-300 active:scale-95 transition-transform shadow-[0_0_20px_rgba(234,179,8,0.4)]">
-                        ¡GIRAR!
-                    </button>
-                </div>
-
-                <!-- List Area -->
-                <div class="flex-1 flex flex-col h-[320px] md:border-l border-zinc-800 md:pl-8">
-                    <div class="flex gap-2 mb-4">
-                        <input type="text" id="new-item-input" placeholder="Añadir..." class="flex-1 bg-zinc-900 border border-zinc-700 text-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-neonYellow transition-colors placeholder-zinc-600 font-semibold">
-                        <button id="btn-add-item" class="bg-zinc-800 hover:bg-zinc-700 text-white font-bold py-3 px-5 rounded-xl transition-colors active:scale-95">+</button>
-                    </div>
-                    
-                    <div class="flex-1 bg-zinc-900/50 rounded-xl p-2 border border-zinc-800 overflow-hidden relative">
-                        <ul id="items-list" class="h-full overflow-y-auto pr-1 space-y-2 no-scrollbar absolute inset-2">
-                            <!-- Injected by JS -->
-                        </ul>
-                    </div>
-                </div>
-            </div>
+    <!-- MODAL RULETAS -->
+    <div id="rouletteModal" class="hidden absolute inset-0 z-[70] bg-zinc-950/95 backdrop-blur-sm flex flex-col p-4 items-center pt-20">
+        <!-- Pestañas -->
+        <div class="flex bg-zinc-900 rounded-full p-1 mb-4">
+            <button id="tabSparring" class="px-6 py-2 rounded-full font-bold text-white bg-blue-600 transition-colors">SPARRING</button>
+            <button id="tabPenitencia" class="px-6 py-2 rounded-full font-bold text-zinc-400 transition-colors">PENITENCIA</button>
         </div>
+
+        <!-- Ruleta Visual -->
+        <div class="relative w-72 h-72 mb-6">
+            <canvas id="rouletteCanvas" width="288" height="288" class="w-full h-full rounded-full shadow-2xl border-4 border-zinc-800"></canvas>
+            <div class="absolute top-0 left-1/2 -translate-x-1/2 -mt-2 w-0 h-0 border-l-[15px] border-r-[15px] border-t-[25px] border-l-transparent border-r-transparent border-t-white z-10 drop-shadow-md"></div>
+            <button id="btnSpin" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 bg-zinc-900 text-white rounded-full font-bebas text-2xl border-2 border-zinc-700 shadow-lg z-10">GIRAR</button>
+        </div>
+
+        <!-- Resultado -->
+        <div id="rouletteResult" class="font-bebas text-4xl text-center min-h-[40px] text-white mb-4 drop-shadow-md"></div>
+
+        <!-- Gestión de Lista -->
+        <div class="w-full max-w-sm bg-zinc-900 rounded-xl p-4 flex flex-col gap-2">
+            <div class="flex gap-2">
+                <input type="text" id="inpRouletteItem" placeholder="Añadir opción..." class="flex-1 bg-zinc-800 rounded px-3 text-white border border-zinc-700">
+                <button id="btnAddItem" class="bg-zinc-700 px-4 py-2 rounded font-bold hover:bg-zinc-600">+</button>
+            </div>
+            <div id="rouletteList" class="max-h-32 overflow-y-auto mt-2 space-y-1"></div>
+        </div>
+
+        <button id="btnCloseRoulette" class="mt-auto mb-4 bg-zinc-800 text-white font-bebas text-2xl px-8 py-2 rounded-xl">VOLVER</button>
     </div>
 
     <script>
-        // ==========================================
-        // 1. UTILS & AUDIO
-        // ==========================================
-        function formatTime(seconds) {
-            const m = Math.floor(seconds / 60);
-            const s = seconds % 60;
-            return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
-        }
+        // --- AUDIOS ---
+        const bell = document.getElementById('bellSound');
+        const whistle = document.getElementById('whistleSound');
+        let audioInitialized = false;
 
-        function showToast(message, type = 'normal') {
-            const container = document.getElementById('toast-container');
-            const toast = document.createElement('div');
-            
-            let bg = 'bg-zinc-800';
-            let text = 'text-white';
-            if (type === 'success') { bg = 'bg-neonGreen'; text = 'text-black'; }
-            if (type === 'warning') { bg = 'bg-neonYellow'; text = 'text-black'; }
-            if (type === 'danger') { bg = 'bg-neonRed'; text = 'text-white'; }
-
-            toast.className = `${bg} ${text} px-6 py-3 rounded-xl shadow-2xl font-bold text-center border border-white/10 uppercase tracking-widest text-sm transition-all transform translate-y-[-20px] opacity-0`;
-            toast.innerText = message;
-            
-            container.appendChild(toast);
-            
-            // Animate in
-            requestAnimationFrame(() => {
-                toast.classList.remove('translate-y-[-20px]', 'opacity-0');
-                toast.classList.add('translate-y-0', 'opacity-100');
-            });
-            
-            // Animate out
-            setTimeout(() => {
-                toast.classList.remove('translate-y-0', 'opacity-100');
-                toast.classList.add('translate-y-[-20px]', 'opacity-0');
-                setTimeout(() => toast.remove(), 300);
-            }, 2500);
-        }
-
-        // Play audio directly using the standard file names requested
-        function playBell() {
-            const bell = document.getElementById('bellSound');
-            bell.currentTime = 0;
-            bell.play().catch(e => console.log("Bell audio not ready or missing.", e));
-        }
-
-        function playWhistle() {
-            const whistle = document.getElementById('whistleSound');
-            whistle.currentTime = 0;
-            whistle.play().catch(e => console.log("Whistle audio not ready or missing.", e));
-        }
-
-        // ==========================================
-        // 2. STATE MACHINE & TIMER LOGIC
-        // ==========================================
-        const STATE = { PREP: 'PREP', WORK: 'WORK', REST: 'REST', PAUSED: 'PAUSED', FINISHED: 'FINISHED' };
-        
-        let config = { rounds: 12, workSeconds: 180, restSeconds: 60, prepSeconds: 5 };
-        let timerState = STATE.PREP;
+        // --- ESTADO DEL TIMER ---
+        const states = { PREP: 'prep', WORK: 'work', REST: 'rest', DONE: 'done', PAUSED: 'paused' };
+        let currentState = states.DONE;
+        let config = { work: 180, rest: 60, rounds: 3 };
+        let timeLeft = 0;
         let currentRound = 1;
-        
-        let targetTime = 0; 
-        let remainingSeconds = config.prepSeconds; // Start in prep mode
         let timerInterval = null;
-        let alert30sPlayed = false;
-        
-        let isTrafficMode = false; 
+        let endTime = 0;
+        let thirtySecPlayed = false;
 
-        // DOM Elements Timer
-        const elTimerClassic = document.getElementById('timer-display');
-        const elTimerTraffic = document.getElementById('traffic-timer-display');
-        const elRoundClassic = document.getElementById('current-round-text');
-        const elRoundTraffic = document.getElementById('traffic-round-indicator');
-        const elTotalRounds = document.getElementById('total-rounds-text');
-        const elStatusBadge = document.getElementById('status-badge');
-        const elStatusTraffic = document.getElementById('traffic-status-text');
-        const progressRing = document.getElementById('progress-ring');
-        const ringCircumference = 289.02; // 2 * PI * 46
-        
-        const viewClassic = document.getElementById('view-classic');
-        const viewTraffic = document.getElementById('view-traffic');
-        const flashOverlay = document.getElementById('flash-overlay');
+        // --- ELEMENTOS UI ---
+        const ui = {
+            time: document.getElementById('timeDisplay'),
+            status: document.getElementById('statusText'),
+            round: document.getElementById('currentRoundDisplay'),
+            total: document.getElementById('totalRoundsDisplay'),
+            ring: document.getElementById('progressRing'),
+            btnStart: document.getElementById('btnStart'),
+            overlay: document.getElementById('screenOverlay'),
+            tView: document.getElementById('trafficLightView'),
+            tTime: document.getElementById('trafficTime'),
+            tStatus: document.getElementById('trafficStatus'),
+            tRound: document.getElementById('trafficRound')
+        };
+
+        const RING_CIRCUMFERENCE = 848;
+
+        // --- LÓGICA DEL TIMER ---
+        function formatTime(sec) {
+            let m = Math.floor(sec / 60).toString().padStart(2, '0');
+            let s = (sec % 60).toString().padStart(2, '0');
+            return `${m}:${s}`;
+        }
+
+        function parseTime(str) {
+            let pts = str.split(':');
+            return (parseInt(pts[0]) * 60) + parseInt(pts[1]);
+        }
+
+        function playSound(audioEl) {
+            if(!audioInitialized) return;
+            audioEl.currentTime = 0;
+            audioEl.play().catch(e => console.log("Audio no pudo reproducirse", e));
+        }
+
+        function triggerFlash() {
+            ui.overlay.classList.remove('flash-warning');
+            void ui.overlay.offsetWidth; // Restart anim
+            ui.overlay.classList.add('flash-warning');
+        }
 
         function updateUI() {
-            const timeStr = formatTime(remainingSeconds);
-            elTimerClassic.textContent = timeStr;
-            elTimerTraffic.textContent = timeStr;
-            
-            elRoundClassic.textContent = currentRound;
-            elTotalRounds.textContent = config.rounds;
-            elRoundTraffic.textContent = `ROUND ${currentRound}/${config.rounds}`;
+            const timeStr = formatTime(timeLeft);
+            ui.time.innerText = timeStr;
+            ui.tTime.innerText = timeStr;
+            ui.round.innerText = currentRound;
+            ui.tRound.innerText = currentRound;
+            ui.total.innerText = config.rounds;
+            document.getElementById('trafficTotal').innerText = config.rounds;
 
-            // Calculate Progress Phase Total
-            let totalPhase = config.prepSeconds;
-            if (timerState === STATE.WORK) totalPhase = config.workSeconds;
-            if (timerState === STATE.REST) totalPhase = config.restSeconds;
+            let maxTime = (currentState === states.WORK) ? config.work : (currentState === states.REST ? config.rest : 5);
+            let progress = 1 - (timeLeft / maxTime);
+            ui.ring.style.strokeDashoffset = RING_CIRCUMFERENCE * progress;
 
-            const percent = remainingSeconds / totalPhase;
-            const offset = ringCircumference - (percent * ringCircumference);
-            progressRing.style.strokeDashoffset = isNaN(offset) ? 0 : offset;
-
-            // Handle Views Toggle
-            if (isTrafficMode) {
-                viewClassic.classList.add('hidden');
-                viewTraffic.classList.remove('hidden');
-            } else {
-                viewTraffic.classList.add('hidden');
-                viewClassic.classList.remove('hidden');
-            }
-
-            // State specific UI
-            const btnStart = document.getElementById('btn-start');
-            const btnPause = document.getElementById('btn-pause');
-            const btnReset = document.getElementById('btn-reset');
-
-            switch (timerState) {
-                case STATE.PREP:
-                    elStatusBadge.textContent = "PREPARACIÓN";
-                    elStatusBadge.className = "px-8 py-2 rounded-full font-sans font-black text-xl uppercase tracking-[0.2em] bg-zinc-800 text-zinc-400 border border-zinc-700 mb-4 transition-colors";
-                    elTimerClassic.className = "font-display text-[7rem] md:text-[10rem] tabular-nums tracking-normal z-10 text-center leading-none mt-4 text-zinc-400";
-                    progressRing.setAttribute('stroke', '#71717a');
-                    
-                    if (isTrafficMode) {
-                        viewTraffic.className = "absolute inset-0 z-30 flex flex-col items-center justify-center cursor-pointer transition-colors duration-300 bg-appBg";
-                        elStatusTraffic.textContent = "LISTOS...";
-                    }
-                    
-                    if(targetTime === 0) { // Idle state essentially
-                        btnStart.classList.remove('hidden');
-                        btnStart.textContent = "INICIAR";
-                        btnStart.className = "flex-1 py-5 bg-neonRed text-white font-black text-2xl rounded-2xl uppercase tracking-widest hover:bg-red-400 active:scale-95 transition-transform shadow-[0_0_20px_rgba(239,68,68,0.4)]";
-                        btnPause.classList.add('hidden');
-                        btnReset.classList.add('hidden');
-                    } else { // Prep running
-                        btnStart.classList.add('hidden');
-                        btnPause.classList.remove('hidden');
-                        btnReset.classList.remove('hidden');
-                    }
-                    break;
-                    
-                case STATE.WORK:
-                    elStatusBadge.textContent = "FIGHT";
-                    elStatusBadge.className = "px-8 py-2 rounded-full font-sans font-black text-xl uppercase tracking-[0.2em] bg-neonGreen text-black mb-4 transition-colors shadow-[0_0_15px_rgba(34,197,94,0.4)]";
-                    progressRing.setAttribute('stroke', '#22c55e');
-                    
-                    if (remainingSeconds <= 30) {
-                        elTimerClassic.className = "font-display text-[7rem] md:text-[10rem] tabular-nums tracking-normal z-10 text-center leading-none mt-4 text-neonYellow glow-yellow";
-                        progressRing.setAttribute('stroke', '#eab308');
-                        if (isTrafficMode) {
-                            viewTraffic.className = "absolute inset-0 z-30 flex flex-col items-center justify-center cursor-pointer transition-colors duration-300 bg-neonYellow";
-                            elStatusTraffic.textContent = "¡30 SEGUNDOS!";
-                            elStatusTraffic.classList.add('text-black');
-                            elTimerTraffic.classList.replace('text-white', 'text-black');
-                        }
-                    } else {
-                        elTimerClassic.className = "font-display text-[7rem] md:text-[10rem] tabular-nums tracking-normal z-10 text-center leading-none mt-4 text-neonGreen glow-green";
-                        if (isTrafficMode) {
-                            viewTraffic.className = "absolute inset-0 z-30 flex flex-col items-center justify-center cursor-pointer transition-colors duration-300 bg-neonGreen";
-                            elStatusTraffic.textContent = "TRABAJO";
-                            elStatusTraffic.classList.replace('text-black', 'text-black/50');
-                            elTimerTraffic.classList.replace('text-black', 'text-white');
-                        }
-                    }
-
-                    btnStart.classList.add('hidden');
-                    btnPause.classList.remove('hidden');
-                    btnReset.classList.remove('hidden');
-                    break;
-                    
-                case STATE.REST:
-                    elStatusBadge.textContent = "DESCANSO";
-                    elStatusBadge.className = "px-8 py-2 rounded-full font-sans font-black text-xl uppercase tracking-[0.2em] bg-neonRed text-white mb-4 transition-colors shadow-[0_0_15px_rgba(239,68,68,0.4)]";
-                    elTimerClassic.className = "font-display text-[7rem] md:text-[10rem] tabular-nums tracking-normal z-10 text-center leading-none mt-4 text-neonRed glow-red";
-                    progressRing.setAttribute('stroke', '#ef4444');
-                    
-                    if (isTrafficMode) {
-                        viewTraffic.className = "absolute inset-0 z-30 flex flex-col items-center justify-center cursor-pointer transition-colors duration-300 bg-neonRed";
-                        elStatusTraffic.textContent = "DESCANSO";
-                        elStatusTraffic.classList.replace('text-black', 'text-white/50');
-                        elTimerTraffic.classList.replace('text-black', 'text-white');
-                    }
-                    break;
-                    
-                case STATE.PAUSED:
-                    elStatusBadge.textContent = "PAUSADO";
-                    elStatusBadge.className = "px-8 py-2 rounded-full font-sans font-black text-xl uppercase tracking-[0.2em] bg-zinc-700 text-white mb-4 transition-colors";
-                    
-                    if (isTrafficMode) {
-                        viewTraffic.className = "absolute inset-0 z-30 flex flex-col items-center justify-center cursor-pointer transition-colors duration-300 bg-appBg";
-                        elStatusTraffic.textContent = "PAUSADO - TOQUE";
-                        elStatusTraffic.classList.replace('text-black', 'text-white/50');
-                        elTimerTraffic.classList.replace('text-black', 'text-white');
-                    }
-                    btnStart.classList.remove('hidden');
-                    btnStart.textContent = "REANUDAR";
-                    btnStart.className = "flex-1 py-5 bg-white text-black font-black text-2xl rounded-2xl uppercase tracking-widest hover:bg-zinc-200 active:scale-95 transition-transform shadow-lg";
-                    btnPause.classList.add('hidden');
-                    break;
-
-                case STATE.FINISHED:
-                    elStatusBadge.textContent = "COMPLETADO";
-                    elStatusBadge.className = "px-8 py-2 rounded-full font-sans font-black text-xl uppercase tracking-[0.2em] bg-indigo-600 text-white mb-4 transition-colors glow-indigo";
-                    elTimerClassic.className = "font-display text-[7rem] md:text-[10rem] tabular-nums tracking-normal z-10 text-center leading-none mt-4 text-white";
-                    progressRing.style.strokeDashoffset = 0;
-                    progressRing.setAttribute('stroke', '#4f46e5');
-                    
-                    if (isTrafficMode) {
-                        viewTraffic.className = "absolute inset-0 z-30 flex flex-col items-center justify-center cursor-pointer transition-colors duration-300 bg-indigo-900";
-                        elStatusTraffic.textContent = "ENTRENAMIENTO FIN";
-                        elStatusTraffic.classList.replace('text-black', 'text-white/50');
-                        elTimerTraffic.classList.replace('text-black', 'text-white');
-                    }
-                    btnStart.classList.remove('hidden');
-                    btnStart.textContent = "NUEVO ENTR.";
-                    btnStart.className = "flex-1 py-5 bg-neonRed text-white font-black text-2xl rounded-2xl uppercase tracking-widest hover:bg-red-400 active:scale-95 transition-transform shadow-[0_0_20px_rgba(239,68,68,0.4)]";
-                    btnPause.classList.add('hidden');
-                    btnReset.classList.add('hidden');
-                    break;
-            }
-        }
-
-        function trigger30sAlert() {
-            playWhistle();
-            flashOverlay.classList.remove('flash-active');
-            void flashOverlay.offsetWidth; // Reflow
-            flashOverlay.classList.add('flash-active');
-        }
-
-        function handleTick() {
-            const now = Date.now();
-            remainingSeconds = Math.max(0, Math.ceil((targetTime - now) / 1000));
-
-            // 30s Check during WORK phase
-            if (timerState === STATE.WORK && remainingSeconds === 30 && !alert30sPlayed) {
-                alert30sPlayed = true;
-                trigger30sAlert();
-            }
-
-            // Phase Transitions
-            if (remainingSeconds <= 0) {
-                
-                if (timerState === STATE.PREP) {
-                    playBell();
-                    timerState = STATE.WORK;
-                    targetTime = Date.now() + (config.workSeconds * 1000);
-                    remainingSeconds = config.workSeconds;
+            // Semáforo y Colores
+            if (currentState === states.WORK) {
+                ui.status.innerText = "PELEAR";
+                ui.status.style.color = "#ef4444";
+                ui.ring.style.stroke = "#ef4444";
+                if(timeLeft <= 30) {
+                    ui.tView.className = "absolute inset-0 z-50 flex flex-col items-center justify-center cursor-pointer transition-colors duration-200 bg-yellow-500 text-black";
+                    ui.tStatus.innerText = "ÚLTIMOS 30s";
+                } else {
+                    ui.tView.className = "absolute inset-0 z-50 flex flex-col items-center justify-center cursor-pointer transition-colors duration-200 bg-green-600 text-white";
+                    ui.tStatus.innerText = "PELEAR";
                 }
-                else if (timerState === STATE.WORK) {
-                    playBell();
-                    if (currentRound >= config.rounds) {
-                        timerState = STATE.FINISHED;
+            } else if (currentState === states.REST) {
+                ui.status.innerText = "DESCANSO";
+                ui.status.style.color = "#3b82f6";
+                ui.ring.style.stroke = "#3b82f6";
+                ui.tView.className = "absolute inset-0 z-50 flex flex-col items-center justify-center cursor-pointer transition-colors duration-200 bg-red-600 text-white";
+                ui.tStatus.innerText = "DESCANSO";
+            } else if (currentState === states.PREP) {
+                ui.status.innerText = "PREPÁRATE";
+                ui.status.style.color = "#eab308";
+                ui.ring.style.stroke = "#eab308";
+                ui.tView.className = "absolute inset-0 z-50 flex flex-col items-center justify-center cursor-pointer transition-colors duration-200 bg-zinc-800 text-yellow-500";
+                ui.tStatus.innerText = "PREPÁRATE";
+            } else {
+                ui.status.innerText = "FINALIZADO";
+                ui.status.style.color = "#a1a1aa";
+                ui.tView.className = "absolute inset-0 z-50 flex flex-col items-center justify-center cursor-pointer transition-colors duration-200 bg-zinc-900 text-zinc-500";
+                ui.tStatus.innerText = "FIN";
+            }
+        }
+
+        function switchState(newState) {
+            currentState = newState;
+            thirtySecPlayed = false;
+            
+            if (newState === states.WORK) {
+                timeLeft = config.work;
+                playSound(bell);
+                triggerFlash();
+            } else if (newState === states.REST) {
+                timeLeft = config.rest;
+                playSound(bell);
+                triggerFlash();
+            } else if (newState === states.PREP) {
+                timeLeft = 5;
+            }
+            
+            endTime = Date.now() + (timeLeft * 1000);
+            updateUI();
+        }
+
+        function tick() {
+            let now = Date.now();
+            timeLeft = Math.max(0, Math.ceil((endTime - now) / 1000));
+
+            // Alerta 30s
+            if (currentState === states.WORK && timeLeft === 30 && !thirtySecPlayed) {
+                playSound(whistle);
+                triggerFlash();
+                thirtySecPlayed = true;
+            }
+
+            if (timeLeft <= 0) {
+                if (currentState === states.PREP) {
+                    switchState(states.WORK);
+                } else if (currentState === states.WORK) {
+                    if (currentRound < config.rounds) {
+                        switchState(states.REST);
+                    } else {
+                        currentState = states.DONE;
                         clearInterval(timerInterval);
-                    } else {
-                        timerState = STATE.REST;
-                        targetTime = Date.now() + (config.restSeconds * 1000);
-                        remainingSeconds = config.restSeconds;
+                        playSound(bell);
+                        setTimeout(()=>playSound(bell), 600);
+                        ui.btnStart.innerText = "INICIAR";
+                        ui.btnStart.classList.replace('bg-yellow-600', 'bg-red-600');
                     }
-                } 
-                else if (timerState === STATE.REST) {
-                    playBell();
-                    timerState = STATE.WORK;
+                } else if (currentState === states.REST) {
                     currentRound++;
-                    targetTime = Date.now() + (config.workSeconds * 1000);
-                    remainingSeconds = config.workSeconds;
-                    alert30sPlayed = false;
+                    switchState(states.WORK);
                 }
             }
             updateUI();
         }
 
-        function startTimer() {
-            // Force load audio on user interaction to bypass mobile restrictions
-            document.getElementById('bellSound').load();
-            document.getElementById('whistleSound').load();
+        function toggleTimer() {
+            if(!audioInitialized) {
+                bell.load();
+                whistle.load();
+                audioInitialized = true;
+            }
 
-            if (timerState === STATE.PREP && targetTime === 0 || timerState === STATE.FINISHED) {
+            if (currentState === states.DONE) {
                 currentRound = 1;
-                timerState = STATE.PREP;
-                remainingSeconds = config.prepSeconds;
-                alert30sPlayed = false;
-            } else if (timerState === STATE.PAUSED) {
-                // Resume logic: restore correct state based on ring color or current variable
-                if (progressRing.getAttribute('stroke') === '#ef4444') timerState = STATE.REST;
-                else if (progressRing.getAttribute('stroke') === '#71717a') timerState = STATE.PREP;
-                else timerState = STATE.WORK;
-            }
-            
-            targetTime = Date.now() + (remainingSeconds * 1000);
-            if(timerInterval) clearInterval(timerInterval);
-            timerInterval = setInterval(handleTick, 100); 
-            
-            // WakeLock API for Mobile
-            if ('wakeLock' in navigator) {
-                navigator.wakeLock.request('screen').catch(()=> {});
-            }
-            updateUI();
-        }
-
-        function pauseTimer() {
-            clearInterval(timerInterval);
-            timerState = STATE.PAUSED;
-            updateUI();
-        }
-
-        function resetTimer() {
-            clearInterval(timerInterval);
-            timerState = STATE.PREP;
-            targetTime = 0;
-            remainingSeconds = config.prepSeconds;
-            currentRound = 1;
-            updateUI();
-        }
-
-        // Timer Controls
-        document.getElementById('btn-start').addEventListener('click', startTimer);
-        document.getElementById('btn-pause').addEventListener('click', pauseTimer);
-        document.getElementById('btn-reset').addEventListener('click', resetTimer);
-        
-        // Traffic Light View Controls
-        viewTraffic.addEventListener('click', () => {
-            if (timerState === STATE.PREP && targetTime === 0 || timerState === STATE.PAUSED || timerState === STATE.FINISHED) startTimer();
-            else pauseTimer();
-        });
-
-        // ==========================================
-        // 3. NAVIGATION CONTROLS
-        // ==========================================
-        const navClassic = document.getElementById('nav-classic');
-        const navTraffic = document.getElementById('nav-traffic');
-
-        function setNavActive(mode) {
-            isTrafficMode = mode === 'traffic';
-            
-            if (isTrafficMode) {
-                navTraffic.classList.replace('text-zinc-400', 'text-white');
-                navTraffic.classList.replace('bg-transparent', 'bg-zinc-700');
-                navClassic.classList.replace('text-white', 'text-zinc-400');
-                navClassic.classList.replace('bg-zinc-700', 'bg-transparent');
+                switchState(states.PREP);
+                timerInterval = setInterval(tick, 100);
+                ui.btnStart.innerText = "PAUSAR";
+                ui.btnStart.classList.replace('bg-red-600', 'bg-yellow-600');
+            } else if (currentState === states.PAUSED) {
+                endTime = Date.now() + (timeLeft * 1000);
+                timerInterval = setInterval(tick, 100);
+                // Restaurar estado visual correcto
+                if(ui.status.innerText === "PAUSADO") {
+                    currentState = ui.ring.style.stroke === "rgb(239, 68, 68)" ? states.WORK : states.REST;
+                }
+                ui.btnStart.innerText = "PAUSAR";
+                ui.btnStart.classList.replace('bg-red-600', 'bg-yellow-600');
             } else {
-                navClassic.classList.replace('text-zinc-400', 'text-white');
-                navClassic.classList.replace('bg-transparent', 'bg-zinc-700');
-                navTraffic.classList.replace('text-white', 'text-zinc-400');
-                navTraffic.classList.replace('bg-zinc-700', 'bg-transparent');
+                clearInterval(timerInterval);
+                currentState = states.PAUSED;
+                ui.status.innerText = "PAUSADO";
+                ui.status.style.color = "#a1a1aa";
+                ui.tStatus.innerText = "PAUSADO";
+                ui.btnStart.innerText = "REANUDAR";
+                ui.btnStart.classList.replace('bg-yellow-600', 'bg-red-600');
             }
+        }
+
+        ui.btnStart.addEventListener('click', toggleTimer);
+        ui.tView.addEventListener('click', toggleTimer); // Tap en semáforo para pausar/iniciar
+
+        document.getElementById('btnReset').addEventListener('click', () => {
+            clearInterval(timerInterval);
+            currentState = states.DONE;
+            timeLeft = config.work;
+            currentRound = 1;
+            ui.btnStart.innerText = "INICIAR";
+            ui.btnStart.classList.replace('bg-yellow-600', 'bg-red-600');
             updateUI();
-        }
-
-        navClassic.addEventListener('click', () => setNavActive('classic'));
-        navTraffic.addEventListener('click', () => setNavActive('traffic'));
-
-        // ==========================================
-        // 4. SETTINGS MODAL & PRESETS
-        // ==========================================
-        const modalSettings = document.getElementById('modal-settings');
-        
-        function updateSettingsUI() {
-            document.getElementById('set-rounds').textContent = config.rounds;
-            document.getElementById('set-work').textContent = formatTime(config.workSeconds);
-            document.getElementById('set-rest').textContent = formatTime(config.restSeconds);
-        }
-
-        window.adjustSetting = function(type, amount) {
-            if (type === 'rounds') config.rounds = Math.max(1, Math.min(50, config.rounds + amount));
-            else if (type === 'work') config.workSeconds = Math.max(10, Math.min(1800, config.workSeconds + amount));
-            else if (type === 'rest') config.restSeconds = Math.max(5, Math.min(600, config.restSeconds + amount));
-            updateSettingsUI();
-        };
-
-        window.applyPreset = function(r, w, rest) {
-            config.rounds = r;
-            config.workSeconds = w;
-            config.restSeconds = rest;
-            updateSettingsUI();
-            showToast("Perfil Aplicado", "success");
-        };
-
-        document.getElementById('nav-settings').addEventListener('click', () => {
-            updateSettingsUI();
-            modalSettings.classList.remove('hidden');
         });
 
-        const closeSettings = () => {
-            modalSettings.classList.add('hidden');
-            if (timerState === STATE.PREP && targetTime === 0 || timerState === STATE.FINISHED) {
-                resetTimer(); // Refresh logic if not actively running
-            }
+
+        // --- NAVEGACIÓN Y MODALES ---
+        const navBtns = {
+            timer: document.getElementById('navTimer'),
+            traffic: document.getElementById('navTraffic'),
+            roulette: document.getElementById('navRoulette'),
+            settings: document.getElementById('navSettings')
         };
-        document.getElementById('btn-close-settings').addEventListener('click', closeSettings);
-        document.getElementById('btn-save-settings').addEventListener('click', closeSettings);
 
-        // ==========================================
-        // 5. DOUBLE ROULETTE (CANVAS)
-        // ==========================================
-        const modalRoulette = document.getElementById('modal-roulette');
-        const canvas = document.getElementById('roulette-canvas');
+        function resetNav() {
+            Object.values(navBtns).forEach(b => {
+                b.classList.remove('text-red-500');
+                b.classList.add('text-zinc-500');
+            });
+        }
+
+        navBtns.timer.addEventListener('click', () => {
+            resetNav(); navBtns.timer.classList.add('text-red-500');
+            ui.tView.classList.add('hidden');
+        });
+
+        navBtns.traffic.addEventListener('click', () => {
+            resetNav(); navBtns.traffic.classList.add('text-red-500');
+            ui.tView.classList.remove('hidden');
+        });
+
+        navBtns.settings.addEventListener('click', () => {
+            document.getElementById('settingsModal').classList.remove('hidden');
+        });
+
+        navBtns.roulette.addEventListener('click', () => {
+            document.getElementById('rouletteModal').classList.remove('hidden');
+            drawRoulette();
+        });
+
+        document.getElementById('btnCloseSettings').addEventListener('click', () => {
+            config.work = parseTime(document.getElementById('inpWork').value);
+            config.rest = parseTime(document.getElementById('inpRest').value);
+            config.rounds = parseInt(document.getElementById('inpRounds').value);
+            document.getElementById('settingsModal').classList.add('hidden');
+            document.getElementById('btnReset').click();
+        });
+
+        document.getElementById('btnCloseRoulette').addEventListener('click', () => {
+            document.getElementById('rouletteModal').classList.add('hidden');
+        });
+
+        // Presets
+        document.querySelectorAll('.preset-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                document.getElementById('inpWork').value = formatTime(e.target.dataset.w);
+                document.getElementById('inpRest').value = formatTime(e.target.dataset.r);
+                document.getElementById('inpRounds').value = e.target.dataset.rd;
+            });
+        });
+
+
+        // --- RULETAS LÓGICA ---
+        const defSparring = ["Solo Jab", "Combinación 1-2", "Pelea en Corto", "Solo Defensa", "Sombra Ligera"];
+        const defPenitencia = ["20 Burpees", "1 Min Plancha", "30 Flexiones", "Correr Escaleras", "50 Sentadillas"];
+        
+        let rSparring = JSON.parse(localStorage.getItem('boxfit_sparring')) || defSparring;
+        let rPenitencia = JSON.parse(localStorage.getItem('boxfit_penitencia')) || defPenitencia;
+        let currentMode = 'sparring'; // 'sparring' o 'penitencia'
+        
+        const canvas = document.getElementById('rouletteCanvas');
         const ctx = canvas.getContext('2d');
-        const listContainer = document.getElementById('items-list');
-        const inputNewItem = document.getElementById('new-item-input');
+        const rColorsSparring = ["#3b82f6", "#10b981", "#f59e0b", "#8b5cf6", "#ef4444", "#06b6d4"];
+        const rColorsPenitencia = ["#fde047", "#f59e0b", "#ea580c", "#dc2626", "#991b1b"];
 
-        let activeTab = 'sparring';
         let currentAngle = 0;
-        let spinVelocity = 0;
         let isSpinning = false;
-        let spinRafId = null;
+        let spinVelocity = 0;
 
-        // Custom Palettes
-        const colorsSparring = ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#06b6d4'];
-        const colorsPenitencia = ['#fde047', '#facc15', '#eab308', '#f97316', '#ea580c', '#ef4444', '#dc2626']; // Strict yellow/orange/red
-
-        // Data Storage
-        let dataSparring = ['Solo Jab', 'Combo 1-2', 'Pelea en corto', 'Solo defensa', 'Mov. Lateral', 'Jab y gancho'];
-        let dataPenitencia = ['50 Burpees', '100 Flexiones', 'Plancha 3 min', '100 Sentadillas', 'Sprints'];
-
-        try {
-            if (localStorage.getItem('bf_sparring')) dataSparring = JSON.parse(localStorage.getItem('bf_sparring'));
-            if (localStorage.getItem('bf_penitencia')) dataPenitencia = JSON.parse(localStorage.getItem('bf_penitencia'));
-        } catch(e) { console.log("LocalStorage unavailable"); }
-
-        function saveStorage() {
-            try {
-                localStorage.setItem('bf_sparring', JSON.stringify(dataSparring));
-                localStorage.setItem('bf_penitencia', JSON.stringify(dataPenitencia));
-            } catch(e) {}
-        }
-
-        function getActiveData() { return activeTab === 'sparring' ? dataSparring : dataPenitencia; }
-        function getActiveColors() { return activeTab === 'sparring' ? colorsSparring : colorsPenitencia; }
-
-        function drawWheel() {
-            const items = getActiveData();
-            const colors = getActiveColors();
-            const w = canvas.width;
-            const h = canvas.height;
-            const cx = w / 2;
-            const cy = h / 2;
-            const radius = cx - 12;
-
-            ctx.clearRect(0, 0, w, h);
-
-            if (items.length === 0) {
-                ctx.fillStyle = '#18181b';
-                ctx.beginPath(); ctx.arc(cx, cy, radius, 0, 2*Math.PI); ctx.fill();
-                ctx.fillStyle = '#71717a'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.font = '16px Inter';
-                ctx.fillText('Sin elementos', cx, cy);
-                return;
-            }
-
-            const sliceAngle = (2 * Math.PI) / items.length;
-
-            for (let i = 0; i < items.length; i++) {
-                const start = currentAngle + (i * sliceAngle);
-                const end = start + sliceAngle;
-
-                ctx.beginPath();
-                ctx.moveTo(cx, cy);
-                ctx.arc(cx, cy, radius, start, end);
-                ctx.closePath();
-                ctx.fillStyle = colors[i % colors.length];
-                ctx.fill();
-                ctx.lineWidth = 4;
-                ctx.strokeStyle = '#09090b';
-                ctx.stroke();
-
-                ctx.save();
-                ctx.translate(cx, cy);
-                ctx.rotate(start + sliceAngle / 2);
-                ctx.textAlign = 'right';
-                ctx.textBaseline = 'middle';
-                ctx.fillStyle = '#fff';
-                ctx.font = 'bold 16px Inter';
-                ctx.shadowColor = 'rgba(0,0,0,0.9)';
-                ctx.shadowBlur = 4;
-                let txt = items[i];
-                if (txt.length > 16) txt = txt.substring(0, 14) + '...';
-                ctx.fillText(txt, radius - 24, 0);
-                ctx.restore();
-            }
-
-            // Inner circle
-            ctx.beginPath(); ctx.arc(cx, cy, 20, 0, 2*Math.PI); ctx.fillStyle = '#09090b'; ctx.fill();
-            ctx.lineWidth = 4; ctx.strokeStyle = '#27272a'; ctx.stroke();
-        }
+        function getActiveList() { return currentMode === 'sparring' ? rSparring : rPenitencia; }
+        function getActiveColors() { return currentMode === 'sparring' ? rColorsSparring : rColorsPenitencia; }
 
         function renderList() {
-            const items = getActiveData();
-            const colors = getActiveColors();
-            listContainer.innerHTML = '';
-            
-            items.forEach((item, idx) => {
-                const li = document.createElement('li');
-                li.className = 'flex justify-between items-center bg-zinc-900 p-3 rounded-xl border border-zinc-800 shadow-sm';
-                li.innerHTML = `
-                    <div class="flex items-center gap-3 overflow-hidden">
-                        <div class="w-4 h-4 rounded-full flex-shrink-0" style="background-color: ${colors[idx % colors.length]}"></div>
-                        <span class="text-sm font-bold text-zinc-300 truncate">${item}</span>
-                    </div>
-                    <button onclick="removeRouletteItem(${idx})" class="text-zinc-600 hover:text-neonRed p-2 flex-shrink-0 active:scale-90 transition">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-                    </button>
+            const listEl = document.getElementById('rouletteList');
+            listEl.innerHTML = '';
+            getActiveList().forEach((item, index) => {
+                const div = document.createElement('div');
+                div.className = "flex justify-between items-center bg-zinc-800 p-2 rounded";
+                div.innerHTML = `
+                    <span class="text-sm font-bold text-white">${item}</span>
+                    <button class="text-red-500 font-bold px-2 hover:bg-zinc-700 rounded" onclick="removeItem(${index})">X</button>
                 `;
-                listContainer.appendChild(li);
+                listEl.appendChild(div);
             });
-            drawWheel();
         }
 
-        window.removeRouletteItem = function(idx) {
-            if(isSpinning) return;
-            getActiveData().splice(idx, 1);
-            saveStorage();
+        window.removeItem = function(index) {
+            getActiveList().splice(index, 1);
+            saveRoulettes();
             renderList();
+            drawRoulette();
         }
 
-        document.getElementById('btn-add-item').addEventListener('click', () => {
-            const val = inputNewItem.value.trim();
-            if(val && !isSpinning) {
-                getActiveData().push(val);
-                saveStorage();
-                inputNewItem.value = '';
+        document.getElementById('btnAddItem').addEventListener('click', () => {
+            const inp = document.getElementById('inpRouletteItem');
+            if(inp.value.trim() !== '') {
+                getActiveList().push(inp.value.trim());
+                inp.value = '';
+                saveRoulettes();
                 renderList();
+                drawRoulette();
             }
         });
 
-        function changeTab(tab) {
-            if(isSpinning) return;
-            activeTab = tab;
-            const tSparring = document.getElementById('tab-sparring');
-            const tPenitencia = document.getElementById('tab-penitencia');
-            
-            if(tab === 'sparring') {
-                tSparring.className = "flex-1 py-4 font-sans font-black text-sm uppercase tracking-widest text-neonYellow border-b-4 border-neonYellow bg-appSurface transition";
-                tPenitencia.className = "flex-1 py-4 font-sans font-black text-sm uppercase tracking-widest text-zinc-500 border-b-4 border-transparent hover:text-neonRed transition";
-            } else {
-                tPenitencia.className = "flex-1 py-4 font-sans font-black text-sm uppercase tracking-widest text-neonRed border-b-4 border-neonRed bg-appSurface transition";
-                tSparring.className = "flex-1 py-4 font-sans font-black text-sm uppercase tracking-widest text-zinc-500 border-b-4 border-transparent hover:text-neonYellow transition";
-            }
-            currentAngle = 0;
-            renderList();
+        function saveRoulettes() {
+            localStorage.setItem('boxfit_sparring', JSON.stringify(rSparring));
+            localStorage.setItem('boxfit_penitencia', JSON.stringify(rPenitencia));
         }
 
-        document.getElementById('tab-sparring').addEventListener('click', () => changeTab('sparring'));
-        document.getElementById('tab-penitencia').addEventListener('click', () => changeTab('penitencia'));
-
-        document.getElementById('btn-spin').addEventListener('click', () => {
-            const items = getActiveData();
-            if (isSpinning || items.length === 0) return;
+        function drawRoulette() {
+            const items = getActiveList();
+            const colors = getActiveColors();
+            const arc = Math.PI * 2 / items.length;
             
-            isSpinning = true;
-            spinVelocity = Math.random() * 0.2 + 0.4; // Initial push
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            if(items.length === 0) return;
 
-            function animate() {
-                currentAngle -= spinVelocity; 
-                spinVelocity *= 0.985; // Friction
+            for(let i = 0; i < items.length; i++) {
+                const angle = currentAngle + i * arc;
+                ctx.beginPath();
+                ctx.fillStyle = colors[i % colors.length];
+                ctx.moveTo(144, 144);
+                ctx.arc(144, 144, 140, angle, angle + arc);
+                ctx.fill();
+                ctx.save();
                 
-                if (currentAngle < 0) currentAngle += 2 * Math.PI;
+                // Texto
+                ctx.translate(144 + Math.cos(angle + arc / 2) * 80, 144 + Math.sin(angle + arc / 2) * 80);
+                ctx.rotate(angle + arc / 2);
+                ctx.fillStyle = "#fff";
+                ctx.font = "bold 16px 'Barlow Condensed'";
+                ctx.textAlign = "center";
+                // Truncar texto largo
+                let text = items[i];
+                if(text.length > 15) text = text.substring(0,13)+"...";
+                ctx.fillText(text, 0, 5);
+                ctx.restore();
+            }
+        }
 
-                drawWheel();
-
-                if (spinVelocity > 0.002) {
-                    spinRafId = requestAnimationFrame(animate);
+        function spinRoulette() {
+            if(isSpinning || getActiveList().length === 0) return;
+            isSpinning = true;
+            document.getElementById('rouletteResult').innerText = "";
+            spinVelocity = Math.random() * 0.2 + 0.4; 
+            
+            function animate() {
+                currentAngle += spinVelocity;
+                spinVelocity *= 0.985; // Fricción
+                drawRoulette();
+                
+                if(spinVelocity > 0.002) {
+                    requestAnimationFrame(animate);
                 } else {
                     isSpinning = false;
-                    cancelAnimationFrame(spinRafId);
+                    // Calcular ganador (la flecha está arriba, apuntando a -PI/2)
+                    const items = getActiveList();
+                    const arc = Math.PI * 2 / items.length;
+                    // Normalizar angulo de la flecha relativo a la ruleta
+                    const normalizedAngle = (Math.PI * 1.5 - currentAngle) % (Math.PI * 2);
+                    const finalAngle = normalizedAngle < 0 ? normalizedAngle + Math.PI * 2 : normalizedAngle;
+                    const winningIndex = Math.floor(finalAngle / arc);
                     
-                    const sliceAngle = (2 * Math.PI) / items.length;
-                    let normalized = (currentAngle + Math.PI/2) % (2 * Math.PI);
-                    if (normalized < 0) normalized += 2 * Math.PI;
-                    
-                    let winIdx = items.length - 1 - Math.floor(normalized / sliceAngle);
-                    if(winIdx < 0) winIdx += items.length;
-                    
-                    showToast(`🏆 ${items[winIdx]}`, activeTab === 'sparring' ? 'warning' : 'danger');
+                    document.getElementById('rouletteResult').innerText = "🔥 " + items[winningIndex].toUpperCase() + " 🔥";
+                    if(audioInitialized) playSound(bell);
                 }
             }
             animate();
+        }
+
+        document.getElementById('btnSpin').addEventListener('click', spinRoulette);
+
+        // Pestañas Ruleta
+        const tSparring = document.getElementById('tabSparring');
+        const tPenitencia = document.getElementById('tabPenitencia');
+
+        tSparring.addEventListener('click', () => {
+            currentMode = 'sparring';
+            tSparring.classList.replace('text-zinc-400', 'text-white');
+            tSparring.classList.add('bg-blue-600');
+            tPenitencia.classList.replace('text-white', 'text-zinc-400');
+            tPenitencia.classList.remove('bg-red-600');
+            renderList(); drawRoulette();
         });
 
-        document.getElementById('nav-roulette').addEventListener('click', () => {
-            modalRoulette.classList.remove('hidden');
-            renderList(); 
-        });
-        document.getElementById('btn-close-roulette').addEventListener('click', () => {
-            if(!isSpinning) modalRoulette.classList.add('hidden');
+        tPenitencia.addEventListener('click', () => {
+            currentMode = 'penitencia';
+            tPenitencia.classList.replace('text-zinc-400', 'text-white');
+            tPenitencia.classList.add('bg-red-600');
+            tSparring.classList.replace('text-white', 'text-zinc-400');
+            tSparring.classList.remove('bg-blue-600');
+            renderList(); drawRoulette();
         });
 
-        // Initialize App
-        resetTimer();
-        renderList();
+        // Inicializar UI
+        updateUI();
+
     </script>
 </body>
 </html>
