@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#09090b">
+    <title>BoxFit Pro</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts: Bebas Neue for massive timer, Inter for UI -->
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
+
+    <!-- Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { 
+                        sans: ['Inter', 'sans-serif'], 
+                        display: ['Bebas Neue', 'sans-serif'] 
+                    },
+                    colors: {
+                        appBg: '#09090b',       // Deep black
+                        appSurface: '#18181b',  // Dark gray
+                        neonYellow: '#eab308',
+                        neonRed: '#ef4444',
+                        neonGreen: '#22c55e'
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Premium App Behavior */
+        body { 
+            -webkit-tap-highlight-color: transparent; 
+            touch-action: manipulation;
+            background-color: #09090b;
+        }
+        .no-select { 
+            user-select: none; 
+            -webkit-user-select: none; 
+        }
+        
+        /* 30s Flash Animation */
+        @keyframes flash-30s {
+            0% { background-color: transparent; }
+            50% { background-color: rgba(234, 179, 8, 0.6); } /* Yellow pulse */
+            100% { background-color: transparent; }
+        }
+        .flash-active { animation: flash-30s 0.6s ease-in-out 3; }
+
+        /* SVG Circle Smooth Animation */
+        #progress-ring {
+            transition: stroke-dashoffset 0.1s linear, stroke 0.3s ease;
+        }
+
+        /* Hide Scrollbar */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* Glow effects */
+        .glow-red { text-shadow: 0 0 15px rgba(239, 68, 68, 0.6); }
+        .glow-yellow { text-shadow: 0 0 15px rgba(234, 179, 8, 0.6); }
+        .glow-green { text-shadow: 0 0 15px rgba(34, 197, 94, 0.6); }
+
+        /* Animación para el Guante Neón del Logo */
+        @keyframes neonPulse {
+            0% { filter: drop-shadow(0 0 8px rgba(239, 68, 68, 0.6)); transform: scale(1) rotate(-5deg); }
+            50% { filter: drop-shadow(0 0 20px rgba(239, 68, 68, 1)); transform: scale(1.08) rotate(5deg); }
+            100% { filter: drop-shadow(0 0 8px rgba(239, 68, 68, 0.6)); transform: scale(1) rotate(-5deg); }
+        }
+        .glove-glow {
+            animation: neonPulse 2.5s infinite ease-in-out;
+            transform-origin: center;
+        }
+    </style>
+</head>
+<body class="text-white h-screen w-screen overflow-hidden flex flex-col font-sans relative no-select" id="app-body">
+
+    <!-- AUDIO ELEMENTS -->
+    <audio id="bellSound" src="https://actions.google.com/sounds/v1/alarms/boxing_bell.ogg" preload="auto"></audio>
+    <audio id="whistleSound" src="https://actions.google.com/sounds/v1/sports/referee_whistle.ogg" preload="auto"></audio>
+
+    <!-- FLASH OVERLAY -->
+    <div id="flash-overlay" class="absolute inset-0 pointer-events-none z-[60]"></div>
+
+    <!-- TOAST CONTAINER -->
+    <div id="toast-container" class="fixed top-8 left-1/2 transform -translate-x-1/2 z-[100] flex flex-col gap-2 w-[90%] max-w-sm pointer-events-none transition-all"></div>
+
+    <!-- TOP HEADER -->
+    <header class="absolute top-4 left-4 z-[60] pointer-events-none">
+        <div class="flex items-center gap-3 bg-zinc-900/90 backdrop-blur-md border border-zinc-800 rounded-full px-5 py-2.5 shadow-[0_0_20px_rgba(0,0,0,0.8)]">
+            <!-- Icono de Guante de Boxeo Vistoso SVG (Neón/Glow) -->
+            <svg class="glove-glow" width="38" height="38" viewBox="0 0 24 24" fill="url(#gloveGrad)" stroke="#fca5a5" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+                <defs>
+                    <linearGradient id="gloveGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#ff4b4b" />
+                        <stop offset="50%" stop-color="#ef4444" />
+                        <stop offset="100%" stop-color="#991b1b" />
+                    </linearGradient>
+                </defs>
+                <!-- Glove body -->
+                <path d="M16 4h-4a5 5 0 0 0-5 5v2.5a5 5 0 0 0 1.5 3.5l1.5 1.5A3 3 0 0 1 11 19v1a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1v-1a3 3 0 0 1 1-2.5l1.5-1.5a5 5 0 0 0 1.5-3.5V9a5 5 0 0 0-5-5Z" />
+                <!-- Inner folds/details -->
+                <path d="M12 12a3 3 0 0 0 0-6" stroke="#991b1b" stroke-width="1.5"/>
+                <path d="M16 11h2.5a2 2 0 0 1 2 2v1.5a2 2 0 0 1-2 2h-1.5a2 2 0 0 1-2-2V11Z" fill="#b91c1c"/>
+                <!-- Wrist cuff -->
+                <path d="M9 19h8v3H9z" fill="#18181b" stroke="#fca5a5" stroke-width="1.5"/>
+                <line x1="11" y1="20.5" x2="15" y2="20.5" stroke="#fff" stroke-width="1.2"/>
+            </svg>
+            <h1 class="font-display text-3xl tracking-widest text-zinc-300 drop-shadow-md mt-1">BOXFIT<span class="text-neonRed glow-red">PRO</span></h1>
+        </div>
+    </header>
+
+    <!-- ============================================== -->
+    <!-- VIEW: CLASSIC TIMER                            -->
+    <!-- ============================================== -->
+    <main id="view-classic" class="flex-1 flex flex-col items-center justify-center relative z-10 p-4 w-full h-full pb-24 transition-opacity duration-300">
+        
+        <!-- Status Badge -->
+        <div id="status-badge" class="px-8 py-2 rounded-full font-sans font-black text-xl uppercase tracking-[0.2em] bg-zinc-800 text-zinc-400 border border-zinc-700 mb-4 transition-colors">
+            PREPARACIÓN
+        </div>
+        
+        <p class="text-2xl font-display text-zinc-400 tracking-wider mb-8">
+            ROUND <span id="current-round-text" class="text-white text-3xl">1</span> <span class="mx-1">/</span> <span id="total-rounds-text">12</span>
+        </p>
+
+        <!-- SVG Circular Timer -->
+        <div class="relative w-[320px] h-[320px] md:w-[450px] md:h-[450px] flex items-center justify-center mb-8">
+            <svg class="absolute inset-0 w-full h-full -rotate-90 drop-shadow-2xl" viewBox="0 0 100 100">
+                <circle cx="50" cy="50" r="46" fill="none" stroke="#18181b" stroke-width="4"></circle>
+                <!-- Circumference = 2 * PI * 46 = 289.02 -->
+                <circle id="progress-ring" cx="50" cy="50" r="46" fill="none" stroke="#22c55e" stroke-width="4" stroke-dasharray="289" stroke-dashoffset="0" stroke-linecap="round"></circle>
+            </svg>
+            <div id="timer-display" class="font-display text-[7rem] md:text-[10rem] tabular-nums tracking-normal z-10 text-center leading-none mt-4 glow-green">
+                00:00
+            </div>
+        </div>
+
+        <!-- Main Controls -->
+        <div class="flex gap-4 w-full max-w-sm px-4">
+            <button id="btn-start" class="flex-1 py-5 bg-neonRed text-white font-black text-2xl rounded-2xl uppercase tracking-widest hover:bg-red-400 active:scale-95 transition-transform shadow-[0_0_20px_rgba(239,68,68,0.4)]">
+                INICIAR
+            </button>
+            <button id="btn-pause" class="hidden flex-1 py-5 bg-zinc-800 text-white font-black text-2xl rounded-2xl uppercase tracking-widest hover:bg-zinc-700 active:scale-95 transition-transform shadow-lg border border-zinc-700">
+                PAUSA
+            </button>
+            <button id="btn-reset" class="hidden w-20 bg-zinc-800 text-zinc-400 rounded-2xl flex items-center justify-center hover:text-white active:scale-95 transition-transform shadow-lg border border-zinc-700">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+            </button>
+        </div>
+    </main>
+
+    <!-- ============================================== -->
+    <!-- VIEW: TRAFFIC LIGHT (SEMÁFORO)                 -->
+    <!-- ============================================== -->
+    <main id="view-traffic" class="hidden absolute inset-0 z-30 flex flex-col items-center justify-center cursor-pointer transition-colors duration-300 bg-appBg">
+        <div id="traffic-status-text" class="font-sans font-black text-3xl md:text-5xl uppercase tracking-[0.3em] text-black/50 mb-6 text-center px-4">
+            TOQUE PARA INICIAR
+        </div>
+        <div id="traffic-timer-display" class="font-display text-[12rem] md:text-[20rem] leading-none tabular-nums text-white drop-shadow-[0_10px_30px_rgba(0,0,0,0.5)]">
+            00:00
+        </div>
+        <div id="traffic-round-indicator" class="font-display text-4xl md:text-6xl text-black/40 mt-6 tracking-widest">
+            ROUND 1/12
+        </div>
+    </main>
+
+    <!-- ============================================== -->
+    <!-- BOTTOM NAVIGATION                              -->
+    <!-- ============================================== -->
+    <nav class="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50 bg-appSurface/90 backdrop-blur-md border border-zinc-800 rounded-full flex gap-2 p-2 shadow-2xl">
+        <button id="nav-classic" class="p-4 rounded-full bg-zinc-700 text-white transition-colors" title="Clásico">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        </button>
+        <button id="nav-traffic" class="p-4 rounded-full text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors" title="Semáforo">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="4"/><circle cx="12" cy="7" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="17" r="2"/></svg>
+        </button>
+        <div class="w-px bg-zinc-700 mx-2 my-2"></div> <!-- Separator -->
+        <button id="nav-roulette" class="p-4 rounded-full text-neonYellow hover:text-yellow-300 hover:bg-zinc-800 transition-colors" title="Ruletas">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20"/><path d="M2 12h20"/><circle cx="12" cy="12" r="10"/><path d="m4.9 4.9 14.2 14.2"/><path d="m4.9 19.1 14.2-14.2"/></svg>
+        </button>
+        <button id="nav-settings" class="p-4 rounded-full text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors" title="Ajustes">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+        </button>
+    </nav>
+
+    <!-- ============================================== -->
+    <!-- MODAL: SETTINGS & PRESETS                      -->
+    <!-- ============================================== -->
+    <div id="modal-settings" class="hidden absolute inset-0 bg-appBg/95 z-[70] flex flex-col items-center pt-12 px-4 backdrop-blur-xl overflow-y-auto">
+        <div class="w-full max-w-md bg-appSurface border border-zinc-800 rounded-3xl p-6 shadow-2xl mb-24 mt-auto mb-auto relative">
+            
+            <button id="btn-close-settings" class="absolute top-6 right-6 text-zinc-500 hover:text-white active:scale-90 transition">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+            </button>
+            
+            <h2 class="text-3xl font-display tracking-widest text-white mb-8">CONFIGURACIÓN</h2>
+
+            <!-- Quick Presets -->
+            <div class="mb-8">
+                <label class="block text-zinc-500 font-bold mb-3 uppercase text-xs tracking-[0.2em]">Perfiles Rápidos</label>
+                <div class="grid grid-cols-2 gap-3">
+                    <button onclick="applyPreset(3, 180, 60)" class="bg-zinc-800/50 hover:bg-zinc-700 border border-zinc-700 rounded-2xl py-3 text-sm font-bold text-white transition active:scale-95 text-center">
+                        <span class="block text-neonYellow">AMATEUR</span>3x3m
+                    </button>
+                    <button onclick="applyPreset(12, 180, 60)" class="bg-zinc-800/50 hover:bg-zinc-700 border border-zinc-700 rounded-2xl py-3 text-sm font-bold text-white transition active:scale-95 text-center">
+                        <span class="block text-neonRed">PRO</span>12x3m
+                    </button>
+                    <button onclick="applyPreset(3, 300, 60)" class="bg-zinc-800/50 hover:bg-zinc-700 border border-zinc-700 rounded-2xl py-3 text-sm font-bold text-white transition active:scale-95 text-center">
+                        <span class="block text-white">MMA</span>3x5m
+                    </button>
+                    <button onclick="applyPreset(8, 20, 10)" class="bg-zinc-800/50 hover:bg-zinc-700 border border-zinc-700 rounded-2xl py-3 text-sm font-bold text-white transition active:scale-95 text-center">
+                        <span class="block text-neonGreen">TABATA</span>8x20s
+                    </button>
+                </div>
+            </div>
+
+            <!-- Manual Settings -->
+            <div class="space-y-4">
+                <div class="bg-zinc-900 p-4 rounded-2xl border border-zinc-800 flex justify-between items-center">
+                    <label class="text-zinc-400 font-bold uppercase text-xs tracking-widest">Rounds</label>
+                    <div class="flex items-center gap-4">
+                        <button onclick="adjustSetting('rounds', -1)" class="w-12 h-12 bg-zinc-800 rounded-full text-2xl font-bold active:scale-90">-</button>
+                        <span id="set-rounds" class="text-3xl font-display w-12 text-center text-white">12</span>
+                        <button onclick="adjustSetting('rounds', 1)" class="w-12 h-12 bg-zinc-800 rounded-full text-2xl font-bold active:scale-90">+</button>
+                    </div>
+                </div>
+                <div class="bg-zinc-900 p-4 rounded-2xl border border-zinc-800 flex justify-between items-center">
+                    <label class="text-neonGreen font-bold uppercase text-xs tracking-widest">Trabajo</label>
+                    <div class="flex items-center gap-4">
+                        <button onclick="adjustSetting('work', -15)" class="w-12 h-12 bg-zinc-800 rounded-full text-2xl font-bold active:scale-90">-</button>
+                        <span id="set-work" class="text-3xl font-display w-20 text-center text-white">03:00</span>
+                        <button onclick="adjustSetting('work', 15)" class="w-12 h-12 bg-zinc-800 rounded-full text-2xl font-bold active:scale-90">+</button>
+                    </div>
+                </div>
+                <div class="bg-zinc-900 p-4 rounded-2xl border border-zinc-800 flex justify-between items-center">
+                    <label class="text-neonRed font-bold uppercase text-xs tracking-widest">Descanso</label>
+                    <div class="flex items-center gap-4">
+                        <button onclick="adjustSetting('rest', -5)" class="w-12 h-12 bg-zinc-800 rounded-full text-2xl font-bold active:scale-90">-</button>
+                        <span id="set-rest" class="text-3xl font-display w-20 text-center text-white">01:00</span>
+                        <button onclick="adjustSetting('rest', 5)" class="w-12 h-12 bg-zinc-800 rounded-full text-2xl font-bold active:scale-90">+</button>
+                    </div>
+                </div>
+            </div>
+            
+            <button id="btn-save-settings" class="w-full mt-8 py-5 bg-white text-black font-black text-xl rounded-2xl uppercase tracking-[0.2em] hover:bg-zinc-200 active:scale-95 transition-transform shadow-[0_0_20px_rgba(255,255,255,0.2)]">
+                GUARDAR
+            </button>
+        </div>
+    </div>
+
+    <!-- ============================================== -->
+    <!-- MODAL: DOUBLE ROULETTE                         -->
+    <!-- ============================================== -->
+    <div id="modal-roulette" class="hidden absolute inset-0 bg-appBg/95 z-[70] flex flex-col items-center pt-8 px-4 backdrop-blur-xl">
+        <div class="w-full max-w-2xl bg-appSurface border border-zinc-800 rounded-3xl flex flex-col overflow-hidden max-h-[85vh] shadow-2xl relative">
+            
+            <button id="btn-close-roulette" class="absolute top-4 right-4 z-10 p-2 bg-zinc-900/80 rounded-full text-zinc-400 hover:text-white active:scale-90 transition">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+            </button>
+
+            <!-- Tabs -->
+            <div class="flex bg-zinc-900 border-b border-zinc-800">
+                <button id="tab-sparring" class="flex-1 py-4 font-sans font-black text-sm uppercase tracking-widest text-neonYellow border-b-4 border-neonYellow bg-appSurface transition">Sparring</button>
+                <button id="tab-penitencia" class="flex-1 py-4 font-sans font-black text-sm uppercase tracking-widest text-zinc-500 border-b-4 border-transparent hover:text-neonRed transition">Penitencias</button>
+            </div>
+
+            <div class="p-6 flex flex-col md:flex-row gap-8 overflow-y-auto no-scrollbar">
+                
+                <!-- Canvas Area -->
+                <div class="flex-1 flex flex-col items-center justify-center">
+                    <div class="relative w-[280px] h-[280px] mb-6">
+                        <canvas id="roulette-canvas" width="300" height="300" class="w-full h-full drop-shadow-[0_0_15px_rgba(255,255,255,0.05)]"></canvas>
+                        <!-- Pointer -->
+                        <div class="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-2 text-white drop-shadow-lg z-10 rotate-180">
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L22 20H2L12 2Z"/></svg>
+                        </div>
+                    </div>
+                    <button id="btn-spin" class="w-full max-w-[220px] py-4 bg-neonYellow text-black font-black text-xl rounded-2xl uppercase tracking-widest hover:bg-yellow-300 active:scale-95 transition-transform shadow-[0_0_20px_rgba(234,179,8,0.4)]">
+                        ¡GIRAR!
+                    </button>
+                </div>
+
+                <!-- List Area -->
+                <div class="flex-1 flex flex-col h-[320px] md:border-l border-zinc-800 md:pl-8">
+                    <div class="flex gap-2 mb-4">
+                        <input type="text" id="new-item-input" placeholder="Añadir..." class="flex-1 bg-zinc-900 border border-zinc-700 text-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-neonYellow transition-colors placeholder-zinc-600 font-semibold">
+                        <button id="btn-add-item" class="bg-zinc-800 hover:bg-zinc-700 text-white font-bold py-3 px-5 rounded-xl transition-colors active:scale-95">+</button>
+                    </div>
+                    
+                    <div class="flex-1 bg-zinc-900/50 rounded-xl p-2 border border-zinc-800 overflow-hidden relative">
+                        <ul id="items-list" class="h-full overflow-y-auto pr-1 space-y-2 no-scrollbar absolute inset-2">
+                            <!-- Injected by JS -->
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==========================================
+        // 1. UTILS & AUDIO
+        // ==========================================
+        function formatTime(seconds) {
+            const m = Math.floor(seconds / 60);
+            const s = seconds % 60;
+            return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+        }
+
+        function showToast(message, type = 'normal') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            
+            let bg = 'bg-zinc-800';
+            let text = 'text-white';
+            if (type === 'success') { bg = 'bg-neonGreen'; text = 'text-black'; }
+            if (type === 'warning') { bg = 'bg-neonYellow'; text = 'text-black'; }
+            if (type === 'danger') { bg = 'bg-neonRed'; text = 'text-white'; }
+
+            toast.className = `${bg} ${text} px-6 py-3 rounded-xl shadow-2xl font-bold text-center border border-white/10 uppercase tracking-widest text-sm transition-all transform translate-y-[-20px] opacity-0`;
+            toast.innerText = message;
+            
+            container.appendChild(toast);
+            
+            // Animate in
+            requestAnimationFrame(() => {
+                toast.classList.remove('translate-y-[-20px]', 'opacity-0');
+                toast.classList.add('translate-y-0', 'opacity-100');
+            });
+            
+            // Animate out
+            setTimeout(() => {
+                toast.classList.remove('translate-y-0', 'opacity-100');
+                toast.classList.add('translate-y-[-20px]', 'opacity-0');
+                setTimeout(() => toast.remove(), 300);
+            }, 2500);
+        }
+
+        // Play audio directly using the standard file names requested
+        function playBell() {
+            const bell = document.getElementById('bellSound');
+            bell.currentTime = 0;
+            bell.play().catch(e => console.log("Bell audio not ready or missing.", e));
+        }
+
+        function playWhistle() {
+            const whistle = document.getElementById('whistleSound');
+            whistle.currentTime = 0;
+            whistle.play().catch(e => console.log("Whistle audio not ready or missing.", e));
+        }
+
+        // ==========================================
+        // 2. STATE MACHINE & TIMER LOGIC
+        // ==========================================
+        const STATE = { PREP: 'PREP', WORK: 'WORK', REST: 'REST', PAUSED: 'PAUSED', FINISHED: 'FINISHED' };
+        
+        let config = { rounds: 12, workSeconds: 180, restSeconds: 60, prepSeconds: 5 };
+        let timerState = STATE.PREP;
+        let currentRound = 1;
+        
+        let targetTime = 0; 
+        let remainingSeconds = config.prepSeconds; // Start in prep mode
+        let timerInterval = null;
+        let alert30sPlayed = false;
+        
+        let isTrafficMode = false; 
+
+        // DOM Elements Timer
+        const elTimerClassic = document.getElementById('timer-display');
+        const elTimerTraffic = document.getElementById('traffic-timer-display');
+        const elRoundClassic = document.getElementById('current-round-text');
+        const elRoundTraffic = document.getElementById('traffic-round-indicator');
+        const elTotalRounds = document.getElementById('total-rounds-text');
+        const elStatusBadge = document.getElementById('status-badge');
+        const elStatusTraffic = document.getElementById('traffic-status-text');
+        const progressRing = document.getElementById('progress-ring');
+        const ringCircumference = 289.02; // 2 * PI * 46
+        
+        const viewClassic = document.getElementById('view-classic');
+        const viewTraffic = document.getElementById('view-traffic');
+        const flashOverlay = document.getElementById('flash-overlay');
+
+        function updateUI() {
+            const timeStr = formatTime(remainingSeconds);
+            elTimerClassic.textContent = timeStr;
+            elTimerTraffic.textContent = timeStr;
+            
+            elRoundClassic.textContent = currentRound;
+            elTotalRounds.textContent = config.rounds;
+            elRoundTraffic.textContent = `ROUND ${currentRound}/${config.rounds}`;
+
+            // Calculate Progress Phase Total
+            let totalPhase = config.prepSeconds;
+            if (timerState === STATE.WORK) totalPhase = config.workSeconds;
+            if (timerState === STATE.REST) totalPhase = config.restSeconds;
+
+            const percent = remainingSeconds / totalPhase;
+            const offset = ringCircumference - (percent * ringCircumference);
+            progressRing.style.strokeDashoffset = isNaN(offset) ? 0 : offset;
+
+            // Handle Views Toggle
+            if (isTrafficMode) {
+                viewClassic.classList.add('hidden');
+                viewTraffic.classList.remove('hidden');
+            } else {
+                viewTraffic.classList.add('hidden');
+                viewClassic.classList.remove('hidden');
+            }
+
+            // State specific UI
+            const btnStart = document.getElementById('btn-start');
+            const btnPause = document.getElementById('btn-pause');
+            const btnReset = document.getElementById('btn-reset');
+
+            switch (timerState) {
+                case STATE.PREP:
+                    elStatusBadge.textContent = "PREPARACIÓN";
+                    elStatusBadge.className = "px-8 py-2 rounded-full font-sans font-black text-xl uppercase tracking-[0.2em] bg-zinc-800 text-zinc-400 border border-zinc-700 mb-4 transition-colors";
+                    elTimerClassic.className = "font-display text-[7rem] md:text-[10rem] tabular-nums tracking-normal z-10 text-center leading-none mt-4 text-zinc-400";
+                    progressRing.setAttribute('stroke', '#71717a');
+                    
+                    if (isTrafficMode) {
+                        viewTraffic.className = "absolute inset-0 z-30 flex flex-col items-center justify-center cursor-pointer transition-colors duration-300 bg-appBg";
+                        elStatusTraffic.textContent = "LISTOS...";
+                    }
+                    
+                    if(targetTime === 0) { // Idle state essentially
+                        btnStart.classList.remove('hidden');
+                        btnStart.textContent = "INICIAR";
+                        btnStart.className = "flex-1 py-5 bg-neonRed text-white font-black text-2xl rounded-2xl uppercase tracking-widest hover:bg-red-400 active:scale-95 transition-transform shadow-[0_0_20px_rgba(239,68,68,0.4)]";
+                        btnPause.classList.add('hidden');
+                        btnReset.classList.add('hidden');
+                    } else { // Prep running
+                        btnStart.classList.add('hidden');
+                        btnPause.classList.remove('hidden');
+                        btnReset.classList.remove('hidden');
+                    }
+                    break;
+                    
+                case STATE.WORK:
+                    elStatusBadge.textContent = "FIGHT";
+                    elStatusBadge.className = "px-8 py-2 rounded-full font-sans font-black text-xl uppercase tracking-[0.2em] bg-neonGreen text-black mb-4 transition-colors shadow-[0_0_15px_rgba(34,197,94,0.4)]";
+                    progressRing.setAttribute('stroke', '#22c55e');
+                    
+                    if (remainingSeconds <= 30) {
+                        elTimerClassic.className = "font-display text-[7rem] md:text-[10rem] tabular-nums tracking-normal z-10 text-center leading-none mt-4 text-neonYellow glow-yellow";
+                        progressRing.setAttribute('stroke', '#eab308');
+                        if (isTrafficMode) {
+                            viewTraffic.className = "absolute inset-0 z-30 flex flex-col items-center justify-center cursor-pointer transition-colors duration-300 bg-neonYellow";
+                            elStatusTraffic.textContent = "¡30 SEGUNDOS!";
+                            elStatusTraffic.classList.add('text-black');
+                            elTimerTraffic.classList.replace('text-white', 'text-black');
+                        }
+                    } else {
+                        elTimerClassic.className = "font-display text-[7rem] md:text-[10rem] tabular-nums tracking-normal z-10 text-center leading-none mt-4 text-neonGreen glow-green";
+                        if (isTrafficMode) {
+                            viewTraffic.className = "absolute inset-0 z-30 flex flex-col items-center justify-center cursor-pointer transition-colors duration-300 bg-neonGreen";
+                            elStatusTraffic.textContent = "TRABAJO";
+                            elStatusTraffic.classList.replace('text-black', 'text-black/50');
+                            elTimerTraffic.classList.replace('text-black', 'text-white');
+                        }
+                    }
+
+                    btnStart.classList.add('hidden');
+                    btnPause.classList.remove('hidden');
+                    btnReset.classList.remove('hidden');
+                    break;
+                    
+                case STATE.REST:
+                    elStatusBadge.textContent = "DESCANSO";
+                    elStatusBadge.className = "px-8 py-2 rounded-full font-sans font-black text-xl uppercase tracking-[0.2em] bg-neonRed text-white mb-4 transition-colors shadow-[0_0_15px_rgba(239,68,68,0.4)]";
+                    elTimerClassic.className = "font-display text-[7rem] md:text-[10rem] tabular-nums tracking-normal z-10 text-center leading-none mt-4 text-neonRed glow-red";
+                    progressRing.setAttribute('stroke', '#ef4444');
+                    
+                    if (isTrafficMode) {
+                        viewTraffic.className = "absolute inset-0 z-30 flex flex-col items-center justify-center cursor-pointer transition-colors duration-300 bg-neonRed";
+                        elStatusTraffic.textContent = "DESCANSO";
+                        elStatusTraffic.classList.replace('text-black', 'text-white/50');
+                        elTimerTraffic.classList.replace('text-black', 'text-white');
+                    }
+                    break;
+                    
+                case STATE.PAUSED:
+                    elStatusBadge.textContent = "PAUSADO";
+                    elStatusBadge.className = "px-8 py-2 rounded-full font-sans font-black text-xl uppercase tracking-[0.2em] bg-zinc-700 text-white mb-4 transition-colors";
+                    
+                    if (isTrafficMode) {
+                        viewTraffic.className = "absolute inset-0 z-30 flex flex-col items-center justify-center cursor-pointer transition-colors duration-300 bg-appBg";
+                        elStatusTraffic.textContent = "PAUSADO - TOQUE";
+                        elStatusTraffic.classList.replace('text-black', 'text-white/50');
+                        elTimerTraffic.classList.replace('text-black', 'text-white');
+                    }
+                    btnStart.classList.remove('hidden');
+                    btnStart.textContent = "REANUDAR";
+                    btnStart.className = "flex-1 py-5 bg-white text-black font-black text-2xl rounded-2xl uppercase tracking-widest hover:bg-zinc-200 active:scale-95 transition-transform shadow-lg";
+                    btnPause.classList.add('hidden');
+                    break;
+
+                case STATE.FINISHED:
+                    elStatusBadge.textContent = "COMPLETADO";
+                    elStatusBadge.className = "px-8 py-2 rounded-full font-sans font-black text-xl uppercase tracking-[0.2em] bg-indigo-600 text-white mb-4 transition-colors glow-indigo";
+                    elTimerClassic.className = "font-display text-[7rem] md:text-[10rem] tabular-nums tracking-normal z-10 text-center leading-none mt-4 text-white";
+                    progressRing.style.strokeDashoffset = 0;
+                    progressRing.setAttribute('stroke', '#4f46e5');
+                    
+                    if (isTrafficMode) {
+                        viewTraffic.className = "absolute inset-0 z-30 flex flex-col items-center justify-center cursor-pointer transition-colors duration-300 bg-indigo-900";
+                        elStatusTraffic.textContent = "ENTRENAMIENTO FIN";
+                        elStatusTraffic.classList.replace('text-black', 'text-white/50');
+                        elTimerTraffic.classList.replace('text-black', 'text-white');
+                    }
+                    btnStart.classList.remove('hidden');
+                    btnStart.textContent = "NUEVO ENTR.";
+                    btnStart.className = "flex-1 py-5 bg-neonRed text-white font-black text-2xl rounded-2xl uppercase tracking-widest hover:bg-red-400 active:scale-95 transition-transform shadow-[0_0_20px_rgba(239,68,68,0.4)]";
+                    btnPause.classList.add('hidden');
+                    btnReset.classList.add('hidden');
+                    break;
+            }
+        }
+
+        function trigger30sAlert() {
+            playWhistle();
+            flashOverlay.classList.remove('flash-active');
+            void flashOverlay.offsetWidth; // Reflow
+            flashOverlay.classList.add('flash-active');
+        }
+
+        function handleTick() {
+            const now = Date.now();
+            remainingSeconds = Math.max(0, Math.ceil((targetTime - now) / 1000));
+
+            // 30s Check during WORK phase
+            if (timerState === STATE.WORK && remainingSeconds === 30 && !alert30sPlayed) {
+                alert30sPlayed = true;
+                trigger30sAlert();
+            }
+
+            // Phase Transitions
+            if (remainingSeconds <= 0) {
+                
+                if (timerState === STATE.PREP) {
+                    playBell();
+                    timerState = STATE.WORK;
+                    targetTime = Date.now() + (config.workSeconds * 1000);
+                    remainingSeconds = config.workSeconds;
+                }
+                else if (timerState === STATE.WORK) {
+                    playBell();
+                    if (currentRound >= config.rounds) {
+                        timerState = STATE.FINISHED;
+                        clearInterval(timerInterval);
+                    } else {
+                        timerState = STATE.REST;
+                        targetTime = Date.now() + (config.restSeconds * 1000);
+                        remainingSeconds = config.restSeconds;
+                    }
+                } 
+                else if (timerState === STATE.REST) {
+                    playBell();
+                    timerState = STATE.WORK;
+                    currentRound++;
+                    targetTime = Date.now() + (config.workSeconds * 1000);
+                    remainingSeconds = config.workSeconds;
+                    alert30sPlayed = false;
+                }
+            }
+            updateUI();
+        }
+
+        function startTimer() {
+            // Force load audio on user interaction to bypass mobile restrictions
+            document.getElementById('bellSound').load();
+            document.getElementById('whistleSound').load();
+
+            if (timerState === STATE.PREP && targetTime === 0 || timerState === STATE.FINISHED) {
+                currentRound = 1;
+                timerState = STATE.PREP;
+                remainingSeconds = config.prepSeconds;
+                alert30sPlayed = false;
+            } else if (timerState === STATE.PAUSED) {
+                // Resume logic: restore correct state based on ring color or current variable
+                if (progressRing.getAttribute('stroke') === '#ef4444') timerState = STATE.REST;
+                else if (progressRing.getAttribute('stroke') === '#71717a') timerState = STATE.PREP;
+                else timerState = STATE.WORK;
+            }
+            
+            targetTime = Date.now() + (remainingSeconds * 1000);
+            if(timerInterval) clearInterval(timerInterval);
+            timerInterval = setInterval(handleTick, 100); 
+            
+            // WakeLock API for Mobile
+            if ('wakeLock' in navigator) {
+                navigator.wakeLock.request('screen').catch(()=> {});
+            }
+            updateUI();
+        }
+
+        function pauseTimer() {
+            clearInterval(timerInterval);
+            timerState = STATE.PAUSED;
+            updateUI();
+        }
+
+        function resetTimer() {
+            clearInterval(timerInterval);
+            timerState = STATE.PREP;
+            targetTime = 0;
+            remainingSeconds = config.prepSeconds;
+            currentRound = 1;
+            updateUI();
+        }
+
+        // Timer Controls
+        document.getElementById('btn-start').addEventListener('click', startTimer);
+        document.getElementById('btn-pause').addEventListener('click', pauseTimer);
+        document.getElementById('btn-reset').addEventListener('click', resetTimer);
+        
+        // Traffic Light View Controls
+        viewTraffic.addEventListener('click', () => {
+            if (timerState === STATE.PREP && targetTime === 0 || timerState === STATE.PAUSED || timerState === STATE.FINISHED) startTimer();
+            else pauseTimer();
+        });
+
+        // ==========================================
+        // 3. NAVIGATION CONTROLS
+        // ==========================================
+        const navClassic = document.getElementById('nav-classic');
+        const navTraffic = document.getElementById('nav-traffic');
+
+        function setNavActive(mode) {
+            isTrafficMode = mode === 'traffic';
+            
+            if (isTrafficMode) {
+                navTraffic.classList.replace('text-zinc-400', 'text-white');
+                navTraffic.classList.replace('bg-transparent', 'bg-zinc-700');
+                navClassic.classList.replace('text-white', 'text-zinc-400');
+                navClassic.classList.replace('bg-zinc-700', 'bg-transparent');
+            } else {
+                navClassic.classList.replace('text-zinc-400', 'text-white');
+                navClassic.classList.replace('bg-transparent', 'bg-zinc-700');
+                navTraffic.classList.replace('text-white', 'text-zinc-400');
+                navTraffic.classList.replace('bg-zinc-700', 'bg-transparent');
+            }
+            updateUI();
+        }
+
+        navClassic.addEventListener('click', () => setNavActive('classic'));
+        navTraffic.addEventListener('click', () => setNavActive('traffic'));
+
+        // ==========================================
+        // 4. SETTINGS MODAL & PRESETS
+        // ==========================================
+        const modalSettings = document.getElementById('modal-settings');
+        
+        function updateSettingsUI() {
+            document.getElementById('set-rounds').textContent = config.rounds;
+            document.getElementById('set-work').textContent = formatTime(config.workSeconds);
+            document.getElementById('set-rest').textContent = formatTime(config.restSeconds);
+        }
+
+        window.adjustSetting = function(type, amount) {
+            if (type === 'rounds') config.rounds = Math.max(1, Math.min(50, config.rounds + amount));
+            else if (type === 'work') config.workSeconds = Math.max(10, Math.min(1800, config.workSeconds + amount));
+            else if (type === 'rest') config.restSeconds = Math.max(5, Math.min(600, config.restSeconds + amount));
+            updateSettingsUI();
+        };
+
+        window.applyPreset = function(r, w, rest) {
+            config.rounds = r;
+            config.workSeconds = w;
+            config.restSeconds = rest;
+            updateSettingsUI();
+            showToast("Perfil Aplicado", "success");
+        };
+
+        document.getElementById('nav-settings').addEventListener('click', () => {
+            updateSettingsUI();
+            modalSettings.classList.remove('hidden');
+        });
+
+        const closeSettings = () => {
+            modalSettings.classList.add('hidden');
+            if (timerState === STATE.PREP && targetTime === 0 || timerState === STATE.FINISHED) {
+                resetTimer(); // Refresh logic if not actively running
+            }
+        };
+        document.getElementById('btn-close-settings').addEventListener('click', closeSettings);
+        document.getElementById('btn-save-settings').addEventListener('click', closeSettings);
+
+        // ==========================================
+        // 5. DOUBLE ROULETTE (CANVAS)
+        // ==========================================
+        const modalRoulette = document.getElementById('modal-roulette');
+        const canvas = document.getElementById('roulette-canvas');
+        const ctx = canvas.getContext('2d');
+        const listContainer = document.getElementById('items-list');
+        const inputNewItem = document.getElementById('new-item-input');
+
+        let activeTab = 'sparring';
+        let currentAngle = 0;
+        let spinVelocity = 0;
+        let isSpinning = false;
+        let spinRafId = null;
+
+        // Custom Palettes
+        const colorsSparring = ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#06b6d4'];
+        const colorsPenitencia = ['#fde047', '#facc15', '#eab308', '#f97316', '#ea580c', '#ef4444', '#dc2626']; // Strict yellow/orange/red
+
+        // Data Storage
+        let dataSparring = ['Solo Jab', 'Combo 1-2', 'Pelea en corto', 'Solo defensa', 'Mov. Lateral', 'Jab y gancho'];
+        let dataPenitencia = ['50 Burpees', '100 Flexiones', 'Plancha 3 min', '100 Sentadillas', 'Sprints'];
+
+        try {
+            if (localStorage.getItem('bf_sparring')) dataSparring = JSON.parse(localStorage.getItem('bf_sparring'));
+            if (localStorage.getItem('bf_penitencia')) dataPenitencia = JSON.parse(localStorage.getItem('bf_penitencia'));
+        } catch(e) { console.log("LocalStorage unavailable"); }
+
+        function saveStorage() {
+            try {
+                localStorage.setItem('bf_sparring', JSON.stringify(dataSparring));
+                localStorage.setItem('bf_penitencia', JSON.stringify(dataPenitencia));
+            } catch(e) {}
+        }
+
+        function getActiveData() { return activeTab === 'sparring' ? dataSparring : dataPenitencia; }
+        function getActiveColors() { return activeTab === 'sparring' ? colorsSparring : colorsPenitencia; }
+
+        function drawWheel() {
+            const items = getActiveData();
+            const colors = getActiveColors();
+            const w = canvas.width;
+            const h = canvas.height;
+            const cx = w / 2;
+            const cy = h / 2;
+            const radius = cx - 12;
+
+            ctx.clearRect(0, 0, w, h);
+
+            if (items.length === 0) {
+                ctx.fillStyle = '#18181b';
+                ctx.beginPath(); ctx.arc(cx, cy, radius, 0, 2*Math.PI); ctx.fill();
+                ctx.fillStyle = '#71717a'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.font = '16px Inter';
+                ctx.fillText('Sin elementos', cx, cy);
+                return;
+            }
+
+            const sliceAngle = (2 * Math.PI) / items.length;
+
+            for (let i = 0; i < items.length; i++) {
+                const start = currentAngle + (i * sliceAngle);
+                const end = start + sliceAngle;
+
+                ctx.beginPath();
+                ctx.moveTo(cx, cy);
+                ctx.arc(cx, cy, radius, start, end);
+                ctx.closePath();
+                ctx.fillStyle = colors[i % colors.length];
+                ctx.fill();
+                ctx.lineWidth = 4;
+                ctx.strokeStyle = '#09090b';
+                ctx.stroke();
+
+                ctx.save();
+                ctx.translate(cx, cy);
+                ctx.rotate(start + sliceAngle / 2);
+                ctx.textAlign = 'right';
+                ctx.textBaseline = 'middle';
+                ctx.fillStyle = '#fff';
+                ctx.font = 'bold 16px Inter';
+                ctx.shadowColor = 'rgba(0,0,0,0.9)';
+                ctx.shadowBlur = 4;
+                let txt = items[i];
+                if (txt.length > 16) txt = txt.substring(0, 14) + '...';
+                ctx.fillText(txt, radius - 24, 0);
+                ctx.restore();
+            }
+
+            // Inner circle
+            ctx.beginPath(); ctx.arc(cx, cy, 20, 0, 2*Math.PI); ctx.fillStyle = '#09090b'; ctx.fill();
+            ctx.lineWidth = 4; ctx.strokeStyle = '#27272a'; ctx.stroke();
+        }
+
+        function renderList() {
+            const items = getActiveData();
+            const colors = getActiveColors();
+            listContainer.innerHTML = '';
+            
+            items.forEach((item, idx) => {
+                const li = document.createElement('li');
+                li.className = 'flex justify-between items-center bg-zinc-900 p-3 rounded-xl border border-zinc-800 shadow-sm';
+                li.innerHTML = `
+                    <div class="flex items-center gap-3 overflow-hidden">
+                        <div class="w-4 h-4 rounded-full flex-shrink-0" style="background-color: ${colors[idx % colors.length]}"></div>
+                        <span class="text-sm font-bold text-zinc-300 truncate">${item}</span>
+                    </div>
+                    <button onclick="removeRouletteItem(${idx})" class="text-zinc-600 hover:text-neonRed p-2 flex-shrink-0 active:scale-90 transition">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                    </button>
+                `;
+                listContainer.appendChild(li);
+            });
+            drawWheel();
+        }
+
+        window.removeRouletteItem = function(idx) {
+            if(isSpinning) return;
+            getActiveData().splice(idx, 1);
+            saveStorage();
+            renderList();
+        }
+
+        document.getElementById('btn-add-item').addEventListener('click', () => {
+            const val = inputNewItem.value.trim();
+            if(val && !isSpinning) {
+                getActiveData().push(val);
+                saveStorage();
+                inputNewItem.value = '';
+                renderList();
+            }
+        });
+
+        function changeTab(tab) {
+            if(isSpinning) return;
+            activeTab = tab;
+            const tSparring = document.getElementById('tab-sparring');
+            const tPenitencia = document.getElementById('tab-penitencia');
+            
+            if(tab === 'sparring') {
+                tSparring.className = "flex-1 py-4 font-sans font-black text-sm uppercase tracking-widest text-neonYellow border-b-4 border-neonYellow bg-appSurface transition";
+                tPenitencia.className = "flex-1 py-4 font-sans font-black text-sm uppercase tracking-widest text-zinc-500 border-b-4 border-transparent hover:text-neonRed transition";
+            } else {
+                tPenitencia.className = "flex-1 py-4 font-sans font-black text-sm uppercase tracking-widest text-neonRed border-b-4 border-neonRed bg-appSurface transition";
+                tSparring.className = "flex-1 py-4 font-sans font-black text-sm uppercase tracking-widest text-zinc-500 border-b-4 border-transparent hover:text-neonYellow transition";
+            }
+            currentAngle = 0;
+            renderList();
+        }
+
+        document.getElementById('tab-sparring').addEventListener('click', () => changeTab('sparring'));
+        document.getElementById('tab-penitencia').addEventListener('click', () => changeTab('penitencia'));
+
+        document.getElementById('btn-spin').addEventListener('click', () => {
+            const items = getActiveData();
+            if (isSpinning || items.length === 0) return;
+            
+            isSpinning = true;
+            spinVelocity = Math.random() * 0.2 + 0.4; // Initial push
+
+            function animate() {
+                currentAngle -= spinVelocity; 
+                spinVelocity *= 0.985; // Friction
+                
+                if (currentAngle < 0) currentAngle += 2 * Math.PI;
+
+                drawWheel();
+
+                if (spinVelocity > 0.002) {
+                    spinRafId = requestAnimationFrame(animate);
+                } else {
+                    isSpinning = false;
+                    cancelAnimationFrame(spinRafId);
+                    
+                    const sliceAngle = (2 * Math.PI) / items.length;
+                    let normalized = (currentAngle + Math.PI/2) % (2 * Math.PI);
+                    if (normalized < 0) normalized += 2 * Math.PI;
+                    
+                    let winIdx = items.length - 1 - Math.floor(normalized / sliceAngle);
+                    if(winIdx < 0) winIdx += items.length;
+                    
+                    showToast(`🏆 ${items[winIdx]}`, activeTab === 'sparring' ? 'warning' : 'danger');
+                }
+            }
+            animate();
+        });
+
+        document.getElementById('nav-roulette').addEventListener('click', () => {
+            modalRoulette.classList.remove('hidden');
+            renderList(); 
+        });
+        document.getElementById('btn-close-roulette').addEventListener('click', () => {
+            if(!isSpinning) modalRoulette.classList.add('hidden');
+        });
+
+        // Initialize App
+        resetTimer();
+        renderList();
+    </script>
+</body>
+</html>
