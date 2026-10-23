@@ -44,11 +44,6 @@
 </head>
 <body class="bg-zinc-950 text-white h-screen w-screen overflow-hidden flex flex-col items-center justify-center relative">
 
-    <!-- Notificación flotante para salir con doble toque -->
-    <div id="exitToast" class="fixed top-12 left-1/2 -translate-x-1/2 bg-zinc-800 text-white px-6 py-2 rounded-full font-bold text-sm shadow-2xl z-[100] transition-all duration-300 opacity-0 pointer-events-none">
-        Presiona atrás de nuevo para salir
-    </div>
-
     <!-- Logo Superior Izquierdo -->
     <div class="absolute top-4 left-4 z-[60] pointer-events-none flex items-center bg-zinc-900/80 rounded-full pr-4 p-1 shadow-lg border border-zinc-800">
         <div class="w-10 h-10 flex items-center justify-center glove-glow">
@@ -160,14 +155,13 @@
         </div>
     </div>
 
-    <!-- MODAL RULETAS (Proporción mejorada) -->
+    <!-- MODAL RULETAS -->
     <div id="rouletteModal" class="hidden absolute inset-0 z-[70] bg-zinc-950/95 backdrop-blur-sm flex flex-col p-4 items-center pt-12 overflow-y-auto">
         <div class="flex bg-zinc-900 rounded-full p-1 mb-3">
             <button id="tabSparring" class="px-6 py-2 rounded-full font-bold text-white bg-blue-600 transition-colors text-sm">SPARRING</button>
             <button id="tabPenitencia" class="px-6 py-2 rounded-full font-bold text-zinc-400 transition-colors text-sm">PENITENCIA</button>
         </div>
         
-        <!-- Ruleta más grande y proporcionada -->
         <div class="relative w-64 h-64 mb-3">
             <canvas id="rouletteCanvas" width="256" height="256" class="w-full h-full rounded-full shadow-2xl border-4 border-zinc-800"></canvas>
             <div class="absolute top-0 left-1/2 -translate-x-1/2 -mt-2 w-0 h-0 border-l-[12px] border-r-[12px] border-t-[20px] border-l-transparent border-r-transparent border-t-white z-10 drop-shadow-md"></div>
@@ -184,7 +178,6 @@
             <div id="rouletteList" class="max-h-24 overflow-y-auto space-y-1"></div>
         </div>
 
-        <!-- Botón Volver proporcionado y grande -->
         <button id="btnCloseRoulette" class="w-full max-w-sm bg-zinc-800 text-white font-bebas text-3xl py-4 rounded-xl shadow-lg mb-6">VOLVER</button>
     </div>
 
@@ -255,36 +248,23 @@
             if (wakeLock !== null && document.visibilityState === 'visible') await requestWakeLock();
         });
 
-        // --- 3. GESTIÓN NATIVA DE MODALES Y BOTÓN ATRÁS (ANDROID) ---
-        let lastBackPress = 0;
-
+        // --- 3. GESTIÓN NATIVA DE MODALES Y BLOQUEO DE CIERRE DIRECTO ---
         function closeAllModals() {
             document.getElementById('settingsModal').classList.add('hidden');
             document.getElementById('rouletteModal').classList.add('hidden');
         }
 
-        // Interceptor del botón físico de retroceso
-        window.addEventListener('popstate', (e) => {
-            history.pushState(null, '', window.location.href);
-
+        // Capacitor inyecta este evento nativo para el botón de retroceso en Android
+        document.addEventListener('backbutton', function (e) {
             const settingsOpen = !document.getElementById('settingsModal').classList.contains('hidden');
             const rouletteOpen = !document.getElementById('rouletteModal').classList.contains('hidden');
 
             if (settingsOpen || rouletteOpen) {
-                closeAllModals();
+                closeAllModals(); // Si hay modales abiertos, los cierra y regresa al timer
             } else {
-                let now = Date.now();
-                if (now - lastBackPress < 2000) {
-                    navigator.app?.exitApp?.() || window.close();
-                } else {
-                    lastBackPress = now;
-                    let toast = document.getElementById('exitToast');
-                    toast.style.opacity = '1';
-                    setTimeout(() => { toast.style.opacity = '0'; }, 2000);
-                }
+                e.preventDefault(); // Evita que Android cierre la app por accidente con un solo toque
             }
-        });
-        history.pushState(null, '', window.location.href);
+        }, false);
 
         // --- 4. LÓGICA DEL TIMER Y BLINDAJE DE ESTADOS ---
         const states = { PREP: 'prep', WORK: 'work', REST: 'rest', DONE: 'done', PAUSED: 'paused' };
@@ -428,7 +408,7 @@
 
         function startRoutine() {
             if (audioCtx.state === 'suspended') audioCtx.resume();
-            if (timerInterval) clearInterval(timerInterval); // Limpieza absoluta de intervalos fantasmas
+            if (timerInterval) clearInterval(timerInterval);
             
             currentRound = 1;
             switchState(states.PREP);
@@ -464,6 +444,7 @@
             ui.btnStart.classList.replace('bg-red-600', 'bg-yellow-600');
         }
 
+        // Blindaje total de la máquina de estados del timer para evitar solapamientos
         function toggleTimer(e) {
             if (e) e.stopPropagation();
             if (currentState === states.DONE) {
@@ -481,7 +462,7 @@
         ui.tView.addEventListener('click', (e) => {
             if (semaforoLock) return;
             semaforoLock = true;
-            setTimeout(() => { semaforoLock = false; }, 300);
+            setTimeout(() => { semaforoLock = false; }, 400); // Bloqueo estricto de doble toque fantasma en semáforo
             toggleTimer(e);
         });
 
