@@ -70,13 +70,34 @@ jobs:
     - name: 7. Compilar el APK (Android Studio)
       working-directory: ./android
       run: |
-        # Firma fija: así las actualizaciones se instalan encima sin desinstalar
+        # Firma fija y explícita: todas las versiones usan la misma llave del repo
         mkdir -p ~/.android && cp ../keystore/boxfit.keystore ~/.android/debug.keystore
+        cp ../keystore/boxfit.keystore app/boxfit.keystore
+        cat <<'EOF2' >> app/build.gradle
+
+        android {
+            signingConfigs {
+                boxfit {
+                    storeFile file('boxfit.keystore')
+                    storePassword 'android'
+                    keyAlias 'androiddebugkey'
+                    keyPassword 'android'
+                }
+            }
+            buildTypes {
+                debug { signingConfig signingConfigs.boxfit }
+                release { signingConfig signingConfigs.boxfit }
+            }
+        }
+        EOF2
         chmod +x gradlew
         ./gradlew assembleDebug --stacktrace
 
-    - name: 8. Renombrar el archivo APK
-      run: mv android/app/build/outputs/apk/debug/app-debug.apk android/app/build/outputs/apk/debug/BoxfitPro.apk
+    - name: 8. Renombrar el archivo APK y mostrar su firma
+      run: |
+        mv android/app/build/outputs/apk/debug/app-debug.apk android/app/build/outputs/apk/debug/BoxfitPro.apk
+        FP=$(keytool -printcert -jarfile android/app/build/outputs/apk/debug/BoxfitPro.apk | grep "SHA256:" | head -1)
+        echo "::notice title=Firma del APK::$FP"
 
     - name: 9. Subir el APK listo
       uses: actions/upload-artifact@v4
