@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     
-    <!-- Identidad de la App (Para el celular) -->
+    <!-- Identidad de la App -->
     <title>Boxfit Pro</title>
     <meta name="application-name" content="Boxfit Pro">
     <meta name="apple-mobile-web-app-title" content="Boxfit Pro">
@@ -12,7 +12,7 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     
-    <!-- Ícono Integrado de Guantes de Boxeo (SVG Data URI) -->
+    <!-- Ícono Integrado -->
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%2318181b'/><text x='50' y='72' font-size='65' text-anchor='middle'>🥊</text></svg>">
     <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%2318181b'/><text x='50' y='72' font-size='65' text-anchor='middle'>🥊</text></svg>">
 
@@ -28,7 +28,6 @@
         }
         .font-bebas { font-family: 'Bebas Neue', sans-serif; }
         
-        /* Animación del guante superior izquierdo */
         .glove-glow {
             filter: drop-shadow(0 0 8px rgba(220, 38, 38, 0.8));
             animation: pulseGlow 2s infinite;
@@ -38,7 +37,6 @@
             50% { filter: drop-shadow(0 0 15px rgba(220, 38, 38, 1)); }
         }
 
-        /* Flash de alerta a los 30s */
         .flash-warning {
             animation: flashScreen 0.6s ease-out;
         }
@@ -47,7 +45,6 @@
             100% { background-color: transparent; }
         }
 
-        /* Anillo de progreso suave */
         circle {
             transition: stroke-dashoffset 0.1s linear;
         }
@@ -55,7 +52,6 @@
 </head>
 <body class="bg-zinc-950 text-white h-screen w-screen overflow-hidden flex flex-col items-center justify-center relative">
 
-    <!-- Audios en la nube de Google -->
     <audio id="bellSound" src="https://actions.google.com/sounds/v1/alarms/boxing_bell.ogg" preload="auto"></audio>
     <audio id="whistleSound" src="https://actions.google.com/sounds/v1/sports/referee_whistle.ogg" preload="auto"></audio>
 
@@ -75,15 +71,12 @@
         <span class="font-bebas text-2xl tracking-wider ml-1 text-zinc-100">BOXFIT PRO</span>
     </div>
 
-    <!-- Contenedor del Flash y Semáforo -->
     <div id="screenOverlay" class="absolute inset-0 z-0 transition-colors duration-300 pointer-events-none"></div>
 
-    <!-- PANTALLA PRINCIPAL (Temporizador Clásico) -->
+    <!-- PANTALLA PRINCIPAL -->
     <main id="mainView" class="z-10 flex flex-col items-center justify-center w-full h-full pb-20">
-        <!-- Indicador de Estado -->
         <div id="statusText" class="text-4xl font-bold uppercase tracking-widest text-zinc-400 mb-2">Preparado</div>
         
-        <!-- Timer y Anillo -->
         <div class="relative w-72 h-72 flex items-center justify-center mb-6">
             <svg class="absolute inset-0 w-full h-full transform -rotate-90">
                 <circle cx="144" cy="144" r="135" stroke="#27272a" stroke-width="12" fill="none" />
@@ -93,19 +86,17 @@
             <div id="timeDisplay" class="font-bebas text-9xl tracking-tight relative z-10 drop-shadow-md">00:00</div>
         </div>
         
-        <!-- Rondas -->
         <div class="text-2xl text-zinc-400 font-semibold bg-zinc-900 px-6 py-2 rounded-full mb-8">
             ROUND <span id="currentRoundDisplay" class="text-white">1</span> / <span id="totalRoundsDisplay">3</span>
         </div>
 
-        <!-- Controles Principales -->
         <div class="flex gap-4">
             <button id="btnStart" class="bg-red-600 hover:bg-red-500 text-white font-bebas text-4xl px-12 py-4 rounded-2xl shadow-[0_0_20px_rgba(220,38,38,0.4)] transition-all">INICIAR</button>
             <button id="btnReset" class="bg-zinc-800 hover:bg-zinc-700 text-white font-bebas text-4xl px-8 py-4 rounded-2xl transition-all">↻</button>
         </div>
     </main>
 
-    <!-- MODO SEMÁFORO (Pantalla Completa) -->
+    <!-- MODO SEMÁFORO -->
     <div id="trafficLightView" class="hidden absolute inset-0 z-50 flex flex-col items-center justify-center cursor-pointer transition-colors duration-200">
         <div id="trafficStatus" class="font-bebas text-5xl opacity-80 mb-4">LISTO</div>
         <div id="trafficTime" class="font-bebas text-[15rem] leading-none tracking-tighter drop-shadow-lg">00:00</div>
@@ -114,8 +105,8 @@
         </div>
     </div>
 
-    <!-- NAVEGACIÓN INFERIOR (Glassmorphism) -->
-    <nav class="absolute bottom-6 z-40 bg-zinc-900/80 backdrop-blur-md px-6 py-3 rounded-full flex gap-8 border border-zinc-800 shadow-2xl">
+    <!-- NAVEGACIÓN INFERIOR (Z-index elevado a 60 para que nunca se esconda) -->
+    <nav class="absolute bottom-6 z-[60] bg-zinc-900/80 backdrop-blur-md px-6 py-3 rounded-full flex gap-8 border border-zinc-800 shadow-2xl">
         <button id="navTimer" class="text-red-500 flex flex-col items-center p-2">
             <span class="text-2xl">⏱</span>
             <span class="text-xs font-bold mt-1">TIMER</span>
@@ -137,7 +128,6 @@
     <!-- MODAL AJUSTES -->
     <div id="settingsModal" class="hidden absolute inset-0 z-[70] bg-zinc-950/95 backdrop-blur-sm flex flex-col p-6 items-center pt-24">
         <h2 class="font-bebas text-5xl text-white mb-6">AJUSTES DE RUTINA</h2>
-        
         <div class="w-full max-w-md bg-zinc-900 rounded-2xl p-6 border border-zinc-800 mb-6 shadow-xl">
             <h3 class="text-xl text-zinc-400 mb-4 font-bold">PERFILES RÁPIDOS</h3>
             <div class="grid grid-cols-2 gap-3 mb-6">
@@ -146,7 +136,6 @@
                 <button class="preset-btn bg-zinc-800 hover:bg-red-600 text-white py-3 rounded-lg font-bold transition-colors" data-w="300" data-r="60" data-rd="5">MMA (5x5)</button>
                 <button class="preset-btn bg-zinc-800 hover:bg-red-600 text-white py-3 rounded-lg font-bold transition-colors" data-w="20" data-r="10" data-rd="8">TABATA (8x20s)</button>
             </div>
-
             <div class="space-y-4">
                 <div class="flex justify-between items-center">
                     <label class="font-bold text-lg text-zinc-300">Tiempo de Round (min:seg)</label>
@@ -167,23 +156,16 @@
 
     <!-- MODAL RULETAS -->
     <div id="rouletteModal" class="hidden absolute inset-0 z-[70] bg-zinc-950/95 backdrop-blur-sm flex flex-col p-4 items-center pt-20">
-        <!-- Pestañas -->
         <div class="flex bg-zinc-900 rounded-full p-1 mb-4">
             <button id="tabSparring" class="px-6 py-2 rounded-full font-bold text-white bg-blue-600 transition-colors">SPARRING</button>
             <button id="tabPenitencia" class="px-6 py-2 rounded-full font-bold text-zinc-400 transition-colors">PENITENCIA</button>
         </div>
-
-        <!-- Ruleta Visual -->
         <div class="relative w-72 h-72 mb-6">
             <canvas id="rouletteCanvas" width="288" height="288" class="w-full h-full rounded-full shadow-2xl border-4 border-zinc-800"></canvas>
             <div class="absolute top-0 left-1/2 -translate-x-1/2 -mt-2 w-0 h-0 border-l-[15px] border-r-[15px] border-t-[25px] border-l-transparent border-r-transparent border-t-white z-10 drop-shadow-md"></div>
             <button id="btnSpin" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 bg-zinc-900 text-white rounded-full font-bebas text-2xl border-2 border-zinc-700 shadow-lg z-10">GIRAR</button>
         </div>
-
-        <!-- Resultado -->
         <div id="rouletteResult" class="font-bebas text-4xl text-center min-h-[40px] text-white mb-4 drop-shadow-md"></div>
-
-        <!-- Gestión de Lista -->
         <div class="w-full max-w-sm bg-zinc-900 rounded-xl p-4 flex flex-col gap-2">
             <div class="flex gap-2">
                 <input type="text" id="inpRouletteItem" placeholder="Añadir opción..." class="flex-1 bg-zinc-800 rounded px-3 text-white border border-zinc-700">
@@ -191,17 +173,14 @@
             </div>
             <div id="rouletteList" class="max-h-32 overflow-y-auto mt-2 space-y-1"></div>
         </div>
-
         <button id="btnCloseRoulette" class="mt-auto mb-4 bg-zinc-800 text-white font-bebas text-2xl px-8 py-2 rounded-xl">VOLVER</button>
     </div>
 
     <script>
-        // --- AUDIOS ---
         const bell = document.getElementById('bellSound');
         const whistle = document.getElementById('whistleSound');
         let audioInitialized = false;
 
-        // --- ESTADO DEL TIMER ---
         const states = { PREP: 'prep', WORK: 'work', REST: 'rest', DONE: 'done', PAUSED: 'paused' };
         let currentState = states.DONE;
         let config = { work: 180, rest: 60, rounds: 3 };
@@ -211,7 +190,6 @@
         let endTime = 0;
         let thirtySecPlayed = false;
 
-        // --- ELEMENTOS UI ---
         const ui = {
             time: document.getElementById('timeDisplay'),
             status: document.getElementById('statusText'),
@@ -228,7 +206,6 @@
 
         const RING_CIRCUMFERENCE = 848;
 
-        // --- LÓGICA DEL TIMER ---
         function formatTime(sec) {
             let m = Math.floor(sec / 60).toString().padStart(2, '0');
             let s = (sec % 60).toString().padStart(2, '0');
@@ -243,15 +220,16 @@
         function playSound(audioEl) {
             if(!audioInitialized) return;
             audioEl.currentTime = 0;
-            audioEl.play().catch(e => console.log("Audio no pudo reproducirse", e));
+            audioEl.play().catch(e => console.log("Audio falló", e));
         }
 
         function triggerFlash() {
             ui.overlay.classList.remove('flash-warning');
-            void ui.overlay.offsetWidth; // Restart anim
+            void ui.overlay.offsetWidth; 
             ui.overlay.classList.add('flash-warning');
         }
 
+        // EL ARREGLO ESTÁ AQUÍ: Respeta si la pantalla debe estar oculta o no
         function updateUI() {
             const timeStr = formatTime(timeLeft);
             ui.time.innerText = timeStr;
@@ -265,34 +243,38 @@
             let progress = 1 - (timeLeft / maxTime);
             ui.ring.style.strokeDashoffset = RING_CIRCUMFERENCE * progress;
 
-            // Semáforo y Colores
+            let baseClass = "absolute inset-0 z-50 flex flex-col items-center justify-center cursor-pointer transition-colors duration-200";
+            if (ui.tView.classList.contains('hidden')) {
+                baseClass += " hidden";
+            }
+
             if (currentState === states.WORK) {
                 ui.status.innerText = "PELEAR";
                 ui.status.style.color = "#ef4444";
                 ui.ring.style.stroke = "#ef4444";
                 if(timeLeft <= 30) {
-                    ui.tView.className = "absolute inset-0 z-50 flex flex-col items-center justify-center cursor-pointer transition-colors duration-200 bg-yellow-500 text-black";
+                    ui.tView.className = baseClass + " bg-yellow-500 text-black";
                     ui.tStatus.innerText = "ÚLTIMOS 30s";
                 } else {
-                    ui.tView.className = "absolute inset-0 z-50 flex flex-col items-center justify-center cursor-pointer transition-colors duration-200 bg-green-600 text-white";
+                    ui.tView.className = baseClass + " bg-green-600 text-white";
                     ui.tStatus.innerText = "PELEAR";
                 }
             } else if (currentState === states.REST) {
                 ui.status.innerText = "DESCANSO";
                 ui.status.style.color = "#3b82f6";
                 ui.ring.style.stroke = "#3b82f6";
-                ui.tView.className = "absolute inset-0 z-50 flex flex-col items-center justify-center cursor-pointer transition-colors duration-200 bg-red-600 text-white";
+                ui.tView.className = baseClass + " bg-red-600 text-white";
                 ui.tStatus.innerText = "DESCANSO";
             } else if (currentState === states.PREP) {
                 ui.status.innerText = "PREPÁRATE";
                 ui.status.style.color = "#eab308";
                 ui.ring.style.stroke = "#eab308";
-                ui.tView.className = "absolute inset-0 z-50 flex flex-col items-center justify-center cursor-pointer transition-colors duration-200 bg-zinc-800 text-yellow-500";
+                ui.tView.className = baseClass + " bg-zinc-800 text-yellow-500";
                 ui.tStatus.innerText = "PREPÁRATE";
             } else {
                 ui.status.innerText = "FINALIZADO";
                 ui.status.style.color = "#a1a1aa";
-                ui.tView.className = "absolute inset-0 z-50 flex flex-col items-center justify-center cursor-pointer transition-colors duration-200 bg-zinc-900 text-zinc-500";
+                ui.tView.className = baseClass + " bg-zinc-900 text-zinc-500";
                 ui.tStatus.innerText = "FIN";
             }
         }
@@ -300,7 +282,6 @@
         function switchState(newState) {
             currentState = newState;
             thirtySecPlayed = false;
-            
             if (newState === states.WORK) {
                 timeLeft = config.work;
                 playSound(bell);
@@ -312,7 +293,6 @@
             } else if (newState === states.PREP) {
                 timeLeft = 5;
             }
-            
             endTime = Date.now() + (timeLeft * 1000);
             updateUI();
         }
@@ -321,7 +301,6 @@
             let now = Date.now();
             timeLeft = Math.max(0, Math.ceil((endTime - now) / 1000));
 
-            // Alerta 30s
             if (currentState === states.WORK && timeLeft === 30 && !thirtySecPlayed) {
                 playSound(whistle);
                 triggerFlash();
@@ -356,7 +335,6 @@
                 whistle.load();
                 audioInitialized = true;
             }
-
             if (currentState === states.DONE) {
                 currentRound = 1;
                 switchState(states.PREP);
@@ -366,7 +344,6 @@
             } else if (currentState === states.PAUSED) {
                 endTime = Date.now() + (timeLeft * 1000);
                 timerInterval = setInterval(tick, 100);
-                // Restaurar estado visual correcto
                 if(ui.status.innerText === "PAUSADO") {
                     currentState = ui.ring.style.stroke === "rgb(239, 68, 68)" ? states.WORK : states.REST;
                 }
@@ -384,7 +361,7 @@
         }
 
         ui.btnStart.addEventListener('click', toggleTimer);
-        ui.tView.addEventListener('click', toggleTimer); // Tap en semáforo para pausar/iniciar
+        ui.tView.addEventListener('click', toggleTimer);
 
         document.getElementById('btnReset').addEventListener('click', () => {
             clearInterval(timerInterval);
@@ -396,8 +373,6 @@
             updateUI();
         });
 
-
-        // --- NAVEGACIÓN Y MODALES ---
         const navBtns = {
             timer: document.getElementById('navTimer'),
             traffic: document.getElementById('navTraffic'),
@@ -443,7 +418,6 @@
             document.getElementById('rouletteModal').classList.add('hidden');
         });
 
-        // Presets
         document.querySelectorAll('.preset-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 document.getElementById('inpWork').value = formatTime(e.target.dataset.w);
@@ -452,20 +426,16 @@
             });
         });
 
-
-        // --- RULETAS LÓGICA ---
         const defSparring = ["Solo Jab", "Combinación 1-2", "Pelea en Corto", "Solo Defensa", "Sombra Ligera"];
         const defPenitencia = ["20 Burpees", "1 Min Plancha", "30 Flexiones", "Correr Escaleras", "50 Sentadillas"];
-        
         let rSparring = JSON.parse(localStorage.getItem('boxfit_sparring')) || defSparring;
         let rPenitencia = JSON.parse(localStorage.getItem('boxfit_penitencia')) || defPenitencia;
-        let currentMode = 'sparring'; // 'sparring' o 'penitencia'
+        let currentMode = 'sparring'; 
         
         const canvas = document.getElementById('rouletteCanvas');
         const ctx = canvas.getContext('2d');
         const rColorsSparring = ["#3b82f6", "#10b981", "#f59e0b", "#8b5cf6", "#ef4444", "#06b6d4"];
         const rColorsPenitencia = ["#fde047", "#f59e0b", "#ea580c", "#dc2626", "#991b1b"];
-
         let currentAngle = 0;
         let isSpinning = false;
         let spinVelocity = 0;
@@ -514,9 +484,7 @@
             const items = getActiveList();
             const colors = getActiveColors();
             const arc = Math.PI * 2 / items.length;
-            
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
             if(items.length === 0) return;
 
             for(let i = 0; i < items.length; i++) {
@@ -528,13 +496,11 @@
                 ctx.fill();
                 ctx.save();
                 
-                // Texto
                 ctx.translate(144 + Math.cos(angle + arc / 2) * 80, 144 + Math.sin(angle + arc / 2) * 80);
                 ctx.rotate(angle + arc / 2);
                 ctx.fillStyle = "#fff";
                 ctx.font = "bold 16px 'Barlow Condensed'";
                 ctx.textAlign = "center";
-                // Truncar texto largo
                 let text = items[i];
                 if(text.length > 15) text = text.substring(0,13)+"...";
                 ctx.fillText(text, 0, 5);
@@ -550,21 +516,18 @@
             
             function animate() {
                 currentAngle += spinVelocity;
-                spinVelocity *= 0.985; // Fricción
+                spinVelocity *= 0.985;
                 drawRoulette();
                 
                 if(spinVelocity > 0.002) {
                     requestAnimationFrame(animate);
                 } else {
                     isSpinning = false;
-                    // Calcular ganador (la flecha está arriba, apuntando a -PI/2)
                     const items = getActiveList();
                     const arc = Math.PI * 2 / items.length;
-                    // Normalizar angulo de la flecha relativo a la ruleta
                     const normalizedAngle = (Math.PI * 1.5 - currentAngle) % (Math.PI * 2);
                     const finalAngle = normalizedAngle < 0 ? normalizedAngle + Math.PI * 2 : normalizedAngle;
                     const winningIndex = Math.floor(finalAngle / arc);
-                    
                     document.getElementById('rouletteResult').innerText = "🔥 " + items[winningIndex].toUpperCase() + " 🔥";
                     if(audioInitialized) playSound(bell);
                 }
@@ -574,7 +537,6 @@
 
         document.getElementById('btnSpin').addEventListener('click', spinRoulette);
 
-        // Pestañas Ruleta
         const tSparring = document.getElementById('tabSparring');
         const tPenitencia = document.getElementById('tabPenitencia');
 
@@ -596,9 +558,7 @@
             renderList(); drawRoulette();
         });
 
-        // Inicializar UI
         updateUI();
-
     </script>
 </body>
 </html>
