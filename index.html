@@ -385,6 +385,55 @@ nav button.on svg{transform:translateY(-2px) scale(1.12);color:var(--accent)}
 .bar span{font-size:11px;color:var(--dim);font-weight:700}
 @keyframes grow{from{transform:scaleY(0)}}
 
+/* ---------- Personal: sesiones y peso ---------- */
+.drillrow{display:flex;flex-wrap:wrap;gap:4px;margin-top:8px}
+.drillrow i{font-style:normal;width:28px;height:28px;border-radius:9px;display:grid;place-items:center;background:rgba(0,0,0,.3);font-size:15px}
+.wmain .goal{display:block;margin-top:6px;color:var(--text);opacity:.8}
+.drillblk{border-radius:16px;background:var(--panel2);border:1px solid var(--line);border-left:4px solid var(--c);padding:10px;margin:8px 0;animation:pop .25s both}
+.dbtop{display:flex;align-items:flex-start;gap:10px}
+.dic{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;font-size:22px;background:color-mix(in srgb,var(--c) 25%,transparent);flex:none}
+.dbtop .l{flex:1;min-width:0}
+.dbtop .l b{display:block;font-weight:700;font-size:17px}
+.dbtop .l small{color:var(--dim);font-size:13px;line-height:1.15;display:block}
+.dbord{display:flex;flex-direction:column;gap:2px}
+.dbord button{width:26px;height:20px;border-radius:6px;background:#ffffff0d;font-size:10px;color:var(--muted)}
+.dbord button:disabled{opacity:.25}
+.dbctl{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:8px}
+.dbctl > div{display:flex;flex-direction:column;align-items:center;gap:2px}
+.dbctl small{color:var(--dim);font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+.dbctl .stepper{gap:2px}
+.dbctl .stepper.sm button{width:28px;height:30px;font-size:17px}
+.dbctl .stepper.sm output{min-width:40px;font-size:19px}
+.drillgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.drillpick{position:relative;text-align:left;border-radius:16px;padding:10px;background:linear-gradient(150deg,color-mix(in srgb,var(--c) 24%,var(--panel2)),var(--panel2) 75%);border:1px solid color-mix(in srgb,var(--c) 35%,var(--line));display:flex;flex-direction:column;gap:2px;transition:transform .15s}
+.drillpick:active{transform:scale(.95)}
+.drillpick span{font-size:24px}
+.drillpick b{font-weight:700;font-size:16px;line-height:1.05}
+.drillpick small{color:var(--muted);font-size:12px;line-height:1.15}
+.drillpick em{position:absolute;top:8px;right:8px;font-style:normal;min-width:22px;height:22px;border-radius:99px;background:var(--c);color:#fff;font-weight:700;font-size:13px;display:none;place-items:center;padding:0 6px}
+.drillpick.added em{display:grid}
+.drillpick.bounce{animation:dpb .35s cubic-bezier(.3,.9,.3,1.6)}
+@keyframes dpb{40%{transform:scale(1.07)}}
+.wpdesc{max-width:360px;color:var(--text);font-weight:600;font-size:18px;line-height:1.2;background:color-mix(in srgb,var(--c) 14%,var(--panel));border:1px solid color-mix(in srgb,var(--c) 30%,var(--line));border-radius:14px;padding:8px 14px;margin:2px 0 8px;animation:pop .35s both}
+.wthero{display:flex;align-items:center;gap:12px}
+.wthero > div:first-child{flex:1}
+.wthero small{display:block;color:var(--dim);font-weight:700;font-size:13px;letter-spacing:.06em}
+.wthero > div > b{display:block;font-family:var(--display);font-size:64px;line-height:.95;font-weight:400}
+.wthero b span{font-size:24px;color:var(--muted)}
+.wtdiffs{display:flex;flex-direction:column;gap:6px}
+.wtdiffs > div{background:var(--panel2);border-radius:12px;padding:6px 10px;text-align:right;min-width:104px}
+.wtdiffs b{font-family:var(--display);font-size:26px;font-weight:400;line-height:1}
+.wtdiffs .down b,.chg.down{color:#22c55e}
+.wtdiffs .up b,.chg.up{color:#f87171}
+.goalbar{height:10px;border-radius:9px;background:#ffffff12;overflow:hidden;margin:12px 0 6px}
+.goalbar i{display:block;height:100%;border-radius:9px;background:linear-gradient(90deg,#22c55e,#facc15);animation:growx .9s cubic-bezier(.2,.9,.3,1) both;transform-origin:left}
+@keyframes growx{from{transform:scaleX(0)}}
+#wtHero > small{color:var(--muted);font-weight:600}
+.wtsvg{width:100%;height:auto;display:block}
+.wtline{stroke-dasharray:1200;stroke-dashoffset:1200;animation:draw 1.2s ease-out forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+.chg{font-weight:700;font-size:15px}
+
 @media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
 </style>
 </head>
@@ -521,7 +570,7 @@ nav button.on svg{transform:translateY(-2px) scale(1.12);color:var(--accent)}
     <div class="row"><div class="l"><b>Estadísticas</b><small id="statsLine">—</small></div><button class="smallbtn danger" id="resetStats">BORRAR</button></div>
     <div class="row"><div class="l"><b>Entrenamientos originales</b><small>Recupera los perfiles de fábrica</small></div><button class="smallbtn danger" id="resetProfiles">RESTAURAR</button></div>
   </div>
-  <p class="foot">Boxfit Pro · versión 2.2</p>
+  <p class="foot">Boxfit Pro · versión 2.3</p>
 </section>
 
 <!-- ================= EDITOR ================= -->
@@ -582,13 +631,14 @@ nav button.on svg{transform:translateY(-2px) scale(1.12);color:var(--accent)}
     <svg viewBox="0 0 300 300"><circle class="ring-bg" cx="150" cy="150" r="130" fill="none" stroke-width="16"/><circle id="wpRing" cx="150" cy="150" r="130" fill="none" stroke-width="16" stroke-linecap="round" stroke-dasharray="816.8" style="stroke:var(--c);filter:drop-shadow(0 0 10px var(--c))"/></svg>
     <div class="ringin"><div class="bigtime" id="wpTime">00:00</div><div class="roundlbl" id="wpCount">1 / 5</div></div>
   </div>
+  <div class="wpdesc" id="wpDesc"></div>
   <div class="wpnext" id="wpNext"></div>
   <div class="controls" style="margin-top:18px">
     <button class="ctl" id="wpPrev" aria-label="Anterior"><svg viewBox="0 0 24 24" fill="currentColor" style="transform:scaleX(-1)"><path d="M5 6.2v11.6a1 1 0 0 0 1.6.8l7.6-5.8a1 1 0 0 0 0-1.6L6.6 5.4A1 1 0 0 0 5 6.2z"/><rect x="16" y="5" width="3" height="14" rx="1.2"/></svg></button>
     <button class="play" id="wpToggle" style="background:var(--c)"><svg id="wpPause" viewBox="0 0 24 24" fill="currentColor"></svg></button>
     <button class="ctl" id="wpSkip" aria-label="Siguiente"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M5 6.2v11.6a1 1 0 0 0 1.6.8l7.6-5.8a1 1 0 0 0 0-1.6L6.6 5.4A1 1 0 0 0 5 6.2z"/><rect x="16" y="5" width="3" height="14" rx="1.2"/></svg></button>
   </div>
-  <div class="donecard" id="wpDone"><div class="trophy">🔥</div><h2>¡CALENTAMIENTO<br>LISTO!</h2><p>Cuerpo activado. A entrenar.</p><button class="btn pri" id="wpDoneNext" style="--bc:var(--c);width:100%;max-width:320px;margin-top:10px">LISTO</button></div>
+  <div class="donecard" id="wpDone"><div class="trophy" id="wpDoneIcon">🔥</div><h2 id="wpDoneTitle">¡CALENTAMIENTO<br>LISTO!</h2><p id="wpDoneSub">Cuerpo activado. A entrenar.</p><button class="btn pri" id="wpDoneNext" style="--bc:var(--c);width:100%;max-width:320px;margin-top:10px">LISTO</button></div>
 </section>
 
 <!-- ================= ESTADÍSTICAS BOX HOUSE ================= -->
@@ -598,6 +648,27 @@ nav button.on svg{transform:translateY(-2px) scale(1.12);color:var(--accent)}
   <div class="sect" style="--i:1"><h4>ASISTENCIA · ÚLTIMAS CLASES</h4><div id="bsChart"></div></div>
   <div class="sect" style="--i:2"><h4>POR CLASE</h4><div id="bsBy"></div></div>
   <div class="sect" style="--i:3"><h4>HISTORIAL</h4><div id="bsLog"></div></div>
+</section>
+
+
+<!-- ================= PERSONAL: MIS SESIONES ================= -->
+<section class="view" id="psessions">
+  <div class="topbar"><button class="iconbtn" data-back aria-label="Atrás"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M15 5l-7 7 7 7"/></svg></button><div class="title">MIS SESIONES</div><button class="smallbtn" id="psNew">+ NUEVA</button></div>
+  <p class="sub" style="margin-bottom:12px">Arma tu propia clase de boxeo: escuelita, combos, pasos en L, en V, laterales y más. Toca ▶ y te guía paso a paso.</p>
+  <div id="psList"></div>
+</section>
+<section class="view" id="psessionEdit">
+  <div class="topbar"><button class="iconbtn" data-back aria-label="Atrás"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M15 5l-7 7 7 7"/></svg></button><div class="title">PREPARAR</div></div>
+  <div id="psEditBody"></div>
+</section>
+
+<!-- ================= PERSONAL: PESO ================= -->
+<section class="view" id="weight">
+  <div class="topbar"><button class="iconbtn" data-back aria-label="Atrás"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M15 5l-7 7 7 7"/></svg></button><div class="title">MI PESO</div><button class="smallbtn" id="wtGoal">🎯 META</button></div>
+  <div class="sect" style="--i:0;padding:14px" id="wtHero"></div>
+  <button class="btn pri" id="wtAdd" style="--bc:#22c55e;width:100%;margin-bottom:14px;flex:none">+ REGISTRAR PESO</button>
+  <div class="sect" style="--i:1"><h4>PROGRESO</h4><div id="wtChart" style="padding-bottom:10px"></div></div>
+  <div class="sect" style="--i:2"><h4>HISTORIAL</h4><div id="wtLog"></div></div>
 </section>
 
 <!-- ================= NAV ================= -->
@@ -1393,7 +1464,7 @@ function renderHomeExtra(){
     const mon = todayISO().slice(0,7);
     const days = new Set(sessLog.filter(h => h.d.startsWith(mon)).map(h => h.d)).size;
     const nx = nextEvent('personal');
-    box.innerHTML = `<button class="calcard" data-open="calendar"><span class="calic">📅</span>
+    box.innerHTML = personalTilesHTML() + `<button class="calcard" data-open="calendar"><span class="calic">📅</span>
       <span class="l"><b>CALENDARIO</b><small>${days} día${days===1?'':'s'} entrenado${days===1?'':'s'} este mes${nx ? ' · Próximo: ' + esc(nx.title) + ' (' + shortDate(nx.date) + ')' : ''}</small></span><span class="arrow">›</span></button>`;
   } else {
     const nx = nextEvent('boxhouse');
@@ -1449,7 +1520,7 @@ let calSel = todayISO();
 function dayItems(mode, ds){
   const out = [];
   events[mode].filter(e => e.date === ds).sort((a,b) => (a.time||'').localeCompare(b.time||'')).forEach(e => out.push({ kind:'event', e, color: evColor(mode, e.type) }));
-  if (mode === 'personal') sessLog.filter(h => h.d === ds).forEach(h => out.push({ kind:'session', h, color:'#22c55e' }));
+  if (mode === 'personal'){ sessLog.filter(h => h.d === ds).forEach(h => out.push({ kind:'session', h, color:'#22c55e' })); weights.filter(w => w.date === ds).forEach(w => out.push({ kind:'weight', w, color:'#facc15' })); }
   if (mode === 'boxhouse'){
     const wd = parseISO(ds).getDay();
     bhLog.filter(l => l.date === ds).forEach(l => out.push({ kind:'log', l, color:'#22c55e' }));
@@ -1477,6 +1548,7 @@ function renderCalendar(){
   $('#calDayList').innerHTML = items.length ? items.map(it => {
     if (it.kind === 'event'){ const e = it.e; return `<button class="evrow" data-ev="${e.id}" style="--c:${it.color}"><i></i><span class="l"><b>${esc(e.title)}</b><small>${evLabel(mode,e.type)}${e.time?' · '+e.time:''}${e.participants?' · '+e.participants+' participantes':''}${e.athletes?' · '+esc(e.athletes.split(/[\n,]+/).filter(Boolean).length)+' nombres':''}</small></span><span class="arrow">›</span></button>`; }
     if (it.kind === 'session') return `<div class="evrow" style="--c:#22c55e"><i></i><span class="l"><b>✓ ${esc(it.h.p)}</b><small>Entreno completado · ${it.h.r} rounds · ${fmtShort(it.h.s)}</small></span></div>`;
+    if (it.kind === 'weight') return `<div class="evrow" style="--c:#facc15"><i></i><span class="l"><b>⚖️ ${it.w.kg.toFixed(1)} kg</b><small>Peso registrado</small></span></div>`;
     if (it.kind === 'log') return `<div class="evrow" style="--c:#22c55e"><i></i><span class="l"><b>✓ ${esc(it.l.className)}</b><small>Clase registrada · ${it.l.attendees} asistentes</small></span></div>`;
     return `<div class="evrow plan" style="--c:#71717a"><i></i><span class="l"><b>${esc(it.c.name)}</b><small>Clase programada · ${it.c.time}</small></span><button class="smallbtn" data-att="${it.c.id}">ASISTENCIA</button></div>`;
   }).join('') : `<p class="empty">Nada para este día. Toca “+ EVENTO” para agregar algo.</p>`;
@@ -1663,10 +1735,13 @@ function renderWarmEdit(){
 }
 
 /* Reproductor de calentamiento */
-const W = { w:null, idx:0, endAt:0, remMs:0, paused:false, on:false, lastSec:-1, label:'' };
+const W = { w:null, idx:0, endAt:0, remMs:0, paused:false, on:false, lastSec:-1, label:'', opts:{} };
 function startWarmup(id, label){
   const w = bhWarmups.find(x => x.id === id); if (!w || !w.items.length) return toast('Este calentamiento no tiene ejercicios');
-  audio(); W.w = w; W.idx = 0; W.paused = false; W.on = true; W.label = label || ''; W.lastSec = -1;
+  startPlayer(w, label, {});
+}
+function startPlayer(w, label, opts){
+  audio(); W.w = w; W.opts = opts || {}; W.idx = 0; W.paused = false; W.on = true; W.label = label || ''; W.lastSec = -1;
   W.endAt = Date.now() + w.items[0].s*1000; Sound.bell(1); keepAwake(true);
   $('#wpDone').classList.remove('show');
   go('warmupPlay'); renderWarmPlay(true);
@@ -1679,7 +1754,11 @@ function warmGoto(i){
 }
 function warmFinish(){
   W.on = false; W.paused = false; keepAwake(false); Sound.win(); vibrate([300,100,300]); confetti(W.w.color);
-  $('#wpDoneNext').textContent = classCtx ? 'IR AL TIMER ▶' : 'LISTO';
+  $('#wpDoneTitle').innerHTML = W.opts.doneTitle || '¡CALENTAMIENTO<br>LISTO!';
+  $('#wpDoneSub').textContent = W.opts.doneSub || 'Cuerpo activado. A entrenar.';
+  $('#wpDoneIcon').textContent = W.opts.doneIcon || '🔥';
+  if (W.opts.onFinish) W.opts.onFinish();
+  $('#wpDoneNext').textContent = (classCtx && !W.opts.kind) ? 'IR AL TIMER ▶' : 'LISTO';
   $('#wpDone').classList.add('show');
 }
 function warmTick(){
@@ -1695,10 +1774,11 @@ setInterval(warmTick, 200);
 function renderWarmPlay(force){
   const w = W.w; if (!w) return;
   const it = w.items[W.idx], ms = W.paused ? W.remMs : Math.max(0, W.endAt - Date.now());
-  const view = $('#warmupPlay'); view.style.setProperty('--c', w.color);
+  const view = $('#warmupPlay'); view.style.setProperty('--c', it.c || w.color);
   $('#wpLabel').textContent = (W.label ? W.label + ' · ' : '') + w.name;
   if (force || $('#wpName').dataset.i !== String(W.idx)){
     $('#wpName').dataset.i = W.idx; $('#wpName').textContent = it.n;
+    $('#wpDesc').textContent = it.d || ''; $('#wpDesc').style.display = it.d ? '' : 'none';
     const el = $('#wpName'); el.classList.remove('swap'); void el.offsetWidth; el.classList.add('swap');
     $('#wpSteps').innerHTML = w.items.map((x,i) => `<i class="${i<W.idx?'done':i===W.idx?'cur':''}"></i>`).join('');
     $('#wpNext').textContent = w.items[W.idx+1] ? `Siguiente: ${w.items[W.idx+1].n} · ${fmtShort(w.items[W.idx+1].s)}` : 'Último ejercicio';
@@ -1713,7 +1793,7 @@ $('#wpToggle').addEventListener('click', () => { if (!W.on) return; if (W.paused
 $('#wpSkip').addEventListener('click', () => W.on && warmGoto(W.idx + 1));
 $('#wpPrev').addEventListener('click', () => W.on && warmGoto(W.idx - 1));
 $('#wpClose').addEventListener('click', () => exitWarmup());
-$('#wpDoneNext').addEventListener('click', () => { $('#wpDone').classList.remove('show'); go(classCtx ? 'timer' : playReturn, true); });
+$('#wpDoneNext').addEventListener('click', () => { $('#wpDone').classList.remove('show'); go((classCtx && !W.opts.kind) ? 'timer' : playReturn, true); });
 function exitWarmup(){ W.on = false; keepAwake(isActive() && !T.paused); go(playReturn, true); }
 
 /* =========================================================
@@ -1742,9 +1822,232 @@ function renderBHStats(){
 $('#bsAdd').addEventListener('click', () => openAttendance(bhClasses[0]?.id || '', todayISO()));
 $('#doneAttend').addEventListener('click', () => { const p = getProfile(); openAttendance(classCtx?.classId || '', todayISO(), { rounds: p.rounds, minutes: classCtx ? Math.max(1, Math.round((Date.now() - classCtx.started)/60000)) : Math.round(totalOf(p)/60) }); });
 
-const NAV_PARENT = { calendar:'home', classes:'home', classDetail:'home', warmups:'home', warmupEdit:'home', bhstats:'home' };
-const BACK_TO = { calendar:'home', classes:'home', classDetail:'classes', warmups:'home', warmupEdit:'warmups', bhstats:'home' };
-const VIEW_RENDER = { calendar: renderCalendar, classes: renderClasses, classDetail: renderClassDetail, warmups: renderWarmups, warmupEdit: renderWarmEdit, bhstats: renderBHStats };
+/* =========================================================
+   10c. PERSONAL: CONTROL DE PESO Y MIS SESIONES DE BOXEO
+   ========================================================= */
+/* ---- Catálogo de ejercicios de boxeo ---- */
+const DRILLS = {
+  escuelita:  { n:'Escuelita de boxeo', ic:'🥊', c:'#ef4444', d:'Fundamentos: guardia, postura, jab y cross frente al espejo.', cues:['Mentón abajo, manos arriba','Pies a la anchura de los hombros','Regresa la mano a la guardia','Gira la cadera en el cross','Codos pegados al cuerpo'] },
+  combos:     { n:'Combos', ic:'👊', c:'#f97316', d:'Encadena golpes con técnica y velocidad.', combos:true },
+  pasosL:     { n:'Pasos en L', ic:'📐', c:'#eab308', d:'Paso al frente y salida lateral formando una L para cambiar el ángulo.', cues:['Adelante con el pie delantero, luego sal al lado','Nunca cruces los pies','Termina en guardia, listo para golpear','Alterna salida izquierda y derecha'] },
+  pasosV:     { n:'Pasos en V', ic:'✌️', c:'#22c55e', d:'Salidas en diagonal adelante-afuera y regreso al centro, dibujando una V.', cues:['Diagonal izquierda, regresa al centro','Diagonal derecha, regresa al centro','Peso en la punta de los pies','Mantén la guardia alta en cada salida'] },
+  laterales:  { n:'Pasos laterales', ic:'↔️', c:'#06b6d4', d:'Desplazamiento lateral sin cruzar los pies, manteniendo la guardia.', cues:['Mueve primero el pie del lado hacia donde vas','Pasos cortos y rápidos','No juntes los pies','Mirada al frente'] },
+  adelante:   { n:'Adelante y atrás', ic:'↕️', c:'#3b82f6', d:'Entradas y salidas en línea recta con pasos cortos.', cues:['Empuja con el pie de atrás para entrar','Empuja con el pie de adelante para salir','Entra con jab, sal con guardia'] },
+  pivotes:    { n:'Pivotes', ic:'🔄', c:'#6366f1', d:'Gira sobre el pie delantero para salir de la línea de ataque.', cues:['Pivota sobre la punta del pie delantero','Gira un cuarto de vuelta','Golpea al terminar el giro'] },
+  esquivas:   { n:'Esquivas y bloqueos', ic:'🛡️', c:'#8b5cf6', d:'Slip, rolling y bloqueos con los antebrazos.', cues:['Slip: mueve la cabeza fuera de la línea','Rolling: flexiona rodillas, dibuja una U','Bloquea y contraataca','Ojos siempre al frente'] },
+  sombra:     { n:'Sombra', ic:'👤', c:'#a855f7', d:'Boxeo libre contra un rival imaginario: golpes, defensa y pies.', cues:['Combina golpes y desplazamientos','Imagina a tu rival','Respira al golpear'] },
+  saco:       { n:'Saco', ic:'💥', c:'#ec4899', d:'Potencia y combinaciones sobre el saco.', cues:['Golpea y muévete','Combinaciones de 3 a 4 golpes','Gira el puño al impactar','No te quedes quieto frente al saco'] },
+  manoplas:   { n:'Manoplas', ic:'🎯', c:'#d946ef', d:'Precisión y reacción con tu compañero o entrenador.', cues:['Golpea al centro de la manopla','Reacciona rápido a la señal','Vuelve a la guardia'] },
+  soga:       { n:'Saltar soga', ic:'🪢', c:'#10b981', d:'Ritmo, coordinación y resistencia.', cues:['Saltos bajos, en la punta de los pies','Muñecas, no brazos','Alterna pies cuando agarres ritmo'] },
+  core:       { n:'Core', ic:'🔥', c:'#f59e0b', d:'Abdomen y zona media para aguantar y golpear más fuerte.', cues:['Plancha firme','Giros rusos','Abdominales bicicleta','Aprieta el abdomen'] },
+  estira:     { n:'Estiramiento', ic:'🧘', c:'#64748b', d:'Baja pulsaciones y estira hombros, espalda y piernas.', cues:['Respira lento y profundo','Mantén cada estiramiento 20 s','Sin rebotes'] },
+};
+const LEVELS = { principiante:{ n:'Principiante', s:90, rest:45 }, intermedio:{ n:'Intermedio', s:120, rest:45 }, avanzado:{ n:'Avanzado', s:180, rest:60 } };
+const DEFAULT_PSESSIONS = [
+  { id:'ps1', name:'Técnica de pies', color:'#06b6d4', level:'principiante', goal:'Moverme mejor y no cruzar los pies',
+    blocks:[{k:'soga',s:120,r:1,rest:30},{k:'escuelita',s:90,r:2,rest:30},{k:'pasosL',s:90,r:2,rest:30},{k:'pasosV',s:90,r:2,rest:30},{k:'laterales',s:90,r:2,rest:30},{k:'estira',s:120,r:1,rest:0}] },
+  { id:'ps2', name:'Combos y saco', color:'#f97316', level:'intermedio', goal:'Velocidad y potencia',
+    blocks:[{k:'sombra',s:120,r:2,rest:30},{k:'combos',s:120,r:3,rest:45},{k:'saco',s:180,r:3,rest:60},{k:'core',s:120,r:1,rest:0}] },
+];
+let pSessions = load('psessions', null) || JSON.parse(JSON.stringify(DEFAULT_PSESSIONS));
+let weights = load('weights', []);           // [{id,date,kg}]
+let wGoal = load('weight_goal', 0);
+const savePS = () => save('psessions', pSessions);
+const saveW = () => { save('weights', weights); save('weight_goal', wGoal); };
+const blockWork = b => b.s * b.r;
+const psTotal = ps => ps.blocks.reduce((a,b,i) => a + b.s*b.r + b.rest*Math.max(0, b.r - 1) + (i < ps.blocks.length-1 ? b.rest : 0), 0);
+const psWork = ps => ps.blocks.reduce((a,b) => a + blockWork(b), 0);
+const lastWeight = () => weights.slice().sort((a,b) => a.date.localeCompare(b.date)).slice(-1)[0];
+
+/* ---- Inicio personal: accesos ---- */
+function personalTilesHTML(){
+  const lw = lastWeight();
+  return `<div class="tiles">
+    <button class="tile" style="--c:#f97316;--i:0" data-open="psessions"><span>🥊</span><b>MIS SESIONES</b><small>${pSessions.length} preparadas</small></button>
+    <button class="tile" style="--c:#22c55e;--i:1" data-open="weight"><span>⚖️</span><b>MI PESO</b><small>${lw ? lw.kg.toFixed(1) + ' kg' : 'Sin registros'}${wGoal && lw ? ' · meta ' + wGoal.toFixed(1) : ''}</small></button>
+  </div>`;
+}
+
+/* =========================================================
+   MIS SESIONES (preparar clase personal)
+   ========================================================= */
+let editingPS = null;
+function renderPSessions(){
+  $('#psList').innerHTML = pSessions.map((ps,i) => `
+    <div class="wcard" style="--c:${ps.color};--i:${i}">
+      <button class="wmain" data-pse="${ps.id}"><b>${esc(ps.name)}</b>
+        <small>${LEVELS[ps.level]?.n || ''} · ${ps.blocks.length} ejercicios · ${fmt(psTotal(ps))}</small>
+        <span class="drillrow">${ps.blocks.map(b => `<i title="${esc(DRILLS[b.k]?.n||'')}">${DRILLS[b.k]?.ic || '•'}</i>`).join('')}</span>
+        ${ps.goal ? `<small class="goal">🎯 ${esc(ps.goal)}</small>` : ''}</button>
+      <button class="wplay" data-psp="${ps.id}" aria-label="Entrenar"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13a1 1 0 0 0 1.5.9l10.2-6.5a1 1 0 0 0 0-1.7L9.5 4.6A1 1 0 0 0 8 5.5z"/></svg></button>
+    </div>`).join('') || '<p class="empty">Prepara tu primera sesión.</p>';
+  $$('#psList [data-pse]').forEach(b => b.addEventListener('click', () => { editingPS = pSessions.find(x => x.id === b.dataset.pse); go('psessionEdit'); }));
+  $$('#psList [data-psp]').forEach(b => b.addEventListener('click', () => playPSession(b.dataset.psp, 'psessions')));
+}
+$('#psNew').addEventListener('click', () => {
+  const ps = { id: uid(), name:'Mi sesión', color:'#ef4444', level:'principiante', goal:'', blocks:[] };
+  pSessions.push(ps); savePS(); editingPS = ps; go('psessionEdit'); setTimeout(openDrillPicker, 350);
+});
+function renderPSEdit(){
+  const ps = editingPS; if (!ps) return;
+  const body = $('#psEditBody');
+  body.innerHTML = `
+    <div class="preview" style="--c:${ps.color}"><div class="ic">🥊</div><div style="flex:1;min-width:0"><input id="psName" maxlength="30" value="${esc(ps.name)}"><small id="psSum"></small></div></div>
+    <div class="sect"><h4>MI NIVEL</h4><div class="typechips" style="padding-bottom:12px">${Object.entries(LEVELS).map(([k,v]) => `<button type="button" data-lv="${k}" class="${ps.level===k?'on':''}" style="--c:${ps.color}">${v.n}</button>`).join('')}</div>
+      <label class="field" style="padding-bottom:6px"><span>Mi objetivo</span><input id="psGoal" maxlength="60" placeholder="Ej: mejorar la defensa, bajar de peso…" value="${esc(ps.goal)}"></label></div>
+    <div class="sect"><h4>EJERCICIOS DE LA SESIÓN</h4><div id="psBlocks"></div>
+      <button class="btn" id="psAddDrill" style="width:100%;margin:10px 0 12px;border-style:dashed">+ AGREGAR EJERCICIO DE BOXEO</button></div>
+    <div class="sect"><h4>COLOR</h4><div class="swatches">${COLORS.map(c => `<button style="--s:${c}" data-psc="${c}" class="${c===ps.color?'on':''}"></button>`).join('')}</div></div>
+    <div class="btnrow" style="margin-bottom:8px"><button class="btn" id="psDel" style="color:#f87171">ELIMINAR</button><button class="btn pri" id="psPlay" style="--bc:${ps.color}">▶ ENTRENAR</button></div>`;
+  const sum = () => { body.querySelector('#psSum').textContent = `${ps.blocks.length} ejercicios · ${fmt(psTotal(ps))} · ${Math.round(psWork(ps)/60)} min de trabajo`; savePS(); };
+  body.querySelector('#psName').addEventListener('input', e => { ps.name = e.target.value || 'Mi sesión'; savePS(); });
+  body.querySelector('#psGoal').addEventListener('input', e => { ps.goal = e.target.value; savePS(); });
+  body.querySelectorAll('[data-lv]').forEach(b => b.addEventListener('click', () => { ps.level = b.dataset.lv; body.querySelectorAll('[data-lv]').forEach(x => x.classList.toggle('on', x === b)); savePS(); hapticTap(); }));
+  body.querySelectorAll('[data-psc]').forEach(b => b.addEventListener('click', () => { ps.color = b.dataset.psc; savePS(); renderPSEdit(); }));
+  const draw = () => {
+    const el = body.querySelector('#psBlocks');
+    el.innerHTML = ps.blocks.map((b,i) => { const d = DRILLS[b.k] || { n:b.k, ic:'•', c:'#71717a', d:'' }; return `
+      <div class="drillblk" style="--c:${d.c}">
+        <div class="dbtop"><span class="dic">${d.ic}</span><span class="l"><b>${esc(d.n)}</b><small>${esc(d.d)}</small></span>
+          <span class="dbord"><button data-up="${i}" ${i===0?'disabled':''}>▲</button><button data-dn="${i}" ${i===ps.blocks.length-1?'disabled':''}>▼</button></span><button class="xbtn" data-rm="${i}">×</button></div>
+        <div class="dbctl"><div><small>Rounds</small><div class="stepper sm" data-st="r" data-i="${i}"></div></div><div><small>Tiempo</small><div class="stepper sm" data-st="s" data-i="${i}"></div></div><div><small>Descanso</small><div class="stepper sm" data-st="rest" data-i="${i}"></div></div></div>
+      </div>`; }).join('') || '<p class="empty">Agrega ejercicios: escuelita, combos, pasos en L, en V, laterales…</p>';
+    el.querySelectorAll('[data-st]').forEach(st => { const i = +st.dataset.i, k = st.dataset.st;
+      const cfg = k === 'r' ? { min:1, max:20, step:1 } : k === 's' ? { min:10, max:900, step:secStep, fmt:v => fmtShort(v) } : { min:0, max:300, step:(v,d) => 15, fmt:v => v ? fmtShort(v) : '—' };
+      makeStepper(st, Object.assign(cfg, { get:() => ps.blocks[i][k], set:v => ps.blocks[i][k] = v, onChange:sum })); });
+    el.querySelectorAll('[data-rm]').forEach(b => b.addEventListener('click', () => { ps.blocks.splice(+b.dataset.rm, 1); draw(); }));
+    el.querySelectorAll('[data-up]').forEach(b => b.addEventListener('click', () => { const i = +b.dataset.up; [ps.blocks[i-1], ps.blocks[i]] = [ps.blocks[i], ps.blocks[i-1]]; draw(); }));
+    el.querySelectorAll('[data-dn]').forEach(b => b.addEventListener('click', () => { const i = +b.dataset.dn; [ps.blocks[i+1], ps.blocks[i]] = [ps.blocks[i], ps.blocks[i+1]]; draw(); }));
+    sum();
+  };
+  draw(); renderPSEdit.redraw = draw;
+  body.querySelector('#psAddDrill').addEventListener('click', openDrillPicker);
+  body.querySelector('#psPlay').addEventListener('click', () => playPSession(ps.id, 'psessionEdit'));
+  body.querySelector('#psDel').addEventListener('click', async () => { if (await confirmDlg('¿Eliminar sesión?', `Se borrará “${ps.name}”.`, 'ELIMINAR')){ pSessions = pSessions.filter(x => x.id !== ps.id); savePS(); go('psessions', true); } });
+}
+function openDrillPicker(){
+  const ps = editingPS; if (!ps) return;
+  openForm(`<h3 class="ftitle">EJERCICIOS DE BOXEO</h3><p style="color:var(--muted);margin-bottom:10px">Toca para agregar. Puedes elegir varios.</p>
+    <div class="drillgrid">${Object.entries(DRILLS).map(([k,d]) => `<button type="button" class="drillpick" data-dk="${k}" style="--c:${d.c}"><span>${d.ic}</span><b>${d.n}</b><small>${d.d}</small><em></em></button>`).join('')}</div>
+    <button class="btn pri" id="dpDone" style="width:100%;margin-top:12px;--bc:${ps.color}">LISTO</button>`, sh => {
+    sh.querySelectorAll('[data-dk]').forEach(b => b.addEventListener('click', () => {
+      const lv = LEVELS[ps.level] || LEVELS.principiante, k = b.dataset.dk;
+      const isFlex = k === 'soga' || k === 'estira' || k === 'core';
+      ps.blocks.push({ k, s: isFlex ? 120 : lv.s, r: isFlex ? 1 : 2, rest: isFlex ? 30 : lv.rest });
+      savePS(); hapticTap();
+      const em = b.querySelector('em'); em.textContent = (+(em.textContent || 0) + 1); b.classList.add('added');
+      b.classList.remove('bounce'); void b.offsetWidth; b.classList.add('bounce');
+    }));
+    sh.querySelector('#dpDone').addEventListener('click', () => { closeForm(); if (current === 'psessionEdit' && renderPSEdit.redraw) renderPSEdit.redraw(); });
+  });
+}
+const _closeForm = closeForm;
+closeForm = function(){ _closeForm(); if (current === 'psessionEdit' && renderPSEdit.redraw) renderPSEdit.redraw(); };
+function playPSession(id, from){
+  const ps = pSessions.find(x => x.id === id); if (!ps) return;
+  if (!ps.blocks.length) return toast('Agrega ejercicios a la sesión');
+  const combos = (rLists && rLists.combos && rLists.combos.length) ? rLists.combos : R_DEFAULTS.combos;
+  const items = [];
+  ps.blocks.forEach((b, bi) => {
+    const d = DRILLS[b.k] || { n:b.k, c:ps.color, d:'' };
+    for (let r = 1; r <= b.r; r++){
+      let cue = d.d;
+      if (d.combos) cue = 'Combo: ' + combos[Math.floor(Math.random()*combos.length)] + ' · luego ' + combos[Math.floor(Math.random()*combos.length)];
+      else if (d.cues) cue = d.cues[(r-1) % d.cues.length];
+      items.push({ n: d.n + (b.r > 1 ? ` · ${r}/${b.r}` : ''), s: b.s, c: d.c, d: cue });
+      const last = r === b.r && bi === ps.blocks.length - 1;
+      if (b.rest > 0 && !last) items.push({ n:'Descanso', s: b.rest, c:'#ef4444', d: r === b.r && ps.blocks[bi+1] ? 'Prepárate: viene ' + (DRILLS[ps.blocks[bi+1].k]?.n || 'el siguiente') : 'Respira, hidrátate y vuelve a la guardia.' });
+    }
+  });
+  playReturn = from;
+  startPlayer({ name: ps.name, color: ps.color, items }, LEVELS[ps.level]?.n || '', {
+    kind:'personal', doneIcon:'🏆', doneTitle:'¡SESIÓN<br>COMPLETA!', doneSub:`${ps.name} · ${Math.round(psWork(ps)/60)} min de trabajo`,
+    onFinish: () => {
+      if (S.mode !== 'personal') return;
+      const rounds = ps.blocks.reduce((a,b) => a + b.r, 0);
+      stats.sessions++; stats.rounds += rounds; stats.workSec += psWork(ps); save('stats', stats);
+      sessLog.push({ d: todayISO(), p: ps.name, r: rounds, s: psWork(ps) }); if (sessLog.length > 800) sessLog.shift(); save('history', sessLog);
+    }
+  });
+}
+
+/* =========================================================
+   CONTROL DE PESO
+   ========================================================= */
+function renderWeight(){
+  const list = weights.slice().sort((a,b) => a.date.localeCompare(b.date));
+  const lw = list[list.length-1], first = list[0];
+  const prev = list.length > 1 ? list[list.length-2] : null;
+  const diffT = lw && first ? lw.kg - first.kg : 0, diffP = lw && prev ? lw.kg - prev.kg : 0;
+  const sign = v => (v > 0 ? '+' : '') + v.toFixed(1);
+  let goalHTML = '';
+  if (wGoal && lw && first){
+    const totalNeed = first.kg - wGoal, done = first.kg - lw.kg;
+    const pct = totalNeed === 0 ? 100 : clamp(done/totalNeed*100, 0, 100);
+    const left = lw.kg - wGoal;
+    goalHTML = `<div class="goalbar"><i style="width:${pct.toFixed(0)}%"></i></div><small>${Math.abs(left) < 0.05 ? '¡Meta alcanzada! 🎉' : `Faltan ${Math.abs(left).toFixed(1)} kg para tu meta de ${wGoal.toFixed(1)} kg`}</small>`;
+  }
+  $('#wtHero').innerHTML = lw ? `
+    <div class="wthero"><div><small>PESO ACTUAL</small><b>${lw.kg.toFixed(1)}<span> kg</span></b><small>${niceDate(lw.date)}</small></div>
+      <div class="wtdiffs"><div class="${diffP>0?'up':diffP<0?'down':''}"><b>${prev ? sign(diffP) : '—'}</b><small>vs anterior</small></div><div class="${diffT>0?'up':diffT<0?'down':''}"><b>${list.length>1 ? sign(diffT) : '—'}</b><small>desde el inicio</small></div></div></div>
+    ${goalHTML}` : `<p class="empty" style="padding:20px 0">Registra tu peso para empezar a ver tu progreso.</p>`;
+  // gráfico de línea
+  const pts = list.slice(-30);
+  if (pts.length >= 2){
+    const W0 = 340, H0 = 150, padX = 26, padY = 18;
+    const vals = pts.map(p => p.kg).concat(wGoal ? [wGoal] : []);
+    let mn = Math.min(...vals), mx = Math.max(...vals); if (mx - mn < 2){ mn -= 1; mx += 1; }
+    const x = i => padX + i*(W0 - padX*2)/(pts.length-1), y = v => padY + (mx - v)/(mx - mn)*(H0 - padY*2);
+    const d = pts.map((p,i) => (i?'L':'M') + x(i).toFixed(1) + ' ' + y(p.kg).toFixed(1)).join(' ');
+    const area = d + ` L${x(pts.length-1).toFixed(1)} ${H0-padY} L${x(0).toFixed(1)} ${H0-padY} Z`;
+    $('#wtChart').innerHTML = `<svg viewBox="0 0 ${W0} ${H0}" class="wtsvg">
+      <defs><linearGradient id="wtg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#22c55e" stop-opacity=".35"/><stop offset="1" stop-color="#22c55e" stop-opacity="0"/></linearGradient></defs>
+      ${wGoal ? `<line x1="${padX}" x2="${W0-padX}" y1="${y(wGoal)}" y2="${y(wGoal)}" stroke="#facc15" stroke-dasharray="5 5" stroke-width="1.5"/><text x="${padX}" y="${y(wGoal)-5}" text-anchor="start" fill="#facc15" font-size="11" font-weight="700">META ${wGoal.toFixed(1)}</text>` : ''}
+      <path d="${area}" fill="url(#wtg)"/>
+      <path d="${d}" fill="none" stroke="#22c55e" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="wtline"/>
+      ${pts.map((p,i) => `<circle cx="${x(i)}" cy="${y(p.kg)}" r="${i===pts.length-1?5:3}" fill="${i===pts.length-1?'#fff':'#22c55e'}"/>`).join('')}
+      <text x="${padX}" y="${H0-3}" fill="#71717a" font-size="11" font-weight="700">${shortDate(pts[0].date)}</text>
+      <text x="${W0-padX}" y="${H0-3}" text-anchor="end" fill="#71717a" font-size="11" font-weight="700">${shortDate(pts[pts.length-1].date)}</text>
+    </svg>`;
+  } else $('#wtChart').innerHTML = '<p class="empty">Con 2 registros o más verás tu gráfico.</p>';
+  $('#wtLog').innerHTML = list.slice().reverse().map((w,i,arr) => { const nx = arr[i+1]; const df = nx ? w.kg - nx.kg : 0;
+    return `<div class="row"><span class="l"><b>${w.kg.toFixed(1)} kg</b><small>${niceDate(w.date)}</small></span>${nx ? `<span class="chg ${df>0?'up':df<0?'down':''}">${df>0?'▲':df<0?'▼':'='} ${Math.abs(df).toFixed(1)}</span>` : ''}<button class="xbtn" data-wd="${w.id}">×</button></div>`; }).join('') || '<p class="empty">Sin registros.</p>';
+  $$('#wtLog [data-wd]').forEach(b => b.addEventListener('click', async () => { if (await confirmDlg('¿Borrar registro?', 'Se quitará este peso del historial.', 'BORRAR')){ weights = weights.filter(w => w.id !== b.dataset.wd); saveW(); renderWeight(); } }));
+}
+function openWeightForm(){
+  const lw = lastWeight();
+  const rec = { kg: lw ? lw.kg : 70, date: todayISO() };
+  openForm(`<h3 class="ftitle">REGISTRAR PESO</h3>
+    <div class="field"><span>Peso (kg)</span><div class="stepper big" id="wkNum"></div></div>
+    <p style="color:var(--dim);font-size:14px;margin:-4px 0 8px">Mantén presionado + o − para avanzar rápido.</p>
+    <label class="field"><span>Fecha</span><input type="date" id="wkDate" value="${rec.date}"></label>
+    <div class="btnrow"><button class="btn" id="wkCancel">CANCELAR</button><button class="btn pri" id="wkSave" style="--bc:#22c55e">GUARDAR</button></div>`, sh => {
+    makeStepper(sh.querySelector('#wkNum'), { get:() => rec.kg, set:v => rec.kg = Math.round(v*10)/10, min:20, max:300, step:0.1, fmt:v => v.toFixed(1) });
+    sh.querySelector('#wkCancel').addEventListener('click', closeForm);
+    sh.querySelector('#wkSave').addEventListener('click', () => {
+      rec.date = sh.querySelector('#wkDate').value || todayISO();
+      weights = weights.filter(w => w.date !== rec.date); // un registro por día
+      weights.push({ id: uid(), date: rec.date, kg: rec.kg }); saveW(); closeForm(); renderWeight(); Sound.win(); toast(`Peso guardado: ${rec.kg.toFixed(1)} kg`);
+    });
+  });
+}
+function openGoalForm(){
+  const g = { v: wGoal || (lastWeight()?.kg ?? 70) };
+  openForm(`<h3 class="ftitle">MI META DE PESO</h3>
+    <div class="field"><span>Meta (kg)</span><div class="stepper big" id="wgNum"></div></div>
+    <div class="btnrow">${wGoal ? '<button class="btn" id="wgClear" style="color:#f87171">QUITAR META</button>' : '<button class="btn" id="wgCancel">CANCELAR</button>'}<button class="btn pri" id="wgSave" style="--bc:#facc15;color:#111">GUARDAR</button></div>`, sh => {
+    makeStepper(sh.querySelector('#wgNum'), { get:() => g.v, set:v => g.v = Math.round(v*10)/10, min:20, max:300, step:0.1, fmt:v => v.toFixed(1) });
+    sh.querySelector('#wgSave').addEventListener('click', () => { wGoal = g.v; saveW(); closeForm(); renderWeight(); toast('Meta guardada'); });
+    const c = sh.querySelector('#wgCancel'); if (c) c.addEventListener('click', closeForm);
+    const cl = sh.querySelector('#wgClear'); if (cl) cl.addEventListener('click', () => { wGoal = 0; saveW(); closeForm(); renderWeight(); });
+  });
+}
+$('#wtAdd').addEventListener('click', openWeightForm);
+$('#wtGoal').addEventListener('click', openGoalForm);
+
+const NAV_PARENT = { psessions:'home', psessionEdit:'home', weight:'home', calendar:'home', classes:'home', classDetail:'home', warmups:'home', warmupEdit:'home', bhstats:'home' };
+const BACK_TO = { psessions:'home', psessionEdit:'psessions', weight:'home', calendar:'home', classes:'home', classDetail:'classes', warmups:'home', warmupEdit:'warmups', bhstats:'home' };
+const VIEW_RENDER = { psessions: renderPSessions, psessionEdit: renderPSEdit, weight: renderWeight, calendar: renderCalendar, classes: renderClasses, classDetail: renderClassDetail, warmups: renderWarmups, warmupEdit: renderWarmEdit, bhstats: renderBHStats };
 $$('[data-back]').forEach(b => b.addEventListener('click', () => { hapticTap(); handleBack(); }));
 
 /* =========================================================
