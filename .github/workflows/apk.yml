@@ -40,47 +40,20 @@ jobs:
         cp native/MainActivity.java native/KeepAwakePlugin.java $JAVA_DIR/
         npx cap sync android
         # Versión 2.0
-        sed -i 's/versionCode 1$/versionCode 23/; s/versionName "1.0"/versionName "2.3"/' android/app/build.gradle
+        sed -i 's/versionCode 1$/versionCode 24/; s/versionName "1.0"/versionName "2.4"/' android/app/build.gradle
         grep -n "version" android/app/build.gradle
 
-    - name: 5. Generar e Inyectar Ícono de Guantes de Boxeo
+    - name: 5. Ícono nuevo (guante + anillo de timer, ícono adaptativo)
       run: |
         mkdir -p assets
-        
-        cat << 'EOF' > assets/icon.svg
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-          <rect width="512" height="512" rx="100" fill="#18181b"/>
-          <circle cx="256" cy="256" r="220" fill="none" stroke="#ef4444" stroke-width="12" opacity="0.85"/>
-          <g transform="translate(46, 50) scale(4.2)">
-            <path d="M40,30 C34,22 24,24 24,35 L23,45 C20,49 20,53 23,57 C26,60 30,59 34,55 L45,45 C50,38 46,30 40,30 Z" fill="url(#gGloveRed1)" filter="drop-shadow(0 0 6px rgba(239, 68, 68, 0.7))"/>
-            <path d="M20,43 C15,43 13,49 13,54 C13,59 17,59 20,57 C20,51 20,43 20,43 Z" fill="url(#gGloveRed1)"/>
-            <path d="M50,30 C56,22 66,24 66,35 L67,45 C70,49 70,53 67,57 C64,60 60,59 56,55 L45,45 C40,38 44,30 50,30 Z" fill="url(#gGloveRed2)" filter="drop-shadow(0 0 6px rgba(239, 68, 68, 0.7))"/>
-            <path d="M70,43 C75,43 77,49 77,54 C77,59 73,59 70,57 C70,51 70,43 70,43 Z" fill="url(#gGloveRed2)"/>
-            <path d="M45,45 L40,55 L45,58 L50,55 Z" fill="#ffffff" opacity="0.85"/>
-            <path d="M43,48 L47,53" stroke="#ffffff" stroke-width="1.5"/>
-            <path d="M47,48 L43,53" stroke="#ffffff" stroke-width="1.5"/>
-          </g>
-          <text x="256" y="440" font-family="'Barlow Condensed', 'Bebas Neue', 'Impact', sans-serif" font-size="52" fill="#ffffff" font-weight="900" text-anchor="middle" letter-spacing="4">BOXFIT PRO</text>
-          <defs>
-            <linearGradient id="gGloveRed1" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stop-color="#ef4444" />
-              <stop offset="100%" stop-color="#580404" />
-            </linearGradient>
-            <linearGradient id="gGloveRed2" x1="100%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" stop-color="#ef4444" />
-              <stop offset="100%" stop-color="#580404" />
-            </linearGradient>
-          </defs>
-        </svg>
-        EOF
-
-        sudo apt-get update && sudo apt-get install -y librsvg2-bin
-        rsvg-convert -w 512 -h 512 assets/icon.svg -o assets/icon.png
-        rsvg-convert -w 512 -h 512 assets/icon.svg -o assets/icon-only.png
-        rsvg-convert -w 512 -h 512 assets/icon.svg -o assets/icon-foreground.png
-        
+        cp icon/icon.png assets/icon-only.png
+        cp icon/icon-foreground.png assets/icon-foreground.png
+        cp icon/icon-background.png assets/icon-background.png
+        cp icon/splash.png assets/splash.png
+        cp icon/splash-dark.png assets/splash-dark.png
         npm install -D @capacitor/assets
-        npx @capacitor/assets generate --android
+        npx @capacitor/assets generate --android --iconBackgroundColor '#120608' --iconBackgroundColorDark '#120608' --splashBackgroundColor '#09090c' --splashBackgroundColorDark '#09090c'
+        ls android/app/src/main/res/mipmap-xxxhdpi/
 
     - name: 6. Parchear conflicto de Kotlin (Duplicados)
       run: |

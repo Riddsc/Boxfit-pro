@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="42%" r="70%">
+      <stop offset="0" stop-color="#4a0b0e"/><stop offset=".45" stop-color="#1a0709"/><stop offset="1" stop-color="#060608"/>
+    </radialGradient>
+    <linearGradient id="arc" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ffb21a"/><stop offset=".5" stop-color="#ff4d2e"/><stop offset="1" stop-color="#e11d48"/>
+    </linearGradient>
+    <linearGradient id="glove" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ff5a4f"/><stop offset=".55" stop-color="#e3191f"/><stop offset="1" stop-color="#8f0b12"/>
+    </linearGradient>
+    <linearGradient id="thumb" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ff6b5e"/><stop offset="1" stop-color="#b3121a"/>
+    </linearGradient>
+    <linearGradient id="cuff" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2b2b31"/><stop offset="1" stop-color="#0e0e11"/>
+    </linearGradient>
+    <filter id="glow" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="14" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="0" dy="22" stdDeviation="22" flood-color="#000" flood-opacity=".6"/></filter>
+  </defs>
+  <rect width="1024" height="1024" fill="url(#bg)"/>
+  <!-- anillo de timer -->
+  <g transform="translate(512 512)">
+    <circle r="350" fill="none" stroke="#ffffff12" stroke-width="40"/>
+    <g stroke="#ffffff30" stroke-width="8" stroke-linecap="round">
+      <line x1="0" y1="-410" x2="0" y2="-388" transform="rotate(0)"/><line x1="0" y1="-410" x2="0" y2="-388" transform="rotate(30)"/><line x1="0" y1="-410" x2="0" y2="-388" transform="rotate(60)"/>
+      <line x1="0" y1="-410" x2="0" y2="-388" transform="rotate(90)"/><line x1="0" y1="-410" x2="0" y2="-388" transform="rotate(120)"/><line x1="0" y1="-410" x2="0" y2="-388" transform="rotate(150)"/>
+      <line x1="0" y1="-410" x2="0" y2="-388" transform="rotate(180)"/><line x1="0" y1="-410" x2="0" y2="-388" transform="rotate(210)"/><line x1="0" y1="-410" x2="0" y2="-388" transform="rotate(240)"/>
+      <line x1="0" y1="-410" x2="0" y2="-388" transform="rotate(270)"/><line x1="0" y1="-410" x2="0" y2="-388" transform="rotate(300)"/><line x1="0" y1="-410" x2="0" y2="-388" transform="rotate(330)"/>
+    </g>
+    <circle r="350" fill="none" stroke="url(#arc)" stroke-width="40" stroke-linecap="round" stroke-dasharray="1650 2199" transform="rotate(-90)" filter="url(#glow)"/>
+    <circle cx="0" cy="0" r="0"/>
+  </g>
+  <!-- líneas de velocidad -->
+  <g stroke-linecap="round">
+    <line x1="190" y1="452" x2="300" y2="452" stroke="#fff" stroke-opacity=".85" stroke-width="20"/>
+    <line x1="160" y1="515" x2="285" y2="515" stroke="#fff" stroke-opacity=".6" stroke-width="20"/>
+    <line x1="200" y1="578" x2="295" y2="578" stroke="#fff" stroke-opacity=".38" stroke-width="20"/>
+  </g>
+  <!-- guante horizontal, golpeando a la derecha -->
+  <g transform="translate(585 515) rotate(-14) scale(1.02)" filter="url(#shadow)">
+    <!-- puño de tela (cuff) -->
+    <path d="M-250,-105 C-250,-122 -238,-132 -222,-132 L-70,-140 L-70,138 L-222,128 C-238,128 -250,118 -250,102 Z" fill="url(#cuff)" stroke="#000" stroke-width="11" stroke-linejoin="round"/>
+    <path d="M-212,-131 L-172,-133 L-172,131 L-212,129 Z" fill="#fff"/>
+    <path d="M-200,-132 L-184,-132.6 L-184,130.6 L-200,130 Z" fill="#e3191f"/>
+    <!-- mano -->
+    <path d="M-95,-150 C10,-190 170,-182 238,-80 C282,-12 268,100 188,150 C125,190 -10,182 -95,158 C-118,100 -120,-95 -95,-150 Z" fill="url(#glove)" stroke="#2a0306" stroke-width="12" stroke-linejoin="round"/>
+    <!-- pulgar -->
+    <path d="M-88,-38 C-60,-95 70,-105 140,-62 C178,-38 172,8 128,14 C60,22 -20,12 -82,14 C-100,2 -100,-18 -88,-38 Z" fill="url(#thumb)" stroke="#2a0306" stroke-width="10" stroke-linejoin="round"/>
+    <path d="M-50,-30 C0,-62 80,-64 125,-40" fill="none" stroke="#fff" stroke-opacity=".4" stroke-width="7" stroke-linecap="round"/>
+    <!-- nudillos / brillo -->
+    <path d="M-60,-140 C20,-170 150,-160 205,-95 C140,-130 40,-138 -48,-112 Z" fill="#fff" opacity=".55"/>
+    <ellipse cx="226" cy="-40" rx="14" ry="30" fill="#fff" opacity=".35" transform="rotate(-20 226 -40)"/>
+    <path d="M-40,120 C40,140 140,135 200,100" fill="none" stroke="#000" stroke-opacity=".25" stroke-width="10" stroke-linecap="round"/>
+  </g>
+</svg>
