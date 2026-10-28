@@ -673,6 +673,30 @@ nav button.on svg{color:var(--mode)}
 .gbody .tip{background:var(--panel2);border-radius:12px;padding:8px 12px;color:var(--muted);font-size:15px}
 
 .daymarks button:disabled{opacity:.35}
+.hsec{position:relative;background:var(--panel);border:1px solid var(--line);border-radius:22px;padding:12px 12px 12px;margin-bottom:14px;overflow:hidden;animation:cardIn .45s both}
+.hsec::before{content:"";position:absolute;left:0;right:0;top:0;height:4px;background:var(--c)}
+.hh{display:flex;align-items:center;gap:10px;margin:2px 0 10px}
+.hh .hic{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;font-size:21px;flex:none;background:color-mix(in srgb,var(--c) 22%,transparent)}
+.hh b{display:block;font-family:var(--display);font-size:23px;font-weight:400;letter-spacing:.04em;line-height:1}
+.hh small{display:block;color:var(--dim);font-weight:600;font-size:13.5px;line-height:1.15}
+.hsec .tiles{margin-bottom:0}
+.hsec .tile{min-height:92px}
+.hsec .row:first-of-type{border-top:0}
+.gridlbl .hh{margin:4px 0 10px}
+.note{width:100%;display:flex;align-items:center;gap:8px;text-align:left;margin-top:8px;padding:9px 12px;border-radius:14px;font-size:15px;font-weight:600;background:color-mix(in srgb,var(--c) 14%,var(--panel2));border:1px solid color-mix(in srgb,var(--c) 35%,var(--line))}
+.note span{flex:1}
+.smallbtn.go{background:#22c55e;border-color:#22c55e;color:#fff}
+h4.mini{font-size:12px;letter-spacing:.14em;color:var(--dim);font-weight:700;margin:12px 0 2px}
+.sectabs{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:4px;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:4px;margin:-4px 0 14px}
+.sectabs button{display:flex;flex-direction:column;align-items:center;gap:1px;padding:6px 2px;border-radius:12px;font-weight:700;font-size:11px;letter-spacing:.05em;color:var(--muted);min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sectabs button span{font-size:19px;line-height:1.1}
+.sectabs button.on{background:color-mix(in srgb,var(--mode) 22%,transparent);color:var(--text);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--mode) 50%,transparent)}
+.lookrow{display:grid;grid-template-columns:repeat(auto-fit,minmax(50px,1fr));gap:5px}
+.lookrow button{display:flex;flex-direction:column;align-items:center;gap:3px;min-width:0;padding:6px 2px;border-radius:12px;border:2px solid transparent;background:var(--panel2)}
+.lookrow button i{width:30px;height:30px;border-radius:50%;background:var(--s);border:1px solid var(--hl4)}
+.lookrow button.none i{background:repeating-linear-gradient(45deg,var(--hl3) 0 4px,transparent 4px 8px)}
+.lookrow button small{font-size:11px;font-weight:700;color:var(--muted);line-height:1.05;text-align:center}
+.lookrow button.on{border-color:var(--mode);background:color-mix(in srgb,var(--mode) 16%,var(--panel2))}
 .btnrow .btn{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .mslot .boxer{width:92px}
 
@@ -707,7 +731,7 @@ nav button.on svg{color:var(--mode)}
     <div class="stat"><b id="stMinutes">0</b><span>Minutos</span></div>
   </div>
   <div id="homeExtra"></div>
-  <div class="seclbl">ENTRENAMIENTOS</div>
+  <div id="gridLbl" class="gridlbl"></div>
   <div class="grid" id="profileGrid"></div>
 </section>
 
@@ -716,6 +740,7 @@ nav button.on svg{color:var(--mode)}
   <div class="topbar" style="width:100%">
     <button class="chip" id="profileChip"><span class="ic" id="chipIcon">🥊</span><span id="chipName">Boxeo</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M6 9l6 6 6-6"/></svg></button>
     <div class="spacer"></div>
+    <button class="iconbtn" data-go="roulette" aria-label="Ruletas" style="margin-right:8px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="2.2" fill="currentColor"/><path d="M12 3v6.8M12 14.2V21M3 12h6.8M14.2 12H21"/></svg></button>
     <button class="iconbtn" data-go="traffic" aria-label="Semáforo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="7" y="2" width="10" height="20" rx="4"/><circle cx="12" cy="7" r="1.6" fill="currentColor"/><circle cx="12" cy="12" r="1.6" fill="currentColor"/><circle cx="12" cy="17" r="1.6" fill="currentColor"/></svg></button>
   </div>
   <div class="phase" id="phaseLbl">LISTO</div>
@@ -821,6 +846,7 @@ nav button.on svg{color:var(--mode)}
     <div class="row"><div class="l"><b>Boxea en el timer y el semáforo</b><small>Tira golpes en el round, descansa y celebra</small></div><button class="switch" data-set="guideTimer"></button></div>
     <div class="row"><div class="l"><b>Saludo la primera vez</b><small>Aparece una vez al entrar a una sección nueva</small></div><button class="switch" data-set="guideTips"></button></div>
     <div class="row"><div class="l"><b>Nombre del guía</b></div><input id="gName" maxlength="16" class="ta" style="width:130px;margin:0;padding:8px 10px"></div>
+    <div class="row"><div class="l"><b>Cómo se ve</b><small>Color de camiseta, pantaloneta, guantes, piel, cabello y bandana</small></div><button class="smallbtn" id="gLookBtn">CAMBIAR</button></div>
     <div class="row"><div class="l"><b>Volver a ver los consejos</b></div><button class="smallbtn" id="gReset">REINICIAR</button></div>
   </div>
   <div class="sect" style="--i:3"><h4>DATOS</h4>
@@ -829,7 +855,7 @@ nav button.on svg{color:var(--mode)}
     <div class="row"><div class="l"><b>Estadísticas</b><small id="statsLine">—</small></div><button class="smallbtn danger" id="resetStats">BORRAR</button></div>
     <div class="row"><div class="l"><b>Entrenamientos originales</b><small>Recupera los perfiles de fábrica</small></div><button class="smallbtn danger" id="resetProfiles">RESTAURAR</button></div>
   </div>
-  <p class="foot">Boxfit Pro · versión 3.0</p>
+  <p class="foot">Boxfit Pro · versión 3.1</p>
 </section>
 
 <!-- ================= EDITOR ================= -->
@@ -996,6 +1022,13 @@ nav button.on svg{color:var(--mode)}
   <div class="seg" id="fnSeg"><button type="button" data-fk="week">SEMANA</button><button type="button" data-fk="month">MES</button><button type="button" data-fk="year">AÑO</button></div>
   <div class="periodbar"><button class="iconbtn" id="fnPrev" aria-label="Anterior"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M15 5l-7 7 7 7"/></svg></button><button class="calmonth" id="fnToday"><b id="fnLabel">—</b><small id="fnSub"></small></button><button class="iconbtn" id="fnNext" aria-label="Siguiente"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M9 5l7 7-7 7"/></svg></button></div>
   <div id="fnBody"></div>
+</section>
+
+<!-- ================= BOX HOUSE: REPORTES ================= -->
+<section class="view" id="bhreports">
+  <div class="topbar"><div class="title">REPORTES</div></div>
+  <div class="periodbar"><button class="iconbtn" id="rpPrev" aria-label="Mes anterior"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M15 5l-7 7 7 7"/></svg></button><div class="calmonth"><b id="rpMonth">—</b></div><button class="iconbtn" id="rpNext" aria-label="Mes siguiente"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M9 5l7 7-7 7"/></svg></button></div>
+  <div id="rpBody"></div>
 </section>
 
 <!-- ================= BOX HOUSE: PERSONALIZADAS ================= -->
@@ -1355,6 +1388,7 @@ function go(view, backAnim=false){
   if (view === 'settings') renderSettings();
   if (VIEW_RENDER[view]) VIEW_RENDER[view]();
   el.scrollTop = 0;
+  if (window.secTabs) secTabs(view);
   if (window.guideOnView) guideOnView(view);
   if (view === 'roulette') { requestAnimationFrame(() => { sizeWheel(); placePill(); }); startBulbs(); } else stopBulbs();
   if (view === 'timer' && T.phase === 'done') $('#doneCard').classList.add('show');
@@ -2484,7 +2518,13 @@ function monthTrainSummary(k){
     const st = dayStatus(ds);
     if (st === 'tr') tr++;
     if (st === 'ms' || st === 'auto') ms++;
-    if (me.plan.includes(parseISO(ds).getDay()) && pmarks[ds] !== 'rest' && (!me.planSince || ds >= me.planSince)){ plannedPast++; if (st === 'tr') plannedOk++; }
+    // Cumplimiento: cuentan los días de entreno con registro (entrené / falté, aunque sean de antes de elegir
+    // los días) y las faltas automáticas; hoy solo cuenta si ya entrenaste, nunca resta.
+    const planned = me.plan.includes(parseISO(ds).getDay());
+    if (planned && pmarks[ds] !== 'rest'){
+      const counts = st === 'tr' || st === 'ms' || st === 'auto' || (ds < t && me.planSince && ds >= me.planSince);
+      if (counts && !(ds === t && st !== 'tr')){ plannedPast++; if (st === 'tr') plannedOk++; }
+    }
   }
   return { tr, ms, pct: plannedPast ? Math.round(plannedOk/plannedPast*100) : null };
 }
@@ -2762,7 +2802,7 @@ function renderBHToday(){
       <div class="kpi" style="--kc:#f59e0b"><b>${mAtt.length ? fmt1(mTotal/mAtt.length) : '0'}</b><span>Promedio por sesión</span></div>
       <div class="kpi" style="--kc:#8b5cf6"><b>${top[0] ? hhmm(top[0][0]) : '—'}</b><span>Horario más lleno</span></div></div>
     <div class="sect"><h4>ESTA SEMANA</h4><div class="bars" style="height:140px">${week.map((w, i) => `<div class="bar"><em>${w.n || ''}</em><i style="height:${Math.max(3, w.n/wmax*100)}%;animation-delay:${i*40}ms;${w.d === ds ? 'background:linear-gradient(180deg,var(--mode),#7f1d1d)' : ''}"></i><span>${WD[parseISO(w.d).getDay()]} ${parseISO(w.d).getDate()}</span></div>`).join('')}</div></div>
-    ${top.length ? `<div class="sect"><h4>PROMEDIO POR HORARIO · ${MONTHS[+k.slice(5)-1].toUpperCase()}</h4>${top.map(([s, v]) => `<div class="row"><span class="l"><b>${hhmm(s)}</b><small>${v.n} sesiones · ${v.t} asistencias</small></span><span class="big">${fmt1(v.t/v.n)}</span></div>`).join('')}</div>` : ''}`;
+    ${top.length ? `<div class="sect"><h4>PROMEDIO POR HORARIO · ${MONTHS[+k.slice(5)-1].toUpperCase()}</h4>${top.map(([s, v]) => `<div class="row"><span class="l"><b>${hhmm(s)}</b><small>${pl(v.n, 'sesión', 'sesiones')} · ${pl(v.t, 'asistencia', 'asistencias')}</small></span><span class="big">${fmt1(v.t/v.n)}</span></div>`).join('')}</div>` : ''}`;
 }
 $('#tdPrev').addEventListener('click', () => { bhDay = addDays(bhDay, -1); hapticTap(); renderBHToday(); });
 $('#tdNext').addEventListener('click', () => { bhDay = addDays(bhDay, 1); hapticTap(); renderBHToday(); });
@@ -3114,10 +3154,12 @@ function openPaySheet(id, k, after){
     sh.querySelector('#psList').innerHTML = pays.length ? pays.map(p => `<div class="row"><span class="l"><b class="money">${money(p.a)}</b><small>${niceDate(p.d)}</small></span><button class="xbtn" data-pd="${p.id}">×</button></div>`).join('') : '<p class="hint">Sin abonos todavía.</p>';
     sh.querySelectorAll('[data-pd]').forEach(b => b.addEventListener('click', async () => { mo.pays[id] = (mo.pays[id] || []).filter(p => p.id !== b.dataset.pd); saveBH2(); draw(sh); }));
     sh.querySelector('#psFull').textContent = s.owe ? `PAGA TODO (${money(s.owe)})` : 'YA PAGÓ TODO';
+    sh.querySelector('#psWa').style.display = s.owe ? '' : 'none';
   };
   const add = { a: 0 };
   openForm(`<h3 class="ftitle">${esc(m.name.toUpperCase())}</h3><p class="hint">Mensualidad de ${monthName(k)}</p>
     <div id="psSum" style="margin-bottom:6px"></div>
+    <button class="btn" id="psWa" style="width:100%;margin-bottom:10px;font-size:19px;color:#22c55e">📲 RECORDAR POR WHATSAPP</button>
     <div class="sect" style="padding:4px 12px"><h4>ABONOS</h4><div id="psList"></div></div>
     <div class="field"><span>Nuevo pago o abono</span><input class="moneyin" id="psAmt" inputmode="numeric" placeholder="$0"></div>
     <div class="quick"><button type="button" id="psFull"></button>${[10000, 20000, 30000, 50000].map(v => `<button type="button" data-qa="${v}">${money(v)}</button>`).join('')}</div>
@@ -3126,6 +3168,7 @@ function openPaySheet(id, k, after){
     <div class="field"><span>Mensualidad de este alumno en ${MONTHS[+k.slice(5)-1].toLowerCase()}</span><input class="moneyin" id="psFee" inputmode="numeric" placeholder="$0"></div>
     <p class="hint">Por defecto es la mensualidad general (${money(mo.fee)}). Ponla en $0 si está becado.</p>
     <div class="btnrow"><button class="btn" id="psOut" style="color:#f87171">QUITAR</button><button class="btn pri" id="psOk" style="--bc:var(--mode)">LISTO</button></div>`, sh => {
+    sh.querySelector('#psWa').addEventListener('click', () => remindPay(m, k, payStatus(mo, id).owe));
     const amt = sh.querySelector('#psAmt');
     moneyInput(amt, () => add.a, v => add.a = v);
     const fee = sh.querySelector('#psFee');
@@ -3475,8 +3518,27 @@ function openCalc(){
    GUÍA BOXEADOR: PERSONAJE, ANIMACIÓN Y EXPLICACIONES
    ========================================================= */
 function boxerFace(){ return boxerSVG('talk').replace('viewBox="0 0 124 162"', 'viewBox="34 14 64 64"'); }
-function boxerSVG(cls){
-  const skin = '#d99b68', skin2 = '#c4864f', red = '#e11d1d', red2 = '#b91c1c';
+/* Apariencia del guía (se cambia en Ajustes → Guía) */
+const LOOK_OPTS = {
+  shirt:  { t:'Camiseta',    o:[['rojo','Rojo','#e11d1d'],['azul','Azul','#2563eb'],['negro','Negro','#1f1f23'],['blanco','Blanco','#f4f4f5'],['dorado','Dorado','#eab308']] },
+  shorts: { t:'Pantaloneta', o:[['negro','Negro','#111827'],['azul','Azul','#1e40af'],['rojo','Rojo','#b91c1c'],['blanco','Blanco','#e5e7eb'],['dorado','Dorado','#ca8a04']] },
+  gloves: { t:'Guantes',     o:[['rojo','Rojos','#e11d1d'],['azul','Azules','#2563eb'],['negro','Negros','#27272a'],['blanco','Blancos','#f4f4f5'],['dorado','Dorados','#eab308']] },
+  skin:   { t:'Tono de piel', o:[['muyclara','Muy clara','#f6d7bc'],['clara','Clara','#eabf94'],['trigueña','Trigueña','#d99b68'],['morena','Morena','#a86b3c'],['oscura','Oscura','#6f4325']] },
+  hair:   { t:'Cabello',     o:[['negro','Negro','#1c1917'],['castaño','Castaño','#5b3a1e'],['rubio','Rubio','#d4a64a'],['rojizo','Rojizo','#9a3412'],['canoso','Canoso','#b4b0aa']] },
+  band:   { t:'Bandana',     o:[['rojo','Roja','#e11d1d'],['azul','Azul','#2563eb'],['negro','Negra','#1f1f23'],['blanco','Blanca','#f4f4f5'],['dorado','Dorada','#eab308'],['no','Sin bandana','']] },
+};
+const LOOK_DEFAULT = { shirt:'rojo', shorts:'negro', gloves:'rojo', skin:'trigueña', hair:'negro', band:'rojo' };
+const lookOf = () => Object.assign({}, LOOK_DEFAULT, S.look || {});
+const lookColor = (part, key) => { const o = LOOK_OPTS[part].o.find(x => x[0] === key) || LOOK_OPTS[part].o[0]; return o[2]; };
+const shade2 = (hex, amt) => { if (!hex) return hex; let c = parseInt(hex.slice(1), 16); let r = (c >> 16) + amt, g = ((c >> 8) & 255) + amt, b = (c & 255) + amt; const f = v => Math.max(0, Math.min(255, v)).toString(16).padStart(2, '0'); return '#' + f(r) + f(g) + f(b); };
+const isLight = hex => { const c = parseInt(hex.slice(1), 16); return ((c >> 16)*299 + ((c >> 8) & 255)*587 + (c & 255)*114)/1000 > 170; };
+function boxerSVG(cls, lk){
+  lk = lk || lookOf();
+  const skin = lookColor('skin', lk.skin), skin2 = shade2(skin, -22);
+  const shirt = lookColor('shirt', lk.shirt), shorts = lookColor('shorts', lk.shorts), glove = lookColor('gloves', lk.gloves), glove2 = shade2(glove, -34);
+  const hair = lookColor('hair', lk.hair), band = lookColor('band', lk.band);
+  const trim = isLight(shirt) ? '#a1a1aa' : '#fff', boxTxt = isLight(shirt) ? '#1f1f23' : '#fff', cuff = isLight(glove) ? '#a1a1aa' : '#fff', stripe = isLight(shorts) ? '#1f1f23' : (shorts === '#111827' || shorts === '#1e40af' ? glove : '#fff');
+  const red = shirt;
   return `<svg class="boxer ${cls || ''}" viewBox="0 0 124 162" aria-hidden="true">
   <ellipse class="bx-shadow" cx="60" cy="156" rx="30" ry="4.5" fill="#000" opacity=".35"/>
   <g class="bx-body">
@@ -3485,21 +3547,21 @@ function boxerSVG(cls){
     <rect x="37" y="139" width="13" height="8" rx="2" fill="#fff"/><rect x="71" y="139" width="13" height="8" rx="2" fill="#fff"/>
     <path d="M33 147 h18 a3 3 0 0 1 3 3 v4 h-23 v-3 a4 4 0 0 1 2-4z" fill="#18181b"/>
     <path d="M69 147 h15 a7 7 0 0 1 7 7 h-24 v-5 a2 2 0 0 1 2-2z" fill="#18181b"/>
-    <path d="M42 96 H80 L84 121 H64 L61 112 L58 121 H38 Z" fill="#111827"/>
-    <rect x="41" y="93" width="40" height="7" rx="3" fill="${red}"/>
-    <path d="M40 117 L43 101" stroke="${red}" stroke-width="2.6"/><path d="M82 117 L79 101" stroke="${red}" stroke-width="2.6"/>
+    <path d="M42 96 H80 L84 121 H64 L61 112 L58 121 H38 Z" fill="${shorts}"/>
+    <rect x="41" y="93" width="40" height="7" rx="3" fill="${stripe}"/>
+    <path d="M40 117 L43 101" stroke="${stripe}" stroke-width="2.6"/><path d="M82 117 L79 101" stroke="${stripe}" stroke-width="2.6"/>
     <g class="bx-armB"><g transform="translate(52 76) rotate(-12.5)"><line class="bx-limb" x1="0" y1="0" x2="18.4" y2="0" stroke="${skin2}" stroke-width="9"/></g></g>
     <path d="M47 66 Q61 60 75 66 L80 95 H42 Z" fill="${red}"/>
     <path d="M53 63 Q61 71 69 63" fill="${skin}"/>
-    <path d="M47 66 Q49 74 45 80" stroke="#fff" stroke-width="2" fill="none" opacity=".85"/><path d="M75 66 Q73 74 77 80" stroke="#fff" stroke-width="2" fill="none" opacity=".85"/>
-    <text x="61" y="88" text-anchor="middle" font-family="Bebas Neue,Impact,sans-serif" font-size="11" fill="#fff" opacity=".9">BOX</text>
+    <path d="M47 66 Q49 74 45 80" stroke="${trim}" stroke-width="2" fill="none" opacity=".85"/><path d="M75 66 Q73 74 77 80" stroke="${trim}" stroke-width="2" fill="none" opacity=".85"/>
+    <text x="61" y="88" text-anchor="middle" font-family="Bebas Neue,Impact,sans-serif" font-size="11" fill="${boxTxt}" opacity=".9">BOX</text>
     <circle cx="52" cy="74" r="5.5" fill="${skin2}"/>
-    <g class="bx-armB"><g class="bx-glove"><circle cx="70" cy="70" r="9.5" fill="${red2}"/><path d="M63 74 q7 5 14 0" stroke="#fff" stroke-width="2.4" fill="none"/><ellipse cx="67" cy="66" rx="3" ry="2" fill="#fff" opacity=".3"/></g></g>
+    <g class="bx-armB"><g class="bx-glove"><circle cx="70" cy="70" r="9.5" fill="${glove2}"/><path d="M63 74 q7 5 14 0" stroke="${cuff}" stroke-width="2.4" fill="none"/><ellipse cx="67" cy="66" rx="3" ry="2" fill="#fff" opacity=".3"/></g></g>
     <g class="bx-head">
       <rect x="56" y="56" width="12" height="10" rx="4" fill="${skin2}"/>
       <circle cx="62" cy="44" r="21" fill="${skin}"/>
-      <path d="M41 45 Q39 22 62 21 Q85 22 84 41 Q74 30 60 32 Q49 33 45 47 Z" fill="#1c1917"/>
-      <path d="M41 40 Q62 30 84 37 L84 42 Q62 35 41 46 Z" fill="${red}"/>
+      <path d="M41 45 Q39 22 62 21 Q85 22 84 41 Q74 30 60 32 Q49 33 45 47 Z" fill="${hair}"/>
+      ${band ? `<path d="M41 40 Q62 30 84 37 L84 42 Q62 35 41 46 Z" fill="${band}"/><path d="M42 42 l-7 6 l2 2 l7 -4z" fill="${band}"/>` : ''}
       <circle cx="45" cy="48" r="4.6" fill="${skin2}"/>
       <ellipse cx="68" cy="45" rx="2.4" ry="3.2" fill="#1c1917"/><ellipse cx="78" cy="45" rx="2.4" ry="3.2" fill="#1c1917"/>
       <circle cx="68.8" cy="44" r=".9" fill="#fff"/><circle cx="78.8" cy="44" r=".9" fill="#fff"/>
@@ -3512,54 +3574,56 @@ function boxerSVG(cls){
     </g>
     <g class="bx-armF"><g transform="translate(70 74) rotate(-29.7)"><line class="bx-limb" x1="0" y1="0" x2="16.1" y2="0" stroke="${skin}" stroke-width="9"/></g>
       <circle cx="70" cy="74" r="5.5" fill="${skin}"/>
-      <g class="bx-glove"><circle cx="84" cy="66" r="10.5" fill="${red}"/><path d="M76 71 q8 5.5 16 0" stroke="#fff" stroke-width="2.6" fill="none"/><ellipse cx="80" cy="61" rx="3.6" ry="2.4" fill="#fff" opacity=".35"/></g></g>
+      <g class="bx-glove"><circle cx="84" cy="66" r="10.5" fill="${glove}"/><path d="M76 71 q8 5.5 16 0" stroke="${cuff}" stroke-width="2.6" fill="none"/><ellipse cx="80" cy="61" rx="3.6" ry="2.4" fill="#fff" opacity=".35"/></g></g>
   </g></svg>`;
 }
 const gName = () => (S.guideName || 'Tito').trim() || 'Tito';
+const userFirst = () => S.mode === 'personal' && me.name ? me.name.trim().split(/\s+/)[0] : '';
 const GUIDE = {
-  home: m => m === 'boxhouse' ? { t:'Inicio Box House', b:[
-      `<p>Este es el <b>tablero del gimnasio</b>. Arriba ves las sesiones de hoy con cuántos vinieron; toca una para <b>llamar a lista</b>.</p>`,
-      `<ul><li><b>Día a día:</b> lista, clases personalizadas y calendario.</li><li><b>Administración:</b> alumnos, pagos del mes, control de peso y finanzas.</li><li><b>Entrenamiento:</b> planes de clase, calentamientos guiados, ruletas y estadísticas.</li></ul>`,
-      `<p class="tip">Abajo tienes la barra de este modo: Inicio, Lista, Alumnos, Finanzas y Timer. El semáforo está dentro del Timer.</p>`] }
-    : m === 'gym' ? { t:'Modo Gimnasio', b:[`<p>Pensado para <b>usar la app en clase, para todos</b>: timer, semáforo y ruletas, sin guardar estadísticas de nadie.</p>`, `<p>Elige un entrenamiento de la lista y dale play. Para llevar control de alumnos, pagos y asistencia usa el <b>Modo Box House</b>.</p>`] }
-    : { t:'Tu inicio', b:[`<p>Aquí está todo lo tuyo. Elige un <b>entrenamiento</b> abajo y quedas listo en el timer.</p>`,
+  home: m => m === 'boxhouse' ? { t:'el inicio de Box House', b:[
+      `<p>El inicio está ordenado por <b>secciones</b>, cada una con su color:</p>`,
+      `<ul><li><b>Hoy:</b> las sesiones del día con el botón <b>Llamar a lista</b>, los cumpleaños y quién lleva rato sin venir.</li><li><b>Alumnos e inscritos:</b> alumnos, lista, pagos del mes y control de peso.</li><li><b>Clases:</b> planes de clase, calentamientos, personalizadas y calendario.</li><li><b>Finanzas y reportes:</b> la plata del gimnasio, informes y Excel.</li><li><b>Herramientas de entreno:</b> timer, semáforo y ruletas. Abajo están los modos de entreno.</li></ul>`,
+      `<p class="tip">Dentro de cada sección hay pestañas arriba para pasar de una parte a otra sin volver al inicio. La barra de abajo: Inicio, Alumnos, Lista, Timer y Finanzas.</p>`] }
+    : m === 'gym' ? { t:'el modo gimnasio', b:[`<p>Pensado para <b>usar la app en clase, para todos</b>: timer, semáforo y ruletas, sin guardar estadísticas de nadie.</p>`, `<p>Elige un entrenamiento de la lista y dale play. Para llevar control de alumnos, pagos y asistencia usa el <b>Modo Box House</b>.</p>`] }
+    : { t:'tu inicio', b:[`<p>Aquí está todo lo tuyo. Elige un <b>entrenamiento</b> abajo y quedas listo en el timer.</p>`,
       `<ul><li><b>Mis sesiones:</b> arma tu clase de boxeo y te guío paso a paso.</li><li><b>Mi peso:</b> tu peso, IMC y categoría.</li><li><b>Mi perfil:</b> altura, género, edad y tus días de entreno.</li><li><b>Asistí hoy:</b> suma un entreno aunque no hayas usado el timer.</li><li><b>Calendario:</b> días entrenados, faltas y cumplimiento.</li></ul>`,
       `<p class="tip">Arriba eliges el modo: Personal, Gimnasio o Box House.</p>`] },
-  timer: () => ({ t:'El timer', b:[`<p>Dale <b>play</b> y yo boxeo contigo: tiro golpes en el round, descanso en la pausa y celebro al final.</p>`,
+  timer: () => ({ t:'el timer', b:[`<p>Dale <b>play</b> y yo boxeo contigo: tiro golpes en el round, descanso en la pausa y celebro al final.</p>`,
       `<ul><li><b>Azul:</b> prepárate. <b>Verde:</b> ¡pelea! <b>Amarillo:</b> últimos segundos. <b>Rojo:</b> descanso.</li><li>El botón de la izquierda reinicia y el de la derecha salta a la siguiente fase.</li><li>Arriba a la derecha está el <b>semáforo</b>: pantalla completa que se ve desde lejos.</li><li>Toca el nombre del entrenamiento para cambiarlo.</li></ul>`,
       `<p class="tip">¿No se oye bien con el ruido del gimnasio? En Ajustes activa <b>Gimnasio ruidoso</b>.</p>`] }),
-  roulette: () => ({ t:'Las ruletas', b:[`<p>Tres ruletas: <b>sparring</b> (consigna para el round), <b>combos</b> y <b>castigo</b>.</p>`, `<ul><li>Toca GIRAR o desliza la ruleta con el dedo.</li><li>Abajo agregas o quitas opciones (máximo 20).</li><li>“Restaurar originales” vuelve a las de fábrica.</li></ul>`] }),
-  settings: () => ({ t:'Ajustes', b:[`<p>Aquí cambias cómo funciona la app:</p>`, `<ul><li><b>Apariencia:</b> oscuro, claro o automático.</li><li><b>Modo de uso:</b> Personal, Gimnasio o Box House.</li><li><b>Sonido:</b> volumen, pitidos y el modo <b>Gimnasio ruidoso</b> para sonar mucho más fuerte.</li><li><b>Guía:</b> mostrarme, cambiar mi nombre o volver a ver los consejos.</li><li><b>Datos:</b> copia de seguridad para no perder nada si cambias o pierdes el celular.</li></ul>`,
+  roulette: () => ({ t:'las ruletas', b:[`<p>Tres ruletas: <b>sparring</b> (consigna para el round), <b>combos</b> y <b>castigo</b>.</p>`, `<ul><li>Toca GIRAR o desliza la ruleta con el dedo.</li><li>Abajo agregas o quitas opciones (máximo 20).</li><li>“Restaurar originales” vuelve a las de fábrica.</li></ul>`] }),
+  settings: () => ({ t:'los ajustes', b:[`<p>Aquí cambias cómo funciona la app:</p>`, `<ul><li><b>Apariencia:</b> oscuro, claro o automático.</li><li><b>Modo de uso:</b> Personal, Gimnasio o Box House.</li><li><b>Sonido:</b> volumen, pitidos y el modo <b>Gimnasio ruidoso</b> para sonar mucho más fuerte.</li><li><b>Guía:</b> mostrarme, cambiar mi nombre o volver a ver los consejos.</li><li><b>Datos:</b> copia de seguridad para no perder nada si cambias o pierdes el celular.</li></ul>`,
       `<p class="tip">Haz una copia de seguridad cada cierto tiempo y guárdala en el correo o en Drive.</p>`] }),
-  editor: () => ({ t:'Editar entrenamiento', b:[`<p>Ajusta el tiempo de round, descanso, número de rounds, la preparación y el aviso final (pantalla amarilla y silbato).</p>`, `<p>Elige color e ícono para reconocerlo rápido. Mantén presionado + o − para avanzar rápido.</p>`] }),
-  calendar: m => m === 'boxhouse' ? { t:'Calendario del gimnasio', b:[`<p>Cada día muestra las <b>listas tomadas</b> (verde), las <b>clases personalizadas</b> (morado) y los <b>eventos</b> como torneos.</p>`, `<ul><li>Toca un día para ver el detalle.</li><li>Desde ahí abres la lista de ese día o agendas una personalizada.</li><li>“+ Evento” agrega torneos, sparrings o lo que necesites.</li></ul>`] }
-    : { t:'Tu calendario', b:[`<p>Los días se pintan solos: <b>verde</b> entrenaste, <b>rojo</b> faltaste, <b>gris</b> descanso.</p>`, `<ul><li>Toca un día y márcalo: <b>Entrené</b>, <b>Falté</b> o <b>Descanso</b>.</li><li>Si eliges tus días de entreno en Mi perfil, las faltas se cuentan solas (borde punteado) y ves tu <b>% de cumplimiento</b>.</li><li>“Entrené” suma a tus estadísticas aunque no hayas usado el timer.</li></ul>`] },
-  classes: () => ({ t:'Planes de clase', b:[`<p>Arma la estructura de cada clase: días, hora, calentamiento, timer y bloques (técnica, saco, físico…).</p>`, `<p>Con <b>Iniciar clase</b> arranca el calentamiento guiado y después el timer.</p>`] }),
-  classDetail: () => ({ t:'Plan de clase', b:[`<p>Todo se guarda solo. Ajusta los minutos de cada bloque con + y −, y agrega bloques abajo.</p>`, `<p>“Asistencia” registra la clase en las estadísticas antiguas. Para el control diario por alumno usa la <b>Lista</b>.</p>`] }),
-  warmups: () => ({ t:'Calentamientos', b:[`<p>Rutinas de calentamiento que se reproducen paso a paso con tiempo y campana. Toca ▶ para empezar o la tarjeta para editarla.</p>`] }),
-  warmupEdit: () => ({ t:'Editar calentamiento', b:[`<p>Cambia el nombre, el color y los ejercicios con su tiempo. “Probar” lo reproduce de una.</p>`] }),
-  bhstats: () => ({ t:'Estadísticas de clases', b:[`<p>Registros de clases hechos con el botón “Asistencia” de los planes de clase.</p>`, `<p class="tip">La asistencia por alumno y por horario está en <b>Lista</b>, que es más completa.</p>`] }),
-  psessions: () => ({ t:'Mis sesiones', b:[`<p>Arma tu propia clase: escuelita, combos, pasos en L y en V, laterales, saco, lazo y más.</p>`, `<p>Toca ▶ y te guío ejercicio por ejercicio con tiempo, descanso y consejos.</p>`] }),
-  psessionEdit: () => ({ t:'Preparar sesión', b:[`<p>Elige tu nivel y tu objetivo, agrega ejercicios y ajusta rounds, tiempo y descanso de cada uno. Ordénalos con las flechas.</p>`] }),
-  weight: () => ({ t:'Mi peso', b:[`<p>Registra tu peso <b>escribiéndolo</b> o con + y −. Ves tu cambio, tu meta y tu gráfico.</p>`,
+  editor: () => ({ t:'cómo editar un entrenamiento', b:[`<p>Ajusta el tiempo de round, descanso, número de rounds, la preparación y el aviso final (pantalla amarilla y silbato).</p>`, `<p>Elige color e ícono para reconocerlo rápido. Mantén presionado + o − para avanzar rápido.</p>`] }),
+  calendar: m => m === 'boxhouse' ? { t:'el calendario', b:[`<p>Cada día muestra las <b>listas tomadas</b> (verde), las <b>clases personalizadas</b> (morado) y los <b>eventos</b> como torneos.</p>`, `<ul><li>Toca un día para ver el detalle.</li><li>Desde ahí abres la lista de ese día o agendas una personalizada.</li><li>“+ Evento” agrega torneos, sparrings o lo que necesites.</li></ul>`] }
+    : { t:'tu calendario', b:[`<p>Los días se pintan solos: <b>verde</b> entrenaste, <b>rojo</b> faltaste, <b>gris</b> descanso.</p>`, `<ul><li>Toca un día y márcalo: <b>Entrené</b>, <b>Falté</b> o <b>Descanso</b>.</li><li>Si eliges tus días de entreno en Mi perfil, las faltas se cuentan solas (borde punteado) y ves tu <b>% de cumplimiento</b>.</li><li>“Entrené” suma a tus estadísticas aunque no hayas usado el timer.</li></ul>`] },
+  classes: () => ({ t:'los planes de clase', b:[`<p>Arma la estructura de cada clase: días, hora, calentamiento, timer y bloques (técnica, saco, físico…).</p>`, `<p>Con <b>Iniciar clase</b> arranca el calentamiento guiado y después el timer.</p>`] }),
+  classDetail: () => ({ t:'el plan de clase', b:[`<p>Todo se guarda solo. Ajusta los minutos de cada bloque con + y −, y agrega bloques abajo.</p>`, `<p>“Asistencia” registra la clase en las estadísticas antiguas. Para el control diario por alumno usa la <b>Lista</b>.</p>`] }),
+  warmups: () => ({ t:'los calentamientos', b:[`<p>Rutinas de calentamiento que se reproducen paso a paso con tiempo y campana. Toca ▶ para empezar o la tarjeta para editarla.</p>`] }),
+  warmupEdit: () => ({ t:'cómo editar un calentamiento', b:[`<p>Cambia el nombre, el color y los ejercicios con su tiempo. “Probar” lo reproduce de una.</p>`] }),
+  bhstats: () => ({ t:'las estadísticas de clases', b:[`<p>Registros de clases hechos con el botón “Asistencia” de los planes de clase.</p>`, `<p class="tip">La asistencia por alumno y por horario está en <b>Lista</b>, que es más completa.</p>`] }),
+  psessions: () => ({ t:'tus sesiones', b:[`<p>Arma tu propia clase: escuelita, combos, pasos en L y en V, laterales, saco, lazo y más.</p>`, `<p>Toca ▶ y te guío ejercicio por ejercicio con tiempo, descanso y consejos.</p>`] }),
+  psessionEdit: () => ({ t:'cómo preparar tu sesión', b:[`<p>Elige tu nivel y tu objetivo, agrega ejercicios y ajusta rounds, tiempo y descanso de cada uno. Ordénalos con las flechas.</p>`] }),
+  weight: () => ({ t:'tu peso', b:[`<p>Registra tu peso <b>escribiéndolo</b> o con + y −. Ves tu cambio, tu meta y tu gráfico.</p>`,
       `<ul><li><b>IMC:</b> se calcula con tu altura. Si eres menor de 19 años uso las tablas de la OMS para tu edad y género.</li><li><b>Categoría:</b> te digo en qué categoría de boxeo estás (aficionado o profesional), su rango y cuánto margen tienes.</li><li>“Ver todas las categorías” explica cada una.</li></ul>`] }),
-  me: () => ({ t:'Mi perfil', b:[`<p>Con tu <b>género, edad y altura</b> calculo bien tu IMC y tu categoría. La edad puede ser la fecha de nacimiento o solo los años.</p>`, `<p>En <b>Mis días de entreno</b> marca los días que sueles entrenar: así el calendario cuenta tus faltas y tu cumplimiento.</p>`] }),
-  bhtoday: () => ({ t:'Lista del día', b:[`<p>Aparecen las sesiones del día: de lunes a viernes <b>9 am, 4 pm y 7 pm</b>, y el sábado <b>10 am</b>. La que está por empezar se marca como <b>AHORA</b>.</p>`,
-      `<ul><li>Toca una sesión para <b>llamar a lista</b>.</li><li>Con las flechas vas a otros días.</li><li>“Sesión extra” sirve para clases especiales.</li><li>Abajo: personalizadas del día y el resumen de la semana y del mes.</li></ul>`, `<p class="tip">Los horarios se cambian en Finanzas → Precios.</p>`] }),
-  bhroll: () => ({ t:'Llamar a lista', b:[`<p>Toca a cada persona que vino y queda con ✓. <b>Se guarda al instante</b>, no hay que darle a guardar.</p>`,
+  me: () => ({ t:'tu perfil', b:[`<p>Con tu <b>género, edad y altura</b> calculo bien tu IMC y tu categoría. La edad puede ser la fecha de nacimiento o solo los años.</p>`, `<p>En <b>Mis días de entreno</b> marca los días que sueles entrenar: así el calendario cuenta tus faltas y tu cumplimiento.</p>`] }),
+  bhtoday: () => ({ t:'la lista del día', b:[`<p>Aparecen las sesiones del día: de lunes a viernes <b>9 am, 4 pm y 7 pm</b>, y el sábado <b>10 am</b>. La que está por empezar se marca como <b>AHORA</b>.</p>`,
+      `<ul><li>Toca una sesión para <b>llamar a lista</b>.</li><li>Con las flechas vas a otros días.</li><li>“Sesión extra” sirve para clases especiales.</li><li>Abajo: personalizadas del día y el resumen de la semana y del mes.</li></ul>`, `<p class="tip">Los horarios se cambian en Finanzas → Precios y horarios.</p>`] }),
+  bhreports: () => ({ t:'los reportes', b:[`<p>Un resumen del mes para tomar decisiones:</p>`, `<ul><li><b>Asistencia:</b> promedio por día y por horario, y los que más vinieron.</li><li><b>Hace rato no vienen:</b> alumnos con 2 semanas o más sin asistir, para llamarlos.</li><li><b>Inscripciones</b> comparadas con el mes anterior y alumnos nuevos.</li><li><b>Pesos:</b> cómo está el IMC del grupo y cuántos hay por categoría.</li><li><b>Exportar a Excel:</b> alumnos, asistencia, pagos y pesos.</li></ul>`] }),
+  bhroll: () => ({ t:'cómo llamar a lista', b:[`<p>Toca a cada persona que vino y queda con ✓. <b>Se guarda al instante</b>, no hay que darle a guardar.</p>`,
       `<ul><li>Los que más vienen a esta hora salen primero.</li><li>Usa el buscador para encontrar a alguien rápido.</li><li><b>Visitantes</b> suma a quienes no están inscritos.</li><li>“+ Nuevo” agrega un alumno y lo marca de una.</li></ul>`] }),
-  members: () => ({ t:'Alumnos', b:[`<p>Todos los inscritos. Cada uno tiene su ficha con datos, peso, IMC, categoría, asistencias y pagos.</p>`,
+  members: () => ({ t:'los alumnos', b:[`<p>Arriba tienes las pestañas de esta sección: <b>Inscritos</b>, <b>Lista</b>, <b>Pagos</b> y <b>Pesos</b>.</p>`, `<p>Todos los inscritos. Cada uno tiene su ficha con datos, peso, IMC, categoría, asistencias y pagos.</p>`,
       `<ul><li><b>Pegar lista:</b> pega todos los nombres de una vez (de WhatsApp o Excel).</li><li>Filtra por los de este mes o por inactivos.</li><li>El color del círculo indica el género.</li><li>⬇ exporta todo a Excel.</li></ul>`] }),
-  member: () => ({ t:'Ficha del alumno', b:[`<p>Todo se guarda solo. Pon <b>género, edad y altura</b> para que el IMC y la categoría salgan bien; si es menor de edad, uso las tablas de la OMS para su edad.</p>`,
+  member: () => ({ t:'la ficha del alumno', b:[`<p>Todo se guarda solo. Pon <b>género, edad y altura</b> para que el IMC y la categoría salgan bien; si es menor de edad, uso las tablas de la OMS para su edad.</p>`,
       `<ul><li>Arriba: estado de pago del mes y asistencias.</li><li>“+ Peso” registra un pesaje.</li><li>Si dejó de venir, márcalo como <b>inactivo</b> en vez de borrarlo.</li></ul>`] }),
-  bhweights: () => ({ t:'Control de peso del mes', b:[`<p>La lista de inscritos del mes. Toca a alguien, escribe su peso y dale <b>Guardar y siguiente</b>: pasa solo al próximo que falta.</p>`,
+  bhweights: () => ({ t:'el control de peso', b:[`<p>La lista de inscritos del mes. Toca a alguien, escribe su peso y dale <b>Guardar y siguiente</b>: pasa solo al próximo que falta.</p>`,
       `<ul><li>Ves categoría, IMC y cuánto subió o bajó desde el mes pasado.</li><li>El IMC sigue la norma de la OMS (con tablas por edad para menores).</li><li>⬇ exporta el pesaje a Excel.</li></ul>`] }),
-  bhpay: () => ({ t:'Pagos del mes', b:[`<p>Cada mes tiene su lista. Al empezar un mes puedes <b>copiar la del mes anterior</b>.</p>`,
-      `<ul><li><b style="color:#22c55e">Pagó</b>, <b style="color:#f59e0b">Abonó</b> (con cuánto) o <b style="color:#ef4444">Debe</b>.</li><li>Toca a alguien para registrar un pago o abono con su fecha.</li><li>Se puede poner una mensualidad distinta a un alumno o dejarlo becado ($0).</li><li>Todo se suma solo en Finanzas.</li></ul>`] }),
-  bhpcls: () => ({ t:'Clases personalizadas', b:[`<p>Agenda clases uno a uno con fecha, hora, valor y lo que pagó. Puedes <b>repetirlas varias semanas</b> de una vez.</p>`, `<p>Salen en el calendario, en la lista del día, en la ficha del alumno y en las finanzas.</p>`] }),
-  finance: () => ({ t:'Finanzas', b:[`<p>Ve la plata por <b>semana, mes o año</b> con las flechas.</p>`,
+  bhpay: () => ({ t:'los pagos del mes', b:[`<p>Cada mes tiene su lista. Al empezar un mes puedes <b>copiar la del mes anterior</b>.</p>`,
+      `<ul><li><b style="color:#22c55e">Pagó</b>, <b style="color:#f59e0b">Abonó</b> (con cuánto) o <b style="color:#ef4444">Debe</b>.</li><li>Toca a alguien para registrar un pago o abono con su fecha, o para <b>recordarle por WhatsApp</b> lo que debe.</li><li>Se puede poner una mensualidad distinta a un alumno o dejarlo becado ($0).</li><li>Todo se suma solo en Finanzas.</li></ul>`] }),
+  bhpcls: () => ({ t:'las clases personalizadas', b:[`<p>Agenda clases uno a uno con fecha, hora, valor y lo que pagó. Puedes <b>repetirlas varias semanas</b> de una vez.</p>`, `<p>Salen en el calendario, en la lista del día, en la ficha del alumno y en las finanzas.</p>`] }),
+  finance: () => ({ t:'las finanzas', b:[`<p>Ve la plata por <b>semana, mes o año</b> con las flechas. Al lado está la pestaña de <b>Reportes</b>.</p>`,
       `<ul><li>Los pagos de mensualidades y personalizadas entran solos.</li><li>“+ Mov.” agrega otros ingresos y los gastos (arriendo, servicios…).</li><li><b>Por cobrar</b> es lo que todavía deben.</li><li>🧮 Calculadora para cuentas rápidas; el resultado lo puedes guardar como ingreso o gasto.</li><li>⚙️ Precios: mensualidad, clase personalizada y horarios.</li></ul>`] }),
-  traffic: () => ({ t:'Semáforo', b:[`<p>Toca la pantalla para iniciar o pausar.</p>`] }),
+  traffic: () => ({ t:'el semáforo', b:[`<p>Toca la pantalla para iniciar o pausar.</p>`] }),
 };
 function guideContent(view){
   const f = GUIDE[view] || GUIDE.home; return f(S.mode);
@@ -3567,9 +3631,10 @@ function guideContent(view){
 function openGuide(view){
   view = view || current;
   const g = guideContent(view);
-  openForm(`<div class="gtop">${boxerSVG('talk')}<div class="speech"><small>${esc(gName().toUpperCase())} TE EXPLICA</small><b>${g.t.toUpperCase()}</b></div></div>
+  openForm(`<div class="gtop">${boxerSVG('talk')}<div class="speech"><small>¡QUIUBO${userFirst() ? ', ' + esc(userFirst().toUpperCase()) : ''}! ${esc(gName().toUpperCase())} TE EXPLICA</small><b>${g.t.toUpperCase()}</b></div></div>
     <div class="gbody">${g.b.join('')}</div>
-    <button class="btn pri" style="width:100%;margin-top:12px;--bc:var(--mode)" id="gOk">¡LISTO, A DARLE! 👊</button>`, sh => sh.querySelector('#gOk').addEventListener('click', closeForm));
+    <button class="btn pri" style="width:100%;margin-top:12px;--bc:var(--mode)" id="gOk">¡LISTO, A DARLE! 👊</button>
+    <button class="linkbtn" id="gLook" style="width:100%;text-align:center">Cambiar cómo se ve ${esc(gName())}</button>`, sh => { sh.querySelector('#gOk').addEventListener('click', closeForm); sh.querySelector('#gLook').addEventListener('click', () => { closeForm(); setTimeout(openLookForm, 250); }); });
   hideBubble();
 }
 let bubbleT = null;
@@ -3587,7 +3652,7 @@ function guideOnView(view){
   setTimeout(() => {
     if (current !== view) return;
     const g = guideContent(view);
-    $('#guideBubble').innerHTML = `¡Hola! Soy ${esc(gName())}. ¿Te explico <u>${esc(g.t.toLowerCase())}</u>? Tócame 👊`;
+    $('#guideBubble').innerHTML = `¡Quiubo${userFirst() ? ', ' + esc(userFirst()) : ''}! Soy ${esc(gName())}. ¿Choquemos guantes y te explico <u>${esc(g.t.toLowerCase())}</u>? 👊`;
     $('#guideBubble').classList.add('show');
     bubbleT = setTimeout(hideBubble, 5200);
   }, 650);
@@ -3609,7 +3674,24 @@ function guideRefresh(){
   $('#mSlot').classList.toggle('show', !!on); $('#tMascot').classList.toggle('show', !!on);
   if (current) guideOnView(current);
 }
-$('#mSlot').innerHTML = boxerSVG(); $('#tMascot').innerHTML = boxerSVG(); $('#guideBtn').innerHTML = boxerFace();
+function paintMascots(){ mascotState = '__'; $('#mSlot').innerHTML = boxerSVG(); $('#tMascot').innerHTML = boxerSVG(); $('#guideBtn').innerHTML = boxerFace(); const f = $('#setGuideFace'); if (f) f.innerHTML = boxerSVG('talk'); }
+paintMascots();
+function openLookForm(){
+  const lk = lookOf();
+  const draw = sh => {
+    sh.querySelector('#lkPrev').innerHTML = boxerSVG('win', lk);
+    sh.querySelectorAll('[data-lp]').forEach(b => b.classList.toggle('on', lk[b.dataset.lp] === b.dataset.lv));
+  };
+  openForm(`<h3 class="ftitle">ASÍ SE VE ${esc(gName().toUpperCase())}</h3>
+    <div id="lkPrev" style="width:150px;margin:0 auto 4px"></div>
+    ${Object.entries(LOOK_OPTS).map(([p, def]) => `<div class="field"><span>${def.t}</span><div class="lookrow">${def.o.map(([k, l, c]) => `<button type="button" data-lp="${p}" data-lv="${k}" title="${l}" aria-label="${def.t}: ${l}" style="--s:${c || 'transparent'}" class="${c ? '' : 'none'}"><i></i><small>${l}</small></button>`).join('')}</div></div>`).join('')}
+    <div class="btnrow" style="margin-top:8px"><button class="btn" id="lkReset">ORIGINAL</button><button class="btn pri" id="lkOk" style="--bc:var(--mode)">GUARDAR</button></div>`, sh => {
+    sh.querySelectorAll('[data-lp]').forEach(b => b.addEventListener('click', () => { lk[b.dataset.lp] = b.dataset.lv; hapticTap(); draw(sh); }));
+    sh.querySelector('#lkReset').addEventListener('click', () => { Object.assign(lk, LOOK_DEFAULT); draw(sh); });
+    sh.querySelector('#lkOk').addEventListener('click', () => { S.look = Object.assign({}, lk); saveSettings(); paintMascots(); closeForm(); toast(`¡${gName()} estrena pinta! 🥊`); });
+    draw(sh);
+  });
+}
 
 /* =========================================================
    MODO: NAVEGACIÓN PROPIA Y COLOR
@@ -3626,7 +3708,7 @@ const NAV_ICONS = {
 };
 const NAV_LABELS = { home:'INICIO', timer:'TIMER', traffic:'SEMÁFORO', roulette:'RULETAS', settings:'AJUSTES', bhtoday:'LISTA', members:'ALUMNOS', finance:'FINANZAS' };
 function renderNav(){
-  NAV_ORDER = S.mode === 'boxhouse' ? ['home','bhtoday','members','finance','timer'] : ['home','timer','traffic','roulette','settings'];
+  NAV_ORDER = S.mode === 'boxhouse' ? ['home','members','bhtoday','timer','finance'] : ['home','timer','traffic','roulette','settings'];
   $('#navBtns').innerHTML = NAV_ORDER.map(v => `<button data-nav="${v}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">${NAV_ICONS[v]}</svg>${NAV_LABELS[v]}</button>`).join('');
   $$('#navBtns [data-nav]').forEach(b => b.addEventListener('click', () => { hapticTap(); if (b.dataset.nav === 'bhtoday' && current !== 'bhtoday') bhDay = todayISO(); go(b.dataset.nav); }));
   const idx = NAV_ORDER.indexOf(NAV_PARENT[current] || current);
@@ -3647,52 +3729,175 @@ Object.assign(MODES, {
 /* ---- Inicio según el modo ---- */
 function renderHomeExtra(){
   const m = S.mode, box = $('#homeExtra');
-  $('#hello').innerHTML = MODES[m].title; $('#helloSub').textContent = MODES[m].sub;
+  $('#hello').innerHTML = MODES[m].title;
+  $('#helloSub').textContent = (m === 'personal' && me.name ? `¡Quiubo, ${me.name.trim().split(/\s+/)[0]}! ` : '') + MODES[m].sub;
   $('#modeSlot').innerHTML = modeBarHTML(); bindModeBar($('#modeSlot'));
-  if (m === 'gym'){ box.innerHTML = ''; return; }
-  if (m === 'personal'){
+  $('#gridLbl').innerHTML = hsecHead('🥊', 'MODOS DE ENTRENO', 'Elige uno y queda listo en el timer', '#ef4444');
+  if (m === 'gym'){
+    box.innerHTML = hsec('🛠️', 'HERRAMIENTAS', 'Timer, semáforo y ruletas para la clase', '#3b82f6', `<div class="tiles three">${toolTiles()}</div>`);
+  } else if (m === 'personal'){
     const k = monthKey(todayISO()), s = monthTrainSummary(k), nx = nextEvent('personal');
-    box.innerHTML = personalTilesHTML() + `<button class="calcard" data-open="calendar" style="--c:var(--mode)"><span class="calic">📅</span>
-      <span class="l"><b>CALENDARIO</b><small>${s.tr} día${s.tr === 1 ? '' : 's'} entrenado${s.tr === 1 ? '' : 's'} · ${s.ms} falta${s.ms === 1 ? '' : 's'}${s.pct != null ? ' · ' + s.pct + '% cumplido' : ''}${nx ? ' · Próximo: ' + esc(nx.title) + ' (' + shortDate(nx.date) + ')' : ''}</small></span><span class="arrow">›</span></button>`;
+    const lw = lastWeight(), a = ageOf(me), t = todayISO();
+    const bi = lw && me.height ? bmiInfo(lw.kg, me.height, me.sex, a) : null;
+    const ci = lw ? catInfo(lw.kg, me.sex, a, me.cat) : null;
+    const catName = ci && ci.key && ci.idx >= 0 ? ci.T.l[ci.idx][1] : '';
+    const done = trainedOn(t);
+    box.innerHTML =
+      hsec('📈', 'MI PROGRESO', 'Peso, perfil, asistencia y calendario', '#22c55e', `<div class="tiles">
+        <button class="tile" style="--c:${done ? '#22c55e' : '#3b82f6'};--i:0" id="tileAttend"><span>${done ? '✅' : '📝'}</span><b>${done ? '¡ENTRENASTE!' : 'ASISTÍ HOY'}</b><small>${done ? 'Toca para sumar otro' : 'Suma tu sesión sin el timer'}</small></button>
+        <button class="tile" style="--c:var(--mode);--i:1" data-open="calendar"><span>📅</span><b>CALENDARIO</b><small>${s.tr} entreno${s.tr === 1 ? '' : 's'} · ${s.ms} falta${s.ms === 1 ? '' : 's'}${s.pct != null ? ' · ' + s.pct + '%' : ''}</small></button>
+        <button class="tile" style="--c:#22c55e;--i:2" data-open="weight"><span>⚖️</span><b>MI PESO</b><small>${lw ? fmtKg(lw.kg) + ' kg' : 'Sin registros'}${bi ? ' · IMC ' + fmt1(bi.bmi) : ''}</small></button>
+        <button class="tile" style="--c:#8b5cf6;--i:3" data-open="me"><span>👤</span><b>MI PERFIL</b><small>${catName ? catName + ' · ' + (me.cat === 'pro' ? 'pro' : 'aficionado') : (me.sex && me.height ? 'Datos completos' : 'Altura, género y edad')}</small></button>
+      </div>${nx ? `<button class="calcard" data-open="calendar" style="--c:var(--mode);margin:10px 0 0"><span class="calic">🗓️</span><span class="l"><b>PRÓXIMO: ${esc(nx.title.toUpperCase())}</b><small>${niceDate(nx.date)}${nx.time ? ' · ' + nx.time : ''}</small></span><span class="arrow">›</span></button>` : ''}`)
+      + hsec('🥋', 'SESIONES Y HERRAMIENTAS', 'Clases guiadas, semáforo y ruletas', '#f97316', `<div class="tiles three">
+        <button class="tile" style="--c:#f97316;--i:4" data-open="psessions"><span>🥊</span><b>SESIONES</b><small>${pSessions.length} preparadas</small></button>
+        <button class="tile" style="--c:#16a34a;--i:5" data-open="traffic"><span>🚦</span><b>SEMÁFORO</b><small>Pantalla completa</small></button>
+        <button class="tile" style="--c:#8b5cf6;--i:6" data-open="roulette"><span>🎡</span><b>RULETAS</b><small>Sparring, combos, castigo</small></button></div>`);
     const ta = $('#tileAttend'); if (ta) ta.addEventListener('click', () => openAttendPersonal(todayISO()));
   } else {
     const t = todayISO(), k = monthKey(t), mo = bh.months[k], slots = slotsFor(t);
-    const todayN = slots.reduce((a, s) => a + attCount(attOf(t, s)), 0);
     const nextPc = bh.pcls.filter(p => p.date >= t).sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time))[0];
     const owing = mo ? mo.ids.filter(id => memberById(id) && payStatus(mo, id).owe > 0).length : 0;
     const roster = rosterIds(k), weighed = roster.filter(id => memberById(id) && memberLastWeight(memberById(id), k)).length;
     const fe = finEntries(`${k}-01`, `${k}-31`), bal = fe.reduce((a, x) => a + (x.t === 'in' ? x.a : -x.a), 0);
     const act = bh.members.filter(x => x.active !== false).length;
-    const nx = nextEvent('boxhouse');
     const now = new Date(), nm = now.getHours()*60 + now.getMinutes();
-    box.innerHTML = `
-      ${slots.length ? `<div class="sect" style="--i:0"><h4>SESIONES DE HOY · ${niceDate(t).split(' ')[0].toUpperCase()}</h4>${slots.map(s => { const a = attOf(t, s), mins = +s.slice(0,2)*60 + +s.slice(3); const isNow = nm >= mins - 30 && nm <= mins + 90;
-        return `<div class="row"><span class="pic" style="--c:${isNow ? 'var(--mode)' : '#71717a'}">${isNow ? '🔔' : '🕘'}</span><span class="l"><b>${hhmm(s)}${isNow ? ' · AHORA' : ''}</b><small>${a ? attCount(a) + ' asistentes' : 'Lista sin tomar'}</small></span><button class="smallbtn" data-roll="${s}">${a ? 'VER' : 'LLAMAR'}</button></div>`; }).join('')}</div>` : ''}
-      <div class="seclbl">DÍA A DÍA</div>
-      <div class="tiles three">
-        <button class="tile" style="--c:#22c55e;--i:0" data-open="bhtoday"><span>📋</span><b>LISTA</b><small>${todayN} hoy</small></button>
-        <button class="tile" style="--c:#a855f7;--i:1" data-open="bhpcls"><span>🥊</span><b>PERSONAL.</b><small>${nextPc ? shortDate(nextPc.date) + (nextPc.time ? ' ' + hhmm(nextPc.time) : '') : 'Agendar'}</small></button>
-        <button class="tile" style="--c:#3b82f6;--i:2" data-open="calendar"><span>📅</span><b>CALENDARIO</b><small>${events.boxhouse.length} eventos</small></button>
-      </div>
-      <div class="seclbl">ADMINISTRACIÓN</div>
-      <div class="tiles">
-        <button class="tile" style="--c:#06b6d4;--i:3" data-open="members"><span>👥</span><b>ALUMNOS</b><small>${act} activos${mo ? ' · ' + mo.ids.length + ' este mes' : ''}</small></button>
-        <button class="tile" style="--c:#f59e0b;--i:4" data-open="bhpay">${owing ? `<span class="badge">${owing}</span>` : ''}<span>💵</span><b>PAGOS</b><small>${mo ? (owing ? owing + ' por pagar' : 'Todo al día') : 'Crear lista del mes'}</small></button>
-        <button class="tile" style="--c:#10b981;--i:5" data-open="bhweights"><span>⚖️</span><b>PESOS</b><small>${weighed} de ${roster.length} pesados</small></button>
-        <button class="tile" style="--c:#e11d1d;--i:6" data-open="finance"><span>📈</span><b>FINANZAS</b><small>${bal < 0 ? '−' : ''}${money(Math.abs(bal))} en ${MONTHS[+k.slice(5)-1].toLowerCase()}</small></button>
-      </div>
-      <div class="seclbl">ENTRENAMIENTO</div>
-      <div class="tiles">
-        <button class="tile" style="--c:#ef4444;--i:7" data-open="classes"><span>🗂️</span><b>PLANES DE CLASE</b><small>${bhClasses.length} planificadas</small></button>
-        <button class="tile" style="--c:#f97316;--i:8" data-open="warmups"><span>🔥</span><b>CALENTAMIENTOS</b><small>${bhWarmups.length} rutinas</small></button>
-        <button class="tile" style="--c:#8b5cf6;--i:9" data-open="roulette"><span>🎡</span><b>RULETAS</b><small>Sparring, combos y castigo</small></button>
-        <button class="tile" style="--c:#64748b;--i:10" data-open="bhstats"><span>📊</span><b>ESTADÍSTICAS</b><small>${bhLog.length} clases registradas</small></button>
-      </div>
-      ${nx ? `<button class="calcard" data-open="calendar" style="--c:${evColor('boxhouse',nx.type)}"><span class="calic">🗓️</span><span class="l"><b>PRÓXIMO: ${esc(nx.title.toUpperCase())}</b><small>${niceDate(nx.date)}${nx.time ? ' · ' + nx.time : ''}${nx.participants ? ' · ' + nx.participants + ' participantes' : ''}</small></span><span class="arrow">›</span></button>` : ''}`;
+    const bdays = birthdaysOn(t), away = awayMembers(t);
+    const todayN = slots.reduce((a, s) => a + attCount(attOf(t, s)), 0);
+    box.innerHTML =
+      hsec('📋', 'HOY · ' + niceDate(t).split(' ')[0].toUpperCase(), todayN ? `${todayN} asistente${todayN === 1 ? '' : 's'} hasta ahora` : 'Toca una sesión para llamar a lista', '#22c55e',
+        (slots.length ? slots.map(s => { const a = attOf(t, s), mins = +s.slice(0,2)*60 + +s.slice(3); const isNow = nm >= mins - 30 && nm <= mins + 90;
+          return `<div class="row"><span class="pic" style="--c:${isNow ? 'var(--mode)' : '#71717a'}">${isNow ? '🔔' : '🕘'}</span><span class="l"><b>${hhmm(s)}${isNow ? ' · AHORA' : ''}</b><small>${a ? pl(attCount(a), 'asistente', 'asistentes') : 'Lista sin tomar'}</small></span><button class="smallbtn ${a ? '' : 'go'}" data-roll="${s}">${a ? 'VER LISTA' : 'LLAMAR A LISTA'}</button></div>`; }).join('') : '<p class="hint">Hoy no hay sesiones programadas.</p>')
+        + (bdays.length ? `<div class="note" style="--c:#ec4899">🎂 <span>Hoy cumple${bdays.length > 1 ? 'n' : ''}: <b>${bdays.map(x => esc(x.m.name) + (x.y ? ` (${x.y})` : '')).join(', ')}</b></span></div>` : '')
+        + (away.length ? `<button class="note" data-open="bhreports" style="--c:#f59e0b">⚠️ <span><b>${away.length}</b> alumno${away.length === 1 ? ' lleva' : 's llevan'} 2 semanas o más sin venir</span><span class="arrow">›</span></button>` : ''))
+      + hsec('👥', 'ALUMNOS E INSCRITOS', 'Inscripciones, lista, pagos del mes y pesos', '#06b6d4', `<div class="tiles">
+          <button class="tile" style="--c:#06b6d4;--i:1" data-open="members"><span>👥</span><b>ALUMNOS</b><small>${act} activos${mo ? ' · ' + mo.ids.length + ' este mes' : ''}</small></button>
+          <button class="tile" style="--c:#22c55e;--i:2" data-open="bhtoday"><span>✅</span><b>LLAMAR A LISTA</b><small>Asistencia por horario</small></button>
+          <button class="tile" style="--c:#f59e0b;--i:3" data-open="bhpay">${owing ? `<span class="badge">${owing}</span>` : ''}<span>💵</span><b>PAGOS DEL MES</b><small>${mo ? (owing ? owing + ' por pagar' : 'Todo al día') : 'Crear la lista del mes'}</small></button>
+          <button class="tile" style="--c:#10b981;--i:4" data-open="bhweights"><span>⚖️</span><b>CONTROL DE PESO</b><small>${weighed} de ${roster.length} pesados</small></button></div>`)
+      + hsec('🗂️', 'CLASES', 'Planes, calentamientos, personalizadas y agenda', '#a855f7', `<div class="tiles">
+          <button class="tile" style="--c:#ef4444;--i:5" data-open="classes"><span>🗂️</span><b>PLANES DE CLASE</b><small>${bhClasses.length} planificadas</small></button>
+          <button class="tile" style="--c:#f97316;--i:6" data-open="warmups"><span>🔥</span><b>CALENTAMIENTOS</b><small>${bhWarmups.length} rutinas guiadas</small></button>
+          <button class="tile" style="--c:#a855f7;--i:7" data-open="bhpcls"><span>🥊</span><b>PERSONALIZADAS</b><small>${nextPc ? 'Próxima: ' + shortDate(nextPc.date) + (nextPc.time ? ' ' + hhmm(nextPc.time) : '') : 'Agendar una'}</small></button>
+          <button class="tile" style="--c:#3b82f6;--i:8" data-open="calendar"><span>📅</span><b>CALENDARIO</b><small>${events.boxhouse.length} eventos</small></button></div>`)
+      + hsec('💰', 'FINANZAS Y REPORTES', 'La plata del gimnasio e informes para Excel', '#e11d1d', `<div class="tiles">
+          <button class="tile" style="--c:#e11d1d;--i:9" data-open="finance"><span>📈</span><b>FINANZAS</b><small>${bal < 0 ? '−' : ''}${money(Math.abs(bal))} en ${MONTHS[+k.slice(5)-1].toLowerCase()}</small></button>
+          <button class="tile" style="--c:#64748b;--i:10" data-open="bhreports"><span>📊</span><b>REPORTES</b><small>Asistencia, pesos y Excel</small></button></div>`)
+      + hsec('🛠️', 'HERRAMIENTAS DE ENTRENO', 'Timer, semáforo y ruletas', '#3b82f6', `<div class="tiles three">${toolTiles()}</div>`);
     box.querySelectorAll('[data-roll]').forEach(b => b.addEventListener('click', () => openRoll(t, b.dataset.roll)));
   }
   box.querySelectorAll('[data-open]').forEach(b => b.addEventListener('click', () => { hapticTap(); if (b.dataset.open === 'bhtoday') bhDay = todayISO(); go(b.dataset.open); }));
 }
+const pl = (n, a, b) => `${n} ${n === 1 ? a : b}`;
+const hsecHead = (ic, t, sub, c) => `<div class="hh" style="--c:${c}"><span class="hic">${ic}</span><span><b>${t}</b><small>${sub}</small></span></div>`;
+const hsec = (ic, t, sub, c, inner) => `<section class="hsec" style="--c:${c}">${hsecHead(ic, t, sub, c)}${inner}</section>`;
+const toolTiles = () => `<button class="tile" style="--c:#ef4444;--i:11" data-open="timer"><span>⏱️</span><b>TIMER</b><small>Rounds y descansos</small></button>
+  <button class="tile" style="--c:#16a34a;--i:12" data-open="traffic"><span>🚦</span><b>SEMÁFORO</b><small>Se ve de lejos</small></button>
+  <button class="tile" style="--c:#8b5cf6;--i:13" data-open="roulette"><span>🎡</span><b>RULETAS</b><small>Sparring, combos, castigo</small></button>`;
+function birthdaysOn(ds){
+  const md = ds.slice(5);
+  return bh.members.filter(m => m.active !== false && m.birth && m.birth.slice(5) === md).map(m => ({ m, y: +ds.slice(0,4) - +m.birth.slice(0,4) }));
+}
+function lastAttDate(id){ let last = ''; for (const k in bh.att){ if (bh.att[k].ids.includes(id)){ const d = k.slice(0, 10); if (d > last) last = d; } } return last; }
+function awayMembers(ds, days){
+  days = days || 14; const lim = addDays(ds, -days), mo = bh.months[monthKey(ds)];
+  const ids = mo && mo.ids.length ? mo.ids : bh.members.filter(m => m.active !== false).map(m => m.id);
+  return ids.map(memberById).filter(m => m && m.active !== false && (m.joined || '') <= lim).map(m => ({ m, last: lastAttDate(m.id) })).filter(x => !x.last || x.last <= lim).sort((a, b) => (a.last || '').localeCompare(b.last || ''));
+}
+
+/* =========================================================
+   PESTAÑAS POR SECCIÓN (todo lo de un tema, junto)
+   ========================================================= */
+const SEC_TABS = {
+  alumnos:  { views:['members','bhtoday','bhpay','bhweights'], tabs:[['members','👥','INSCRITOS'],['bhtoday','✅','LISTA'],['bhpay','💵','PAGOS'],['bhweights','⚖️','PESOS']] },
+  clases:   { views:['classes','warmups','bhpcls','calendar'], tabs:[['classes','🗂️','PLANES'],['warmups','🔥','CALENTAR'],['bhpcls','🥊','PERSONALIZ.'],['calendar','📅','AGENDA']] },
+  finanzas: { views:['finance','bhreports'], tabs:[['finance','💰','FINANZAS'],['bhreports','📊','REPORTES']] },
+};
+function secTabs(view){
+  const el = $('#' + view); if (!el) return;
+  const old = el.querySelector('.sectabs'); if (old) old.remove();
+  if (S.mode !== 'boxhouse') return;
+  const g = Object.values(SEC_TABS).find(x => x.views.includes(view)); if (!g) return;
+  const bar = document.createElement('div'); bar.className = 'sectabs';
+  bar.innerHTML = g.tabs.map(([v, ic, l]) => `<button type="button" class="${v === view ? 'on' : ''}" data-tab="${v}"><span>${ic}</span>${l}</button>`).join('');
+  const tb = el.querySelector('.topbar'); tb.after(bar);
+  bar.querySelectorAll('[data-tab]').forEach(b => b.addEventListener('click', () => { if (b.dataset.tab === view) return; hapticTap(); if (b.dataset.tab === 'bhtoday') bhDay = todayISO(); go(b.dataset.tab); }));
+}
+
+/* =========================================================
+   REPORTES (asistencia, inscripciones y pesos) + EXCEL
+   ========================================================= */
+let rpMonth = monthKey(todayISO());
+function renderBHReports(){
+  const k = rpMonth; $('#rpMonth').textContent = monthName(k);
+  const att = Object.entries(bh.att).filter(([key]) => key.startsWith(k));
+  const total = att.reduce((a, [, v]) => a + attCount(v), 0);
+  const people = new Set(); att.forEach(([, v]) => v.ids.forEach(id => people.add(id)));
+  const bySlot = {}, byWd = [0,0,0,0,0,0,0], wdN = [0,0,0,0,0,0,0], byMember = {};
+  att.forEach(([key, v]) => { const [d, s] = key.split('|'); bySlot[s] = bySlot[s] || { n:0, t:0 }; bySlot[s].n++; bySlot[s].t += attCount(v); const wd = parseISO(d).getDay(); byWd[wd] += attCount(v); wdN[wd]++; v.ids.forEach(id => byMember[id] = (byMember[id] || 0) + 1); });
+  const top = Object.entries(byMember).map(([id, n]) => ({ m: memberById(id), n })).filter(x => x.m).sort((a, b) => b.n - a.n).slice(0, 10);
+  const mo = bh.months[k], prevMo = bh.months[shiftMonth(k, -1)];
+  const newOnes = bh.members.filter(m => (m.joined || '').startsWith(k)).length;
+  const away = k === monthKey(todayISO()) ? awayMembers(todayISO()) : [];
+  const wdOrder = [1,2,3,4,5,6], wmax = Math.max(1, ...wdOrder.map(d => wdN[d] ? byWd[d]/wdN[d] : 0));
+  // pesos
+  const roster = rosterIds(k).map(memberById).filter(Boolean), wz = roster.map(m => ({ m, w: memberLastWeight(m, k) })).filter(x => x.w);
+  const imc = {}, cats = {};
+  wz.forEach(({ m, w }) => { const a = ageOf(m, w.d), bi = m.h ? bmiInfo(w.kg, m.h, m.sex, a) : null, ci = catInfo(w.kg, m.sex, a, m.cat || 'amateur');
+    if (bi){ imc[bi.label] = imc[bi.label] || { n:0, c: bi.color }; imc[bi.label].n++; }
+    if (ci.key && ci.idx >= 0){ const nm = ci.T.l[ci.idx][1] + (ci.key === 'eliteF' ? ' (M)' : ci.key === 'u17' ? ' (Sub-17)' : ''); cats[nm] = (cats[nm] || 0) + 1; } });
+  $('#rpBody').innerHTML = `
+    ${hsec('✅', 'ASISTENCIA', 'Quién vino y a qué hora', '#22c55e', `<div class="kpis" style="margin:0 0 10px">
+        <div class="kpi" style="--kc:#22c55e"><b>${total}</b><span>Asistencias</span></div>
+        <div class="kpi" style="--kc:#3b82f6"><b>${att.length}</b><span>Sesiones con lista</span></div>
+        <div class="kpi" style="--kc:#f59e0b"><b>${att.length ? fmt1(total/att.length) : '0'}</b><span>Promedio por sesión</span></div>
+        <div class="kpi" style="--kc:#8b5cf6"><b>${people.size}</b><span>Alumnos distintos</span></div></div>
+      <h4 class="mini">PROMEDIO POR DÍA</h4>
+      <div class="bars" style="height:130px">${wdOrder.map((d, i) => { const v = wdN[d] ? byWd[d]/wdN[d] : 0; return `<div class="bar"><em>${v ? fmt1(v) : ''}</em><i style="height:${Math.max(3, v/wmax*100)}%;animation-delay:${i*40}ms"></i><span>${WD_LONG[d].slice(0,3)}</span></div>`; }).join('')}</div>
+      <h4 class="mini">PROMEDIO POR HORARIO</h4>
+      ${Object.keys(bySlot).sort().map(s => `<div class="row"><span class="l"><b>${hhmm(s)}</b><small>${pl(bySlot[s].n, 'sesión', 'sesiones')} · ${pl(bySlot[s].t, 'asistencia', 'asistencias')}</small></span><span class="big">${fmt1(bySlot[s].t/bySlot[s].n)}</span></div>`).join('') || '<p class="hint">Sin listas tomadas este mes.</p>'}
+      <h4 class="mini">LOS QUE MÁS VINIERON</h4>
+      ${top.map((x, i) => `<button class="mrow" data-mid="${x.m.id}"><span class="av" style="--ac:${i < 3 ? '#f59e0b' : '#71717a'}">${i < 3 ? ['🥇','🥈','🥉'][i] : i + 1}</span><span class="l"><b>${esc(x.m.name)}</b></span><span class="r"><b>${x.n}</b><small>veces</small></span></button>`).join('') || '<p class="hint">Todavía no hay datos.</p>'}`)}
+    ${away.length ? hsec('⚠️', 'HACE RATO NO VIENEN', '2 semanas o más sin asistir (para llamarlos)', '#f59e0b', away.map(x => `<button class="mrow" data-mid="${x.m.id}"><span class="av" style="--ac:#f59e0b">${esc(initials(x.m.name))}</span><span class="l"><b>${esc(x.m.name)}</b><small>${x.last ? 'Última vez: ' + niceDate(x.last).toLowerCase() : 'No ha venido desde que se inscribió'}</small></span><span class="arrow">›</span></button>`).join('')) : ''}
+    ${hsec('👥', 'INSCRIPCIONES', 'Cómo va el número de alumnos', '#06b6d4', `<div class="kpis" style="margin:0">
+        <div class="kpi" style="--kc:#06b6d4"><b>${mo ? mo.ids.length : 0}</b><span>Inscritos en ${MONTHS[+k.slice(5)-1].toLowerCase()}</span></div>
+        <div class="kpi" style="--kc:#64748b"><b>${prevMo ? prevMo.ids.length : 0}</b><span>Mes anterior</span></div>
+        <div class="kpi wide" style="--kc:#22c55e"><b>${newOnes}</b><span>Alumnos nuevos este mes</span></div></div>`)}
+    ${hsec('⚖️', 'PESOS DEL MES', `${wz.length} de ${roster.length} pesados`, '#10b981', `${Object.keys(imc).length ? `<h4 class="mini">IMC DEL GRUPO</h4><div class="legend">${Object.entries(imc).map(([l, v]) => `<span><i style="background:${v.c}"></i>${l}: ${v.n}</span>`).join('')}</div>` : '<p class="hint">Aún no hay pesos con altura este mes.</p>'}
+      ${Object.keys(cats).length ? `<h4 class="mini">CATEGORÍAS (AFICIONADO)</h4>${Object.entries(cats).sort((a, b) => b[1] - a[1]).map(([c, n]) => `<div class="row"><span class="l"><b>${c}</b></span><span class="big">${n}</span></div>`).join('')}` : ''}`)}
+    ${hsec('⬇️', 'EXPORTAR A EXCEL', 'Archivos que abren en Excel o Google Sheets', '#3b82f6', `<div class="tiles">
+        <button class="tile" style="--c:#06b6d4" data-x="members"><span>👥</span><b>ALUMNOS</b><small>Datos y estado</small></button>
+        <button class="tile" style="--c:#22c55e" data-x="att"><span>✅</span><b>ASISTENCIA</b><small>Del mes, por alumno</small></button>
+        <button class="tile" style="--c:#f59e0b" data-x="pay"><span>💵</span><b>PAGOS</b><small>Del mes</small></button>
+        <button class="tile" style="--c:#10b981" data-x="w"><span>⚖️</span><b>PESOS</b><small>Del mes</small></button></div>`)}
+    <button class="calcard" data-open="bhstats" style="--c:#64748b"><span class="calic">📊</span><span class="l"><b>REGISTROS DE PLANES DE CLASE</b><small>Las estadísticas antiguas de los planes de clase</small></span><span class="arrow">›</span></button>`;
+  const b = $('#rpBody');
+  b.querySelectorAll('[data-mid]').forEach(x => x.addEventListener('click', () => openMember(x.dataset.mid, 'bhreports')));
+  b.querySelectorAll('[data-open]').forEach(x => x.addEventListener('click', () => go(x.dataset.open)));
+  b.querySelectorAll('[data-x]').forEach(x => x.addEventListener('click', () => {
+    const t = x.dataset.x;
+    if (t === 'members') return $('#mbExport').click();
+    if (t === 'pay'){ pMonth = k; return $('#bpExport').click(); }
+    if (t === 'w'){ wMonth = k; return $('#bwExport').click(); }
+    const days = [...new Set(att.map(([key]) => key))].sort();
+    const rows = [['Nombre', 'Total'].concat(days.map(d => d.slice(8, 10) + '/' + d.slice(5, 7) + ' ' + d.slice(11)))];
+    bh.members.slice().sort(sortByName).forEach(m => { const n = byMember[m.id] || 0; if (!n && !(mo && mo.ids.includes(m.id))) return; rows.push([m.name, n].concat(days.map(d => bh.att[d].ids.includes(m.id) ? '✓' : ''))); });
+    rows.push(['Visitantes', ''].concat(days.map(d => bh.att[d].g || '')));
+    saveFile(`asistencia-box-house-${k}.csv`, toCSV(rows), 'text/csv');
+  }));
+}
+$('#rpPrev').addEventListener('click', () => { rpMonth = shiftMonth(rpMonth, -1); renderBHReports(); });
+$('#rpNext').addEventListener('click', () => { rpMonth = shiftMonth(rpMonth, 1); renderBHReports(); });
+
+/* Recordatorio de pago por WhatsApp */
+function waNumber(p){ let d = String(p || '').replace(/\D/g, ''); if (d.length === 10 && d[0] === '3') d = '57' + d; return d.length >= 11 ? d : ''; }
+function remindPay(m, k, owe){
+  const num = waNumber(m.phone);
+  if (!num) return toast('Agrega su celular en la ficha del alumno');
+  const msg = `¡Hola, ${m.name.split(/\s+/)[0]}! 🥊 Te saludamos de Box House. Te recordamos que la mensualidad de ${MONTHS[+k.slice(5)-1].toLowerCase()} tiene un saldo pendiente de ${money(owe)}. ¡Gracias y nos vemos en el entreno! 💪`;
+  location.href = 'https://wa.me/' + num + '?text=' + encodeURIComponent(msg);
+}
+
 function renderStats(){
   $('#statsStrip').style.display = S.mode === 'personal' ? '' : 'none';
   $('#stSessions').textContent = stats.sessions;
@@ -3708,6 +3913,7 @@ function renderSettingsExtra(){
   $('#setGuideFace').innerHTML = boxerSVG('talk');
 }
 $('#gName').addEventListener('input', e => { S.guideName = e.target.value.slice(0, 16); saveSettings(); });
+$('#gLookBtn').addEventListener('click', () => openLookForm());
 $('#gReset').addEventListener('click', () => { S.seen = {}; saveSettings(); toast(`${gName()} volverá a explicarte cada sección`); });
 $('#bkExport').addEventListener('click', () => {
   const data = {}; for (let i = 0; i < localStorage.length; i++){ const k = localStorage.key(i); if (k && k.startsWith('bfp2_')) data[k] = localStorage.getItem(k); }
@@ -3726,9 +3932,9 @@ $('#bkFile').addEventListener('change', async e => {
 });
 
 /* ---- Registro de vistas nuevas ---- */
-Object.assign(NAV_PARENT, { me:'home', bhtoday:'bhtoday', bhroll:'bhtoday', members:'members', member:'members', bhweights:'home', bhpay:'home', finance:'finance', bhpcls:'home' });
-Object.assign(BACK_TO, { me:'home', bhtoday:'home', bhroll:'bhtoday', members:'home', member: () => memberReturn, bhweights:'home', bhpay:'home', finance:'home', bhpcls:'home' });
-Object.assign(VIEW_RENDER, { me: renderMe, bhtoday: renderBHToday, bhroll: renderRoll, members: renderMembers, member: renderMember, bhweights: renderBHWeights, bhpay: renderBHPay, finance: renderFinance, bhpcls: renderBHPcls, weight: renderWeight, calendar: renderCalendar });
+Object.assign(NAV_PARENT, { me:'home', bhtoday:'bhtoday', bhroll:'bhtoday', members:'members', member:'members', bhweights:'members', bhpay:'members', finance:'finance', bhreports:'finance', bhpcls:'home', bhstats:'finance' });
+Object.assign(BACK_TO, { me:'home', bhreports:'home', bhstats: () => S.mode === 'boxhouse' ? 'bhreports' : 'home', bhtoday:'home', bhroll:'bhtoday', members:'home', member: () => memberReturn, bhweights:'home', bhpay:'home', finance:'home', bhpcls:'home' });
+Object.assign(VIEW_RENDER, { bhreports: renderBHReports, me: renderMe, bhtoday: renderBHToday, bhroll: renderRoll, members: renderMembers, member: renderMember, bhweights: renderBHWeights, bhpay: renderBHPay, finance: renderFinance, bhpcls: renderBHPcls, weight: renderWeight, calendar: renderCalendar });
 applyModeUI();
 guideRefresh();
 
