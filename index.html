@@ -846,7 +846,7 @@ h4.mini{font-size:12px;letter-spacing:.14em;color:var(--dim);font-weight:700;mar
     <div class="row"><div class="l"><b>Boxea en el timer y el semáforo</b><small>Tira golpes en el round, descansa y celebra</small></div><button class="switch" data-set="guideTimer"></button></div>
     <div class="row"><div class="l"><b>Saludo la primera vez</b><small>Aparece una vez al entrar a una sección nueva</small></div><button class="switch" data-set="guideTips"></button></div>
     <div class="row"><div class="l"><b>Nombre del guía</b></div><input id="gName" maxlength="16" class="ta" style="width:130px;margin:0;padding:8px 10px"></div>
-    <div class="row"><div class="l"><b>Cómo se ve</b><small>Color de camiseta, pantaloneta, guantes, piel, cabello y bandana</small></div><button class="smallbtn" id="gLookBtn">CAMBIAR</button></div>
+    <div class="row"><div class="l"><b>Nombre y apariencia</b><small>Nombre, camiseta, pantaloneta, guantes, piel, cabello y bandana</small></div><button class="smallbtn" id="gLookBtn">CAMBIAR</button></div>
     <div class="row"><div class="l"><b>Volver a ver los consejos</b></div><button class="smallbtn" id="gReset">REINICIAR</button></div>
   </div>
   <div class="sect" style="--i:3"><h4>DATOS</h4>
@@ -855,7 +855,7 @@ h4.mini{font-size:12px;letter-spacing:.14em;color:var(--dim);font-weight:700;mar
     <div class="row"><div class="l"><b>Estadísticas</b><small id="statsLine">—</small></div><button class="smallbtn danger" id="resetStats">BORRAR</button></div>
     <div class="row"><div class="l"><b>Entrenamientos originales</b><small>Recupera los perfiles de fábrica</small></div><button class="smallbtn danger" id="resetProfiles">RESTAURAR</button></div>
   </div>
-  <p class="foot">Boxfit Pro · versión 3.1</p>
+  <p class="foot">Boxfit Pro · versión 3.2</p>
 </section>
 
 <!-- ================= EDITOR ================= -->
@@ -3634,7 +3634,7 @@ function openGuide(view){
   openForm(`<div class="gtop">${boxerSVG('talk')}<div class="speech"><small>¡QUIUBO${userFirst() ? ', ' + esc(userFirst().toUpperCase()) : ''}! ${esc(gName().toUpperCase())} TE EXPLICA</small><b>${g.t.toUpperCase()}</b></div></div>
     <div class="gbody">${g.b.join('')}</div>
     <button class="btn pri" style="width:100%;margin-top:12px;--bc:var(--mode)" id="gOk">¡LISTO, A DARLE! 👊</button>
-    <button class="linkbtn" id="gLook" style="width:100%;text-align:center">Cambiar cómo se ve ${esc(gName())}</button>`, sh => { sh.querySelector('#gOk').addEventListener('click', closeForm); sh.querySelector('#gLook').addEventListener('click', () => { closeForm(); setTimeout(openLookForm, 250); }); });
+    <button class="linkbtn" id="gLook" style="width:100%;text-align:center">Cambiar nombre y apariencia de ${esc(gName())}</button>`, sh => { sh.querySelector('#gOk').addEventListener('click', closeForm); sh.querySelector('#gLook').addEventListener('click', () => { closeForm(); setTimeout(openLookForm, 250); }); });
   hideBubble();
 }
 let bubbleT = null;
@@ -3682,13 +3682,16 @@ function openLookForm(){
     sh.querySelector('#lkPrev').innerHTML = boxerSVG('win', lk);
     sh.querySelectorAll('[data-lp]').forEach(b => b.classList.toggle('on', lk[b.dataset.lp] === b.dataset.lv));
   };
-  openForm(`<h3 class="ftitle">ASÍ SE VE ${esc(gName().toUpperCase())}</h3>
+  let nm = gName();
+  openForm(`<h3 class="ftitle">ASÍ SE VE <span id="lkTitle">${esc(nm.toUpperCase())}</span></h3>
     <div id="lkPrev" style="width:150px;margin:0 auto 4px"></div>
+    <label class="field"><span>Nombre del guía</span><input id="lkName" maxlength="16" value="${esc(nm)}" placeholder="Tito" autocomplete="off"></label>
     ${Object.entries(LOOK_OPTS).map(([p, def]) => `<div class="field"><span>${def.t}</span><div class="lookrow">${def.o.map(([k, l, c]) => `<button type="button" data-lp="${p}" data-lv="${k}" title="${l}" aria-label="${def.t}: ${l}" style="--s:${c || 'transparent'}" class="${c ? '' : 'none'}"><i></i><small>${l}</small></button>`).join('')}</div></div>`).join('')}
     <div class="btnrow" style="margin-top:8px"><button class="btn" id="lkReset">ORIGINAL</button><button class="btn pri" id="lkOk" style="--bc:var(--mode)">GUARDAR</button></div>`, sh => {
     sh.querySelectorAll('[data-lp]').forEach(b => b.addEventListener('click', () => { lk[b.dataset.lp] = b.dataset.lv; hapticTap(); draw(sh); }));
-    sh.querySelector('#lkReset').addEventListener('click', () => { Object.assign(lk, LOOK_DEFAULT); draw(sh); });
-    sh.querySelector('#lkOk').addEventListener('click', () => { S.look = Object.assign({}, lk); saveSettings(); paintMascots(); closeForm(); toast(`¡${gName()} estrena pinta! 🥊`); });
+    sh.querySelector('#lkName').addEventListener('input', e => { nm = e.target.value; sh.querySelector('#lkTitle').textContent = (nm.trim() || 'Tito').toUpperCase(); });
+    sh.querySelector('#lkReset').addEventListener('click', () => { Object.assign(lk, LOOK_DEFAULT); nm = 'Tito'; sh.querySelector('#lkName').value = nm; sh.querySelector('#lkTitle').textContent = 'TITO'; draw(sh); });
+    sh.querySelector('#lkOk').addEventListener('click', () => { S.look = Object.assign({}, lk); S.guideName = (nm.trim() || 'Tito').slice(0, 16); saveSettings(); const gi = $('#gName'); if (gi) gi.value = S.guideName; paintMascots(); closeForm(); toast(`¡${gName()} estrena pinta! 🥊`); });
     draw(sh);
   });
 }
