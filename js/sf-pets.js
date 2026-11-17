@@ -33,7 +33,7 @@ function openCompanion(){
     sh.querySelectorAll('[data-pet]').forEach(b => b.addEventListener('click', () => { sel = b.dataset.pet; hapticTap(); paint(); }));
     sh.querySelector('#cpC').addEventListener('click', closeForm);
     sh.querySelector('#cpLook').addEventListener('click', () => { closeForm(); setTimeout(openLookForm, 250); });
-    sh.querySelector('#cpOk').addEventListener('click', () => { S.companion = sel; saveSettings(); paintMascots(); closeForm(); toast(`${gName()} te acompaña 🐾`); if (current === 'settings') renderSettings(); });
+    sh.querySelector('#cpOk').addEventListener('click', () => { S.companion = sel; saveSettings(); paintMascots(); closeForm(); toast(TF('{s} te acompaña 🐾', gName())); if (current === 'settings') renderSettings(); });
     paint();
   });
 }

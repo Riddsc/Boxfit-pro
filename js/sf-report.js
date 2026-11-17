@@ -4,6 +4,7 @@
    ========================================================= */
 (function(){
 const { nf, n1, hm } = SF;
+const T = s => TT(String(s));
 function loadPdf(){
   if (window.jspdf) return Promise.resolve(window.jspdf.jsPDF);
   return new Promise((ok, bad) => { const s = document.createElement('script'); s.src = 'js/vendor/jspdf.umd.min.js'; s.onload = () => ok(window.jspdf.jsPDF); s.onerror = bad; document.head.appendChild(s); });
@@ -29,13 +30,13 @@ async function make(days){
     doc.setFillColor(15, 13, 23); doc.rect(0, 0, W, 30, 'F');
     doc.setTextColor(255, 90, 54); doc.setFont('helvetica', 'bold'); doc.setFontSize(20); doc.text('SATRONHO BOXFIT', M, 14);
     doc.setTextColor(230, 230, 240); doc.setFontSize(10); doc.setFont('helvetica', 'normal');
-    doc.text(`Reporte de ${me.name || 'mi entrenamiento'} · ${niceDate(from)} a ${niceDate(t)}`, M, 22);
+    doc.text(`${me.name ? TF('Reporte de {s}', me.name) : T('Reporte de mi entrenamiento')} · ${niceDate(from)} – ${niceDate(t)}`, M, 22);
     y = 40; doc.setTextColor(20, 20, 30);
   };
   const need = h => { if (y + h > 282){ doc.addPage(); head(); } };
-  const title = s => { need(14); doc.setFont('helvetica', 'bold'); doc.setFontSize(13); doc.setTextColor(255, 90, 54); doc.text(s, M, y); y += 2; doc.setDrawColor(230, 230, 236); doc.line(M, y, W - M, y); y += 6; doc.setTextColor(20, 20, 30); doc.setFont('helvetica', 'normal'); doc.setFontSize(10); };
-  const line = (a, b) => { need(6); doc.setFont('helvetica', 'normal'); doc.text(String(a), M, y); if (b != null){ doc.setFont('helvetica', 'bold'); doc.text(String(b), W - M, y, { align: 'right' }); } y += 6; };
-  const para = s => { doc.setFontSize(9); doc.setTextColor(110, 110, 120); const l = doc.splitTextToSize(s, W - 2 * M); need(l.length * 4.5); doc.text(l, M, y); y += l.length * 4.5 + 2; doc.setTextColor(20, 20, 30); doc.setFontSize(10); };
+  const title = s => { need(14); doc.setFont('helvetica', 'bold'); doc.setFontSize(13); doc.setTextColor(255, 90, 54); doc.text(T(s), M, y); y += 2; doc.setDrawColor(230, 230, 236); doc.line(M, y, W - M, y); y += 6; doc.setTextColor(20, 20, 30); doc.setFont('helvetica', 'normal'); doc.setFontSize(10); };
+  const line = (a, b) => { need(6); doc.setFont('helvetica', 'normal'); doc.text(T(a), M, y); if (b != null){ doc.setFont('helvetica', 'bold'); doc.text(T(b), W - M, y, { align: 'right' }); } y += 6; };
+  const para = s => { doc.setFontSize(9); doc.setTextColor(110, 110, 120); const l = doc.splitTextToSize(T(s), W - 2 * M); need(l.length * 4.5); doc.text(l, M, y); y += l.length * 4.5 + 2; doc.setTextColor(20, 20, 30); doc.setFontSize(10); };
   head();
   // Perfil
   const lw = lastWeight(), a = ageOf(me);
@@ -49,7 +50,7 @@ async function make(days){
   line('Entrenos', L.length); line('Días activos', new Set(L.map(h => h.d)).size + ' de ' + days); line('Tiempo total', hm(mn)); line('Calorías en entrenos', nf(kc) + ' kcal');
   line('Boxeo / Gimnasio / Cardio', `${by.box} / ${by.gym} / ${by.cardio}`);
   const s = SF.streaks(); line('Racha actual', s.day + ' días (mejor: ' + s.bestDay + ')');
-  L.slice().reverse().slice(0, 40).forEach(h => line(`${shortDate(h.d)}  ${h.p}`, `${hm(SF.minOf(h))} · ${nf(SF.kcalOf(h))} kcal`));
+  L.slice().reverse().slice(0, 40).forEach(h => line(`${shortDate(h.d)}  ${T(h.p)}`, `${hm(SF.minOf(h))} · ${nf(SF.kcalOf(h))} kcal`));
   if (L.length > 40) para(`…y ${L.length - 40} entrenos más.`);
   // Pesas
   const wk = SFGym.workouts().filter(w => w.d >= from);
@@ -65,7 +66,7 @@ async function make(days){
   // Cuerpo
   const W0 = weights.filter(w => w.date >= from).sort((x, z) => x.date.localeCompare(z.date));
   title('CUERPO');
-  if (W0.length >= 2) line('Peso', `${fmtKg(W0[0].kg)} -> ${fmtKg(W0[W0.length - 1].kg)} kg (${W0[W0.length - 1].kg - W0[0].kg >= 0 ? '+' : ''}${fmtKg(W0[W0.length - 1].kg - W0[0].kg)})`);
+  if (W0.length >= 2) line('Peso', `${fmtKg(W0[0].kg)} -> ${fmtKg(W0[W0.length - 1].kg)} kg  (${W0[W0.length - 1].kg - W0[0].kg >= 0 ? '+' : ''}${fmtKg(W0[W0.length - 1].kg - W0[0].kg)})`);
   else para(W0.length ? 'Solo hay un registro de peso en el periodo.' : 'No hay registros de peso en el periodo.');
   const g = SFPlan.goalInfo(); if (g) line('Meta', `${fmtKg(g.now)} -> ${fmtKg(g.now + g.toGo)} kg · ${g.daysLeft} días`);
   // Salud
@@ -76,13 +77,13 @@ async function make(days){
   if (SFSomnia.has()){ const r = SFSomnia.readiness(); line('Recuperación de hoy (Somnia)', r ? r.v + ' / 100' : '—'); }
   // Medallas
   const md = SF.medals(), got = SF.MEDALS.filter(m => md[m[0]]);
-  title('MEDALLAS'); para(got.length ? got.map(m => m[2]).join(' · ') : 'Todavía no hay medallas.');
+  title('MEDALLAS'); para(got.length ? got.map(m => T(m[2])).join(' · ') : 'Todavía no hay medallas.');
   para('Las calorías y el pulso son estimaciones para seguir tu progreso; no reemplazan una valoración médica o nutricional.');
   const b64 = doc.output('datauristring').split(',')[1], name = `Satronho-BoxFit-reporte-${t}.pdf`;
   const FS = plugin('Filesystem'), SH = plugin('Share');
   if (FS && SH){
     const r = await FS.writeFile({ path: name, data: b64, directory: 'CACHE' });
-    try { await SH.share({ title: name, files: [r.uri], dialogTitle: 'Guardar o enviar el reporte' }); } catch(e){}
+    try { await SH.share({ title: name, files: [r.uri], dialogTitle: T('Guardar o enviar el reporte') }); } catch(e){}
   } else doc.save(name);
   toast('Reporte listo 📄');
 }

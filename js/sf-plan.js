@@ -37,7 +37,7 @@ function todayStrip(tab){
   const done = trainedOn(todayISO());
   return `<button class="sfplanstrip" id="plStrip" style="--c:${TYPES[x.t][2]}"><span class="l"><small>HOY TOCA${done ? ' · ✓ YA ENTRENASTE' : ''}</small><b>${esc(label(x))}</b></span><span class="arrow">›</span></button>`;
 }
-function bindStrip(root){ const b = root.querySelector('#plStrip'); if (b) b.addEventListener('click', openPlanEditor); }
+function bindStrip(root){ const b = root.querySelector('#plStrip'); if (b) b.addEventListener('click', () => go('week')); }
 // Tarjeta del Inicio
 function homeCard(){
   const t = todayISO();
@@ -160,5 +160,36 @@ function openWarmPick(kind){
   });
 }
 
-window.SFPlan = { todayStrip, bindStrip, homeCard, bindHome, openPlanEditor, todayPlan, label, goalCardHTML, bindGoalCard, openGoal, goalInfo, warmCard: warmCardIf, bindWarm, openWarmPick, TYPES };
+/* ---------- Apartado «Mi semana» (se edita en la misma pantalla y se guarda solo) ---------- */
+SF.view('week', 'MI SEMANA', { render: renderWeek, back: true });
+function renderWeek(){
+  const body = $('#weekBody'), routines = SFGym.routines ? SFGym.routines() : [];
+  const P = plan || null, t = todayISO(), x = todayPlan(t);
+  body.innerHTML = `
+    ${P ? `<div class="sfplanstrip" style="--c:${TYPES[x.t][2]}"><span class="l"><small>HOY TOCA${trainedOn(t) ? ' · ✓ YA ENTRENASTE' : ''}</small><b>${esc(label(x))}</b></span>${x.t !== 'rest' ? `<button class="smallbtn go" id="wkGo">${x.t === 'free' ? 'ENTRENAR' : 'IR'}</button>` : ''}</div>`
+      : `<p class="hint">Elige qué entrenas cada día. Puedes empezar con un plan sugerido y cambiar cualquier día. Nada es obligatorio y los días de descanso no rompen tu racha.</p>`}
+    <div class="sfchips" id="wkSug"><button type="button" data-sg="box">🥊 Sugerido boxeo</button><button type="button" data-sg="gym">🏋️ Sugerido gimnasio</button><button type="button" data-sg="mix">🔀 Mixto</button></div>
+    <div class="sect" id="wkDays" style="padding-top:2px">${ORDER.map(d => { const y = (P && P.days[d]) || { t: 'rest' }, today = parseISO(t).getDay() === d;
+      return `<div class="sfpday ${today ? 'today' : ''}" style="--c:${TYPES[y.t][2]}"><b><span>${dayName(d)}</span>${today ? '<em class="sfpnow">HOY</em>' : ''}</b><div class="opts">${Object.entries(TYPES).map(([k, v]) => `<button type="button" data-d="${d}" data-t="${k}" class="${y.t === k ? 'on' : ''}" aria-label="${v[0]}">${v[1]}</button>`).join('')}</div>
+        ${y.t === 'gym' && routines.length ? `<select data-rd="${d}"><option value="">Rutina libre</option>${routines.map(r => `<option value="${r.id}" ${y.rid === r.id ? 'selected' : ''}>${esc(r.name)}</option>`).join('')}</select>` : `<small>${TYPES[y.t][0]}</small>`}</div>`; }).join('')}</div>
+    <div class="sect"><h4>CALENTAMIENTO SUGERIDO</h4>
+      <div class="row"><div class="l"><b>Sugerir calentamiento</b><small>Aparece antes de entrenar. Siempre es opcional y se salta con un toque.</small></div><button class="switch ${S.warmSug !== false ? 'on' : ''}" id="wkWarm"></button></div>
+      ${['box', 'gym', 'cardio'].map(k => `<div class="row"><div class="l"><b>${({ box: 'Para boxeo', gym: 'Para pesas', cardio: 'Para cardio' })[k]}</b><small>${esc(warmFor(k).name)}</small></div><button class="smallbtn" data-wp="${k}">CAMBIAR</button></div>`).join('')}
+    </div>
+    ${P ? '<button class="btn" id="wkOff" style="width:100%;flex:none;color:#f87171">QUITAR MI PLAN</button>' : ''}`;
+  const ensure = () => { if (!plan) plan = suggest(S.disc === 'gym' ? 'gym' : 'box'); };
+  body.querySelectorAll('[data-sg]').forEach(b => b.addEventListener('click', () => { plan = suggest(b.dataset.sg); saveP(); hapticTap(); toast('Plan sugerido listo: cámbialo a tu gusto'); keep(); }));
+  body.querySelectorAll('[data-t]').forEach(b => b.addEventListener('click', () => { ensure(); plan.days[b.dataset.d] = { t: b.dataset.t }; saveP(); hapticTap(); keep(); }));
+  body.querySelectorAll('[data-rd]').forEach(el => el.addEventListener('change', () => { plan.days[el.dataset.rd].rid = el.value || undefined; saveP(); }));
+  body.querySelector('#wkWarm').addEventListener('click', e => { S.warmSug = S.warmSug === false; saveSettings(); e.currentTarget.classList.toggle('on', S.warmSug !== false); });
+  body.querySelectorAll('[data-wp]').forEach(b => b.addEventListener('click', () => openWarmPick(b.dataset.wp)));
+  const off = body.querySelector('#wkOff'); if (off) off.addEventListener('click', async () => { if (await confirmDlg('¿Quitar tu plan?', 'Tus entrenos y tu racha no se tocan.', 'QUITAR')){ plan = null; save('sf_wplan', null); renderWeek(); } });
+  const g = body.querySelector('#wkGo'); if (g) g.addEventListener('click', () => { const y = todayPlan(); if (y.t === 'gym' && y.rid){ SFNav.go('train:gym'); } else SFNav.go('train:' + (y.t === 'free' ? (S.disc === 'gym' ? 'gym' : 'box') : y.t)); });
+}
+const keep = () => { const v = $('#week'), y = v.scrollTop; renderWeek(); v.scrollTop = y; };
+const dayName = d => (window.SFI18n && SFI18n.dayNames) ? SFI18n.dayNames[d] : DOW[d];
+NAV_PARENT.calendar = 'week'; BACK_TO.calendar = 'week';
+Object.assign(GUIDE, { week: () => ({ t:'tu semana', b:[`<p>Toca el ícono de cada día para elegir qué toca: descanso, boxeo, gimnasio, cardio o libre.</p>`, `<p>Se guarda solo. Los días que eliges como descanso no rompen tu racha.</p>`, `<p class="tip">En la barra de abajo está tu <b>calendario</b>.</p>`] }) });
+
+window.SFPlan = { renderWeek, todayStrip, bindStrip, homeCard, bindHome, openPlanEditor, todayPlan, label, goalCardHTML, bindGoalCard, openGoal, goalInfo, warmCard: warmCardIf, bindWarm, openWarmPick, TYPES };
 })();

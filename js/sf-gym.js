@@ -195,7 +195,7 @@ function renderLive(){
     b.closest('.sr').classList.toggle('done', s.done);
     if (s.done){
       const pb = bestOf(x.e), kgw = toKg(s.w || 0, live.u);
-      if (k === 'w' && pb.e1 > 0 && e1rm(kgw, s.r) > pb.e1 + 0.01 && !s.pr){ s.pr = 1; saveLive(); toast('🏆 ¡Récord en ' + ex(x.e).n + '!'); Sound.win(); }
+      if (k === 'w' && pb.e1 > 0 && e1rm(kgw, s.r) > pb.e1 + 0.01 && !s.pr){ s.pr = 1; saveLive(); toast(TF('🏆 ¡Récord en {s}!', TT(ex(x.e).n))); Sound.win(); }
       // copia el peso a las series que siguen sin tocar
       x.sets.slice(si + 1).forEach((n, j) => { if (!n.done && !n.w && s.w){ n.w = s.w; const inp = body.querySelector(`input[data-f="w"][data-x="${xi}"][data-s="${si + 1 + j}"]`); if (inp) inp.value = s.w; } });
       const lastSet = xi === live.ex.length - 1 && si === x.sets.length - 1;

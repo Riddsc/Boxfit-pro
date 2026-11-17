@@ -27,6 +27,10 @@ const I = {
   steps:'<path d="M7 16c-1.6 0-2.5-1.2-2.5-3.3C4.5 9.5 6 6 7.8 6S10 8.4 9.8 11c-.2 2.2-.8 5-2.8 5zM5 18.5h4M15 11c-1.6 0-2.5-1.2-2.5-3.3C12.5 4.5 14 1 15.8 1S18 3.4 17.8 6c-.2 2.2-.8 5-2.8 5zM13 13.5h4"/>',
   heart:'<path d="M12 20s-7.5-4.6-7.5-10.2A4.3 4.3 0 0 1 12 7a4.3 4.3 0 0 1 7.5 2.8C19.5 15.4 12 20 12 20z"/>',
   sleep:'<path d="M20 14.5A8.5 8.5 0 1 1 9.5 4 7 7 0 0 0 20 14.5z"/>',
+  goal:'<path d="M12 21V4M12 4l7 3-7 3"/><path d="M8 21h8"/>',
+  flame:'<path d="M12 21c-4 0-6.5-2.6-6.5-6 0-3.3 2.4-5 3.5-8 1.6 1.4 2.4 3 2.5 4.6C13 10 13.6 8 13.4 5c3.3 2.3 5.1 6 5.1 9.5 0 3.7-2.6 6.5-6.5 6.5z"/>',
+  week:'<rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4M7.5 14h2M11 14h2M14.5 14h2"/>',
+  cal:'<rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/><circle cx="12" cy="15" r="1.6" fill="currentColor"/>',
 };
 // [clave, etiqueta, ícono]; las claves con «:» son pestañas dentro de un apartado
 const BARS = {
@@ -35,13 +39,17 @@ const BARS = {
   nutri:    [['home','INICIO','home'],['nutri:diary','DIARIO','diary'],['nutri:plan','PLAN','plan'],['nutri:water','AGUA','water'],['settings','AJUSTES','settings']],
   progress: [['home','INICIO','home'],['progress:sum','RESUMEN','sum'],['progress:body','CUERPO','body'],['progress:med','MEDALLAS','med'],['settings','AJUSTES','settings']],
   health:   [['home','INICIO','home'],['health:steps','PASOS','steps'],['health:heart','CORAZÓN','heart'],['health:sleep','SUEÑO','sleep'],['settings','AJUSTES','settings']],
+  goals:    [['home','INICIO','home'],['goals:today','HOY','plan'],['goals:target','MI META','goal'],['goals:streak','RACHAS','flame'],['settings','AJUSTES','settings']],
+  week:     [['home','INICIO','home'],['week','MI SEMANA','week'],['calendar','CALENDARIO','cal'],['settings','AJUSTES','settings']],
+  settings: [['home','INICIO','home'],['me','MI PERFIL','body'],['settings','AJUSTES','settings']],
 };
-const ROOTS = ['home', 'train', 'nutri', 'progress', 'health'];
+const ROOTS = ['home', 'train', 'nutri', 'progress', 'health', 'goals', 'week', 'settings'];
 let lastSec = 'home';
 // A qué apartado pertenece una pantalla (sube por NAV_PARENT hasta llegar a uno)
 function sectionOf(v){
   let g = 0;
-  while (v && !ROOTS.includes(v) && g++ < 6){ if (v === 'settings' || v === 'me') return lastSec; v = NAV_PARENT[v]; }
+  if (v === 'me') return 'settings';
+  while (v && !ROOTS.includes(v) && g++ < 6) v = NAV_PARENT[v];
   return ROOTS.includes(v) ? v : lastSec;
 }
 const TAB = {                                    // pestaña activa de cada apartado
@@ -49,11 +57,13 @@ const TAB = {                                    // pestaña activa de cada apar
   nutri:    () => SFNav.tab.nutri,
   progress: () => SFNav.tab.progress,
   health:   () => SFNav.tab.health,
+  goals:    () => SFNav.tab.goals,
 };
+const PLAIN = ['week', 'settings'];        // apartados cuyas pestañas son pantallas
 const BOX_VIEWS = ['timer', 'traffic', 'roulette', 'editor', 'psessions', 'psessionEdit', 'warmups', 'warmupEdit', 'tecnica'];
 function activeKey(sec){
-  if (current === 'settings' || current === 'me') return 'settings';
   if (sec === 'home') return 'home';
+  if (PLAIN.includes(sec)) return current;
   if (sec === 'train'){
     if (BOX_VIEWS.includes(current)) return 'train:box';
     if (/^gym/.test(current)) return 'train:gym';
@@ -62,14 +72,23 @@ function activeKey(sec){
 }
 renderNav = function(){
   const sec = sectionOf(current);
-  if (current !== 'settings' && current !== 'me') lastSec = sec;
+  if (sec !== 'settings') lastSec = sec;
+  const box = $('#navBtns');
+  // En el Inicio la barra de abajo es la racha
+  if (sec === 'home'){
+    box.dataset.k = 'home'; box.innerHTML = SFToday.streakBar();
+    box.querySelector('#navStreak').addEventListener('click', () => { hapticTap(); SFNav.go('goals:streak'); });
+    $('#nav').classList.add('streak'); $('#nav').classList.remove('six'); $('#navInd').style.opacity = '0';
+    return;
+  }
+  $('#nav').classList.remove('streak');
   const items = BARS[sec], on = activeKey(sec);
-  const box = $('#navBtns'), key = sec + '|' + items.length;
+  const key = sec + '|' + items.length;
   if (box.dataset.k !== key){
     box.dataset.k = key;
     box.innerHTML = items.map(([k, l, ic]) => `<button data-nav="${k}" aria-label="${l}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">${I[ic]}</svg><span>${l}</span></button>`).join('');
     box.querySelectorAll('[data-nav]').forEach(b => b.addEventListener('click', () => { hapticTap(); navTo(b.dataset.nav); }));
-    $('#nav').classList.toggle('six', items.length === 6);
+    $('#nav').classList.toggle('six', items.length === 6); $('#nav').classList.toggle('three', items.length === 3); $('#nav').classList.toggle('four', items.length === 4);
   }
   const idx = items.findIndex(x => x[0] === on);
   box.querySelectorAll('button').forEach((b, i) => b.classList.toggle('on', i === idx));
@@ -91,10 +110,11 @@ function navTo(k){
 // Atrás: de Ajustes se vuelve al apartado donde estabas; de un apartado, a Inicio
 window.SFBack = function(){
   if (current === 'settings'){ go(lastSec === 'settings' ? 'home' : lastSec, true); return true; }
+  if (current === 'calendar'){ go('week', true); return true; }
   if (ROOTS.includes(current) && current !== 'home'){ go('home', true); return true; }
   return false;
 };
 // Con la barra nueva, Ajustes siempre vuelve a su sitio
-NAV_PARENT.settings = undefined;
-window.SFNav = { tab: { nutri: 'diary', progress: 'sum', health: 'steps' }, go: navTo, sectionOf, lastSec: () => lastSec };
+NAV_PARENT.settings = undefined; NAV_PARENT.me = 'settings'; BACK_TO.me = 'settings';
+window.SFNav = { tab: { nutri: 'diary', progress: 'sum', health: 'steps', goals: 'today' }, go: navTo, sectionOf, lastSec: () => lastSec };
 })();

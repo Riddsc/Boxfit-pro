@@ -82,7 +82,7 @@ function progressHTML(period){
 /* ---------- En Más ---------- */
 function settingsHTML(){
   return `<div class="sect sfsomnia"><h4>SATRONHO SOMNIA · SUEÑO</h4>
-    <div class="row" style="border:0"><span class="sfsomico">🌙</span><div class="l"><b>${has() ? Object.keys(sl.nights).length + ' noches cruzadas' : 'Cruza tu sueño con tus entrenos'}</b><small>${has() ? 'Último cruce: ' + niceDate(iso(new Date(sl.at))).toLowerCase() : 'Somnia te dice cómo dormiste; BoxFit, qué tan recuperado estás para entrenar. Somnia también aprende si entrenar te cambia el ronquido.'}</small></div></div>
+    <div class="row" style="border:0"><span class="sfsomico">🌙</span><div class="l"><b>${has() ? Object.keys(sl.nights).length + ' noches cruzadas' : 'Cruza tu sueño con tus entrenos'}</b><small>${has() ? 'Último cruce: <span data-notr>' + niceDate(iso(new Date(sl.at))).toLowerCase() + '</span>' : 'Somnia te dice cómo dormiste; BoxFit, qué tan recuperado estás para entrenar. Somnia también aprende si entrenar te cambia el ronquido.'}</small></div></div>
     <button class="btn pri" id="smSync" style="width:100%;--bc:#8b5cf6;margin-bottom:8px">🔄 SINCRONIZAR CON SOMNIA</button>
     <div class="btnrow" style="margin-bottom:12px"><button class="btn" id="smOpen" style="font-size:17px">📂 ABRIR ARCHIVO DE SOMNIA</button><button class="btn" id="smSend" style="font-size:17px">📤 ENVIAR MIS ENTRENOS</button></div>
     <p class="hint">Todo pasa dentro del teléfono, sin internet. Necesitas Satronho Somnia 4.5 o más nueva. Si el botón de sincronizar no abre Somnia, usa los archivos: en Somnia ve a <b>Más › Satronho BoxFit</b>.</p></div>`;

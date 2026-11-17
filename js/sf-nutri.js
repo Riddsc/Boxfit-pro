@@ -116,7 +116,7 @@ function openDishes(){
     ${dishes.map(d => `<div class="row"><span class="l"><b>${esc(d.n)}</b><small>${d.items.length} alimentos · ${nf(sum(d.items).k)} kcal</small></span><button class="smallbtn go" data-da="${d.id}">+ HOY</button><button class="xbtn" data-dd="${d.id}">×</button></div>`).join('') || '<p class="empty">Todavía no tienes platos guardados.</p>'}
     <button class="btn pri" id="dsOk" style="width:100%;margin-top:12px;--bc:var(--mode)">CERRAR</button>`, sh => {
     sh.querySelector('#dsOk').addEventListener('click', closeForm);
-    sh.querySelectorAll('[data-da]').forEach(b => b.addEventListener('click', () => { const d = dishes.find(x => x.id === b.dataset.da); addEntries(d.items.map(x => Object.assign({}, x, { id: uid(), m: mealNow() })), todayISO()); hapticTap(); toast(`${d.n} agregado a hoy`); }));
+    sh.querySelectorAll('[data-da]').forEach(b => b.addEventListener('click', () => { const d = dishes.find(x => x.id === b.dataset.da); addEntries(d.items.map(x => Object.assign({}, x, { id: uid(), m: mealNow() })), todayISO()); hapticTap(); toast(TF('{s}: agregado a hoy', d.n)); }));
     sh.querySelectorAll('[data-dd]').forEach(b => b.addEventListener('click', () => { dishes = dishes.filter(d => d.id !== b.dataset.dd); save('sf_dishes', dishes); b.closest('.row').remove(); }));
   });
 }
@@ -166,7 +166,7 @@ function openAdd(meal, keepTab){
       else if (tabk === 'dish'){ el.innerHTML = dishes.map(d => { const s = sum(d.items); return `<button type="button" data-dish="${d.id}"><i style="background:#8b5cf6"></i><span class="l"><b>${esc(d.n)}</b><small>${d.items.length} alimentos · ${nf(s.k)} kcal</small></span><em>+</em></button>`; }).join('') || '<p class="empty">Guarda una comida completa como plato (botón ⋯ de cada comida) y agrégala aquí con un toque.</p>'; }
       else el.innerHTML = FOODS().filter(f => !grp || f[7] === grp).slice(0, grp ? 200 : 60).map(f => row(f)).join('') || '<p class="empty">Aún no has creado alimentos.</p>';
       el.querySelectorAll('[data-f]').forEach(b => b.addEventListener('click', () => openPortion(foodByName(b.dataset.f), meal, +b.dataset.g0 || 0, tabk)));
-      el.querySelectorAll('[data-dish]').forEach(b => b.addEventListener('click', () => { const d = dishes.find(x => x.id === b.dataset.dish); addEntries(d.items.map(x => Object.assign({}, x, { id: uid(), m: meal }))); hapticTap(); toast(`${d.n} agregado`); b.classList.add('added'); b.querySelector('em').textContent = '✓'; }));
+      el.querySelectorAll('[data-dish]').forEach(b => b.addEventListener('click', () => { const d = dishes.find(x => x.id === b.dataset.dish); addEntries(d.items.map(x => Object.assign({}, x, { id: uid(), m: meal }))); hapticTap(); toast(TF('{s}: agregado', d.n)); b.classList.add('added'); b.querySelector('em').textContent = '✓'; }));
     };
     sh.querySelector('#faQ').addEventListener('input', e => { q = e.target.value.trim(); draw(); });
     sh.querySelectorAll('#faT [data-t]').forEach(b => b.addEventListener('click', () => { tabk = b.dataset.t; draw(); }));
@@ -197,7 +197,7 @@ function openPortion(f, meal, g0, backTab, editId){
       sh.querySelectorAll('input').forEach(i => i.blur());
       const e = mk(f, st.g, st.meal);
       if (editId){ const i = (log[day] || []).findIndex(x => x.id === editId); if (i >= 0){ e.id = editId; log[day][i] = e; saveLog(); } closeForm(); return; }
-      addEntries([e]); hapticTap(); toast(`${f[0]}: ${nf(e.k)} kcal`); openAdd(meal, backTab);
+      addEntries([e]); hapticTap(); toast(TT(f[0]) + ': ' + nf(e.k) + ' kcal'); openAdd(meal, backTab);
     });
   });
 }
@@ -222,7 +222,7 @@ function openQuick(meal, edit){
       sh.querySelectorAll('input').forEach(i => i.blur());
       const e = { id: edit ? edit.id : uid(), m: meal, n: sh.querySelector('#fqN').value.trim() || 'Comida', g: 0, k: v.k, p: v.p, c: v.c, f: v.f };
       if (edit){ const i = log[day].findIndex(x => x.id === edit.id); log[day][i] = e; saveLog(); } else addEntries([e]);
-      closeForm(); toast(`${e.n}: ${nf(e.k)} kcal`);
+      closeForm(); toast(TT(e.n) + ': ' + nf(e.k) + ' kcal');
     });
   });
 }

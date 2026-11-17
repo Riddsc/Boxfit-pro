@@ -11,12 +11,12 @@ function push(){
   if (!WP) return;
   const o = OPT(), t = todayISO(), b = SF.dayBurn(t), s = SF.streaks(), w = SF.water()[t] || 0, G = SF.G, wg = SF.waterGoal();
   const pc = (v, g) => Math.round(clamp(g ? v / g : 0, 0, 1) * 100);
-  const data = { title: me.name ? 'Hola, ' + me.name.trim().split(/\s+/)[0] : 'Satronho BoxFit', streak: s.day, showStreak: o.streak, light: o.light,
+  const data = { title: me.name ? TF('Hola, {s}', me.name.trim().split(/\s+/)[0]) : 'Satronho BoxFit', streak: s.day, showStreak: o.streak, light: o.light,
     kcal: { on: o.kcal, t: `Calorías ${SF.nf(b.active)} / ${SF.nf(G.kcal)}`, p: pc(b.active, G.kcal) },
     min: { on: o.min, t: `Minutos ${b.min} / ${G.min}`, p: pc(b.min, G.min) },
     steps: { on: o.steps, t: `Pasos ${SF.nf(b.steps)} / ${SF.nf(G.steps)}`, p: pc(b.steps, G.steps) },
     water: { on: o.water, t: `Agua ${SF.n1(w / 1000)} / ${SF.n1(wg / 1000)} L`, p: pc(w, wg) } };
-  ['kcal','min','steps','water'].forEach(k => data[k].t = SFI18n.t(data[k].t.replace(/[\d.,]+/g, m => m)) );
+  ['kcal','min','steps','water'].forEach(k => data[k].t = TT(data[k].t) );
   const j = JSON.stringify(data); if (j === lastSent) return; lastSent = j;
   WP.update({ data: j }).catch(() => {});
 }

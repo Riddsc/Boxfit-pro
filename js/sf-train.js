@@ -96,7 +96,7 @@ async function startLive(k){
   if (live){ if (!await confirmDlg('Ya hay una actividad en curso', 'Termínala primero para empezar otra.', 'ENTENDIDO')) return; return; }
   if (window.SFGym && SFGym.isLive()) return toast('Termina primero tu rutina de pesas');
   audio(); live = { a: k, start: Date.now(), pausedMs: 0, pauseAt: 0 }; save('sf_liveact', live);
-  Sound.bell(1); toast(`${SF.ACT[k].n}: cronómetro en marcha`); rerender();
+  Sound.bell(1); toast(TF('{s}: cronómetro en marcha', TT(SF.ACT[k].n))); rerender();
 }
 async function stopLive(){
   if (!live) return;

@@ -13,8 +13,8 @@
 (function(){
 const D = window.SFData;
 const ACT = {}; D.ACTS.forEach(a => ACT[a[0]] = { k:a[0], n:a[1], ic:a[2], met:a[3], g:a[4] });
-const nf = v => Math.round(v || 0).toLocaleString('es-CO');
-const n1 = v => (Math.round((v || 0) * 10) / 10).toLocaleString('es-CO');
+const nf = v => Math.round(v || 0).toLocaleString(LOCALE);
+const n1 = v => (Math.round((v || 0) * 10) / 10).toLocaleString(LOCALE);
 const hm = min => { min = Math.round(min || 0); return min < 60 ? min + ' min' : Math.floor(min / 60) + ' h' + (min % 60 ? ' ' + min % 60 + ' min' : ''); };
 
 /* ---------- Estado guardado ---------- */

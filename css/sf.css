@@ -417,3 +417,55 @@ nav.six button svg{width:22px;height:22px}
 .sfwaterbig .glasses{display:flex;flex-wrap:wrap;justify-content:center;gap:4px;margin:10px 0}
 .sfwaterbig .glasses i{font-style:normal;font-size:24px;filter:grayscale(1) opacity(.3)}
 .sfwaterbig .glasses i.on{filter:none}
+
+/* =========================================================
+   VERSIÓN 4.2: Inicio con siete botones y la racha como barra de abajo
+   ========================================================= */
+#home .sfhubs{gap:12px}
+#home .sfhub{min-height:150px;padding:16px 15px 15px}
+#home .sfhub .ic{font-size:46px;top:12px;right:12px}
+#home .sfhub b{font-size:32px}
+.sfhub.wide{grid-column:1 / -1;min-height:96px!important;flex-direction:column;justify-content:center;padding-right:84px!important}
+.sfhub.wide .ic{top:50%!important;transform:translateY(-50%);font-size:44px!important}
+.sfhub.slim{min-height:72px!important;background:var(--panel);box-shadow:none}
+.sfhub.slim b{font-size:24px!important}
+.sfhub.slim .ic{font-size:30px!important}
+/* Barra de abajo del Inicio: la racha */
+nav.streak{padding:0}
+nav.streak #navBtns{display:block!important;width:100%}
+.sfnavstreak{width:100%;height:100%;display:flex;align-items:center;gap:10px;padding:0 14px 0 12px;border-radius:inherit;text-align:left;color:var(--text);
+  background:linear-gradient(100deg,color-mix(in srgb,#f97316 22%,transparent),transparent 70%)}
+.sfnavstreak .fl{font-size:30px;filter:grayscale(1) opacity(.5)}
+.sfnavstreak.lit .fl{filter:drop-shadow(0 0 10px rgba(249,115,22,.7));animation:sfFlame 1.6s ease-in-out infinite}
+.sfnavstreak .n{font-family:var(--display);font-size:38px;line-height:1;min-width:28px}
+.sfnavstreak .l{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+.sfnavstreak .l b{font-size:11px;letter-spacing:.12em;font-weight:700;color:var(--muted)}
+.sfnavstreak .wk{display:flex;gap:4px}
+.sfnavstreak .wk i{flex:1;max-width:26px;height:20px;border-radius:7px;background:var(--panel2);border:1.5px solid var(--line);display:grid;place-items:center;font-style:normal;font-size:11px;font-weight:700;color:#fff}
+.sfnavstreak .wk i em{display:none}
+.sfnavstreak .wk i.tr{background:#22c55e;border-color:#22c55e}
+.sfnavstreak .wk i.ms{background:color-mix(in srgb,#ef4444 28%,var(--panel2));border-color:color-mix(in srgb,#ef4444 55%,var(--line))}
+.sfnavstreak .wk i.pl{border-style:dashed;border-color:#22c55e}
+.sfnavstreak .wk i.today{box-shadow:0 0 0 2px var(--mode)}
+.sfnavstreak .arrow{font-size:24px;color:var(--dim)}
+nav.three button,nav.four button{font-size:11.5px}
+.sfpday.today{background:color-mix(in srgb,var(--c) 8%,transparent);border-radius:12px;padding-left:6px;padding-right:6px}
+/* 4.2 · barra de racha del Inicio (anula el estilo de columna de los botones de la barra) */
+nav.streak .ind{display:none}
+nav.streak button.sfnavstreak{flex-direction:row;justify-content:flex-start;align-items:center;gap:12px;font-size:inherit;letter-spacing:0;color:var(--text);padding:0 16px 0 14px}
+nav.streak button.sfnavstreak .arrow{font-size:26px;color:var(--muted);margin-left:2px}
+nav.streak button.sfnavstreak .l b{white-space:nowrap}
+/* Inicio más compacto: los 7 botones caben sin tapar nada */
+#home .sfhubs{gap:10px}
+#home .sfhub{min-height:118px;padding:14px 13px 13px}
+#home .sfhub .ic{font-size:40px}
+#home .sfhub b{font-size:28px}
+#home .sfhub.wide{min-height:74px!important}
+#home .sfhub.wide b{font-size:26px}
+#home .sfhub.wide .ic{font-size:36px!important}
+#home .sfhub.slim{min-height:58px!important}
+#home .sfhub.slim b{font-size:22px!important}
+nav.streak{overflow:hidden}
+nav.streak #navBtns{height:100%}
+nav.streak button.sfnavstreak{border-radius:25px}
+.sfpday b em.sfpnow{display:block;font-style:normal;font-size:10px;letter-spacing:.14em;color:var(--mode);margin-top:2px}

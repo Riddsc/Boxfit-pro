@@ -122,7 +122,7 @@ async function syncRem(ask){
   try {
     if (ask){ const p = await LN.requestPermissions(); if (p && p.display && p.display !== 'granted'){ toast('Activa las notificaciones de la app en los ajustes del teléfono'); return false; } }
     await LN.cancel({ notifications: IDS.map(id => ({ id })) }).catch(() => {});
-    const list = [], mk = (id, title, body, hour, minute) => list.push({ id, title, body, schedule: { on: { hour, minute }, allowWhileIdle: true } });
+    const list = [], mk = (id, title, body, hour, minute) => list.push({ id, title: TT(title), body: TT(body), schedule: { on: { hour, minute }, allowWhileIdle: true } });
     const s = SF.streaks();
     if (r.train) mk(9101, s.day >= 2 ? `🔥 Tu racha de ${s.day} días te espera` : '🥊 Hora de entrenar', s.day >= 2 ? 'Entrena hoy para no perderla. Un entreno corto también cuenta.' : 'Abre Satronho BoxFit y dale al timer o a tu rutina.', r.trainH, r.trainM);
     if (r.food) mk(9102, '🍽️ ¿Ya anotaste tu comida?', 'Anota lo de hoy para saber cómo vas con tus calorías.', 20, 30);
