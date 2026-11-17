@@ -1,8 +1,8 @@
-name: Generar APK de Boxfit Pro
+name: Generar APK de Satronho BoxFit
 
 on:
   push:
-    branches: [ "main", "master" ]
+    branches: [ "main", "master", "satronho-*" ]
   workflow_dispatch:
 
 jobs:
@@ -27,23 +27,26 @@ jobs:
       run: |
         mkdir -p www/fonts
         cp index.html www/
+        cp -r js css www/
         npm init -y
-        npm install @capacitor/core @capacitor/cli @capacitor/android @capacitor/app @capacitor/haptics @capacitor/filesystem @capacitor/share @fontsource/bebas-neue @fontsource/barlow-condensed
+        npm install @capacitor/core @capacitor/cli @capacitor/android @capacitor/app @capacitor/haptics @capacitor/filesystem @capacitor/share @capacitor/local-notifications @fontsource/bebas-neue @fontsource/barlow-condensed
         # Fuentes dentro del APK (la app funciona sin internet)
         cp node_modules/@fontsource/bebas-neue/files/bebas-neue-latin-400-normal.woff2 www/fonts/
         for w in 400 600 700; do cp node_modules/@fontsource/barlow-condensed/files/barlow-condensed-latin-$w-normal.woff2 www/fonts/; done
         ls -la www/fonts
-        npx cap init "Boxfit Pro" "com.riddsc.boxfitpro" --web-dir www
+        npx cap init "Satronho BoxFit" "com.riddsc.boxfitpro" --web-dir www
         npx cap add android
-        # Código nativo propio: pantalla encendida durante el timer
+        # Código nativo propio: pantalla encendida durante el timer y contador de pasos
         JAVA_DIR=android/app/src/main/java/com/riddsc/boxfitpro
-        cp native/MainActivity.java native/KeepAwakePlugin.java $JAVA_DIR/
+        cp native/MainActivity.java native/KeepAwakePlugin.java native/StepsPlugin.java $JAVA_DIR/
+        # Permisos (pasos, recordatorios) y el enlace satronhoboxfit:// para el cruce con Satronho Somnia
+        python3 scripts/patch-manifest.py android/app/src/main/AndroidManifest.xml
         npx cap sync android
-        # Versión 3.2
-        sed -i 's/versionCode 1$/versionCode 32/; s/versionName "1.0"/versionName "3.2"/' android/app/build.gradle
+        # Versión 4.0 (mismo paquete: se instala encima de Boxfit Pro sin perder los datos)
+        sed -i 's/versionCode 1$/versionCode 40/; s/versionName "1.0"/versionName "4.0"/' android/app/build.gradle
         grep -n "version" android/app/build.gradle
 
-    - name: 5. Ícono nuevo (guante + anillo de timer, ícono adaptativo)
+    - name: 5. Ícono Satronho (planeta BoxFit con los guías en órbita, ícono adaptativo)
       run: |
         mkdir -p assets
         cp icon/icon.png assets/icon-only.png
@@ -52,7 +55,7 @@ jobs:
         cp icon/splash.png assets/splash.png
         cp icon/splash-dark.png assets/splash-dark.png
         npm install -D @capacitor/assets
-        npx @capacitor/assets generate --android --iconBackgroundColor '#120608' --iconBackgroundColorDark '#120608' --splashBackgroundColor '#09090c' --splashBackgroundColorDark '#09090c'
+        npx @capacitor/assets generate --android --iconBackgroundColor '#0f0d17' --iconBackgroundColorDark '#0f0d17' --splashBackgroundColor '#120d14' --splashBackgroundColorDark '#120d14'
         ls android/app/src/main/res/mipmap-xxxhdpi/
 
     - name: 6. Parchear conflicto de Kotlin (Duplicados)
@@ -95,12 +98,12 @@ jobs:
 
     - name: 8. Renombrar el archivo APK y mostrar su firma
       run: |
-        mv android/app/build/outputs/apk/debug/app-debug.apk android/app/build/outputs/apk/debug/BoxfitPro.apk
-        FP=$(keytool -printcert -jarfile android/app/build/outputs/apk/debug/BoxfitPro.apk | grep "SHA256:" | head -1)
+        mv android/app/build/outputs/apk/debug/app-debug.apk android/app/build/outputs/apk/debug/Satronho-BoxFit.apk
+        FP=$(keytool -printcert -jarfile android/app/build/outputs/apk/debug/Satronho-BoxFit.apk | grep "SHA256:" | head -1)
         echo "::notice title=Firma del APK::$FP"
 
     - name: 9. Subir el APK listo
       uses: actions/upload-artifact@v4
       with:
-        name: BoxfitPro-Instalador
-        path: android/app/build/outputs/apk/debug/BoxfitPro.apk
+        name: Satronho-BoxFit-Instalador
+        path: android/app/build/outputs/apk/debug/Satronho-BoxFit.apk
