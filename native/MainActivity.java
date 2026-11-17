@@ -10,6 +10,8 @@ public class MainActivity extends BridgeActivity {
         registerPlugin(KeepAwakePlugin.class);
         // Contador de pasos del teléfono (Satronho BoxFit 4)
         registerPlugin(StepsPlugin.class);
+        // Widget de la pantalla de inicio del teléfono
+        registerPlugin(WidgetPlugin.class);
         super.onCreate(savedInstanceState);
     }
 }

@@ -6,19 +6,21 @@
 (function(){
 const { nf, hm } = SF;
 const PLAY = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13a1 1 0 0 0 1.5.9l10.2-6.5a1 1 0 0 0 0-1.7L9.5 4.6A1 1 0 0 0 8 5.5z"/></svg>';
-SF.view('train', 'ENTRENAR', { render: render });
+SF.view('train', 'BOXEO', { render: render, back: true });
 const tab = () => S.trainTab === 'cardio' ? 'cardio' : S.disc === 'gym' ? 'gym' : 'box';
 function setTab(t){
   S.trainTab = t; if (t !== 'cardio') S.disc = t;
   saveSettings(); hapticTap(); applyModeUI(); render();
 }
 
+const TITLES = { box: 'BOXEO', gym: 'GIMNASIO', cardio: 'CARDIO' };
 function render(){
   const body = $('#trainBody'), t = tab();
-  body.innerHTML = `<div class="seg sfdisc"><button type="button" data-tt="box" class="${t === 'box' ? 'on' : ''}">🥊 BOXEO</button><button type="button" data-tt="gym" class="${t === 'gym' ? 'on' : ''}">🏋️ GIMNASIO</button><button type="button" data-tt="cardio" class="${t === 'cardio' ? 'on' : ''}">🏃 CARDIO</button></div>
-    ${liveBannerHTML()}<div id="trainTab"></div>`;
-  body.querySelectorAll('[data-tt]').forEach(b => b.addEventListener('click', () => { if (b.dataset.tt !== t) setTab(b.dataset.tt); }));
+  document.documentElement.dataset.mode = S.disc === 'gym' ? 'gym' : 'box';
+  $('#trainTitle').textContent = TITLES[t];
+  body.innerHTML = `${liveBannerHTML()}${window.SFPlan ? SFPlan.todayStrip(t) : ''}<div id="trainTab"></div>`;
   bindLiveBanner(body);
+  if (window.SFPlan) SFPlan.bindStrip(body);
   const box = body.querySelector('#trainTab');
   if (t === 'box') renderBox(box); else if (t === 'gym') SFGym.renderHome(box); else renderCardio(box);
   box.querySelectorAll('[data-open]').forEach(b => b.addEventListener('click', () => { hapticTap(); go(b.dataset.open); }));
@@ -31,6 +33,7 @@ function renderBox(box){
   const rounds = week.reduce((a, h) => a + (h.r || 0), 0), kc = week.reduce((a, h) => a + SF.kcalOf(h), 0);
   box.innerHTML = `
     <div class="kpis sfk3"><div class="kpi" style="--kc:#f97316"><b>${week.length}</b><span>Entrenos esta semana</span></div><div class="kpi" style="--kc:#ef4444"><b>${rounds}</b><span>Rounds</span></div><div class="kpi" style="--kc:#f59e0b"><b>${nf(kc)}</b><span>kcal</span></div></div>
+    ${SFPlan.warmCard('box', 'train')}
     ${S.noSave ? `<div class="note" style="--c:#3b82f6;margin:0 0 12px">📣 <span><b>Modo clase activo:</b> el timer y las sesiones no guardan nada en tus datos.</span></div>` : ''}
     ${hsec('🛠️', 'HERRAMIENTAS', 'Timer de rounds, semáforo y ruletas', '#ef4444', `<div class="tiles three">${toolTiles()}</div>`)}
     ${hsec('🥋', 'ENTRENO GUIADO', 'Te llevo paso a paso con tiempo y campana', '#f97316', `<div class="tiles">
@@ -46,6 +49,7 @@ function renderBox(box){
       <div class="row"><div class="l"><b>Modo clase</b><small>Para prestar el celular o dar clase a todos: timer, semáforo y ruletas sin guardar nada en tus datos</small></div><button class="switch ${S.noSave ? 'on' : ''}" id="bxNoSave"></button></div>
     </div>`;
   renderProfileGrid(box.querySelector('#profileGrid'));
+  SFPlan.bindWarm(box, 'box');
   box.querySelector('#trAct').addEventListener('click', () => SFAct.openForm(todayISO(), 'box_class'));
   const paintI = () => box.querySelectorAll('#bxInt [data-i]').forEach(b => b.classList.toggle('on', +b.dataset.i === (S.boxInt || 2)));
   box.querySelectorAll('#bxInt [data-i]').forEach(b => b.addEventListener('click', () => { S.boxInt = +b.dataset.i; saveSettings(); hapticTap(); paintI(); }));
@@ -59,12 +63,14 @@ function renderCardio(box){
   const wk = SF.mondayOf(todayISO()), week = sessLog.filter(h => h.d >= wk && h.t === 'cardio');
   const st = SF.steps()[todayISO()] || 0;
   box.innerHTML = `
+    ${SFPlan.warmCard('cardio', 'train')}
     <div class="kpis sfk3"><div class="kpi" style="--kc:#06b6d4"><b>${week.length}</b><span>Actividades esta semana</span></div><div class="kpi" style="--kc:#22c55e"><b>${hm(week.reduce((a, h) => a + SF.minOf(h), 0))}</b><span>Tiempo</span></div><div class="kpi" style="--kc:#38bdf8"><b>${nf(st)}</b><span>Pasos hoy</span></div></div>
     ${hsec('⏱️', 'EMPEZAR AHORA', 'Toca una actividad y el cronómetro arranca; al terminar se guarda sola', '#06b6d4',
       `<div class="sfquick">${QUICK.map(k => { const a = SF.ACT[k]; return `<button type="button" data-live="${k}"><span>${a.ic}</span><b>${a.n}</b><small>≈${nf(SF.kcalCalc({ a:k, m:30, manual:true }))} kcal / 30 min</small></button>`; }).join('')}</div>`)}
     <button class="btn" id="cdMore" style="width:100%;margin-bottom:10px;flex:none">📝 ANOTAR LO QUE YA HICE</button>
     <button class="btn" id="cdSteps" style="width:100%;margin-bottom:14px;flex:none">👟 PASOS DE HOY</button>
-    ${SF.says('mecha', 'Las calorías salen de tu <b>peso</b>, el <b>tiempo</b> y lo duro de la actividad. Mantén tu peso al día y serán más precisas.')}`;
+    ${SFPets.says(null, 'Las calorías salen de tu <b>peso</b>, el <b>tiempo</b> y lo duro de la actividad. Mantén tu peso al día y serán más precisas.')}`;
+  SFPlan.bindWarm(box, 'cardio');
   box.querySelectorAll('[data-live]').forEach(b => b.addEventListener('click', () => startLive(b.dataset.live)));
   box.querySelector('#cdMore').addEventListener('click', () => SFAct.openForm(todayISO(), 'walk'));
   box.querySelector('#cdSteps').addEventListener('click', () => SF.openStepsForm());

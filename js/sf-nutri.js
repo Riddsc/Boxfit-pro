@@ -47,12 +47,20 @@ function dayGoal(ds){ const t = targets(), ex = nut.addEx ? SF.dayBurn(ds).activ
 
 /* ---------- Pantalla ---------- */
 let day = todayISO();
-SF.view('nutri', 'COMIDA', { render: render });
+SF.view('nutri', 'DIARIO DE COMIDA', { render: render, back: true });
+const TITLES = { diary: 'DIARIO DE COMIDA', plan: 'MI PLAN', water: 'AGUA Y AYUNO' };
 function render(){
+  const tb = SFNav.tab.nutri;
+  $('#nutriTitle').textContent = TITLES[tb];
+  if (tb === 'plan') return renderPlan();
+  if (tb === 'water') return renderWater();
+  renderDiary();
+}
+const bar = (lbl, v, goal, col) => `<div class="sfmac"><div class="top"><b>${lbl}</b><span>${nf(v)} / ${nf(goal)} g</span></div><div class="trk"><i style="width:${clamp(goal ? v / goal * 100 : 0, 0, 100)}%;background:${col}"></i></div></div>`;
+function renderDiary(){
   if (day > todayISO()) day = todayISO();
-  const body = $('#nutriBody'), t = todayISO(), tot = dayTotals(day), g = dayGoal(day), left = g.k - tot.k, w = SF.water()[day] || 0, wg = SF.waterGoal();
-  const items = log[day] || [];
-  const bar = (lbl, v, goal, col) => `<div class="sfmac"><div class="top"><b>${lbl}</b><span>${nf(v)} / ${nf(goal)} g</span></div><div class="trk"><i style="width:${clamp(goal ? v / goal * 100 : 0, 0, 100)}%;background:${col}"></i></div></div>`;
+  const body = $('#nutriBody'), t = todayISO(), tot = dayTotals(day), g = dayGoal(day), left = g.k - tot.k;
+  const items = log[day] || [], b = SF.dayBurn(day), spent = b.rest + b.active, bal = tot.k - spent;
   body.innerHTML = `
     <div class="calhead"><button class="iconbtn" id="nuPrev" aria-label="Día anterior">${SF.BACK_SVG}</button>
       <button class="calmonth" id="nuToday"><b style="font-size:22px">${day === t ? 'HOY' : day === addDays(t, -1) ? 'AYER' : niceDate(day).toUpperCase()}</b><small>${day === t ? niceDate(day) : 'Toca para volver a hoy'}</small></button>
@@ -61,33 +69,73 @@ function render(){
       <div class="ringbox">${SF.ring(g.k ? tot.k / g.k : 0, left < 0 ? '#ef4444' : K_COL, 132, 13, `<b>${nf(Math.abs(left))}</b><small>${left < 0 ? 'kcal de más' : 'kcal quedan'}</small>`)}</div>
       <div class="eq"><div><b>${nf(g.base)}</b><small>Meta</small></div><i>+</i><div><b>${nf(g.ex)}</b><small>Ejercicio</small></div><i>−</i><div><b>${nf(tot.k)}</b><small>Comido</small></div></div>
       ${bar('Proteína', tot.p, g.t.p, P_COL)}${bar('Carbohidratos', tot.c, g.t.c, C_COL)}${bar('Grasa', tot.f, g.t.f, F_COL)}
-      <button class="linkbtn" id="nuPlan" style="width:100%;text-align:center">${nut.manual ? 'Metas puestas a mano' : ({ lose: 'Plan: bajar ' + n1(nut.rate) + ' kg por semana', gain: 'Plan: subir ' + n1(nut.rate) + ' kg por semana', keep: 'Plan: mantener mi peso' })[nut.goal]} · ${DIETS[nut.diet][0]} · cambiar</button>
     </div>
-    <div class="sect sfwater"><div class="row" style="border:0"><span class="pic" style="--c:#38bdf8">💧</span><div class="l"><b>${n1(w / 1000)} de ${n1(wg / 1000)} litros</b><small>${w >= wg ? '¡Meta de agua cumplida!' : 'Faltan ' + nf(wg - w) + ' ml'}</small></div>
-        <button class="smallbtn" data-w="-250">−</button><button class="smallbtn go" data-w="250">+ VASO</button><button class="smallbtn" data-w="500">+½ L</button></div>
-      <div class="trk"><i style="width:${clamp(w / wg * 100, 0, 100)}%"></i></div></div>
+    <div class="sect sfbal"><h4>ENERGÍA DEL DÍA</h4>
+      <div class="eq"><div><b>${nf(tot.k)}</b><small>🍽️ Comido</small></div><i>−</i><div><b>${nf(spent)}</b><small>⚡ Gastado</small></div><i>=</i><div class="${bal > 0 ? 'pos' : 'neg'}"><b>${bal > 0 ? '+' : '−'}${nf(Math.abs(bal))}</b><small>Balance</small></div></div>
+      <div class="split"><span><i style="background:#71717a"></i>En reposo ${nf(b.rest)}</span><span><i style="background:#ff5a36"></i>Entrenos ${nf(b.train)}</span><span><i style="background:#38bdf8"></i>Pasos ${nf(SF.stepKcal(b.steps))}</span></div></div>
     ${MEALS.map(([k, name, ic]) => { const li = items.filter(x => x.m === k), s = sum(li);
       return `<div class="sect sfmeal"><div class="mh"><span class="ic">${ic}</span><span class="l"><b>${name.toUpperCase()}</b><small>${li.length ? nf(s.k) + ' kcal · P ' + nf(s.p) + ' · C ' + nf(s.c) + ' · G ' + nf(s.f) : 'Nada todavía'}</small></span>
         ${li.length ? `<button class="xbtn" data-mm="${k}" aria-label="Opciones">⋯</button>` : ''}<button class="smallbtn go" data-add="${k}">+ AGREGAR</button></div>
         ${li.map(x => `<button class="fi" data-fi="${x.id}"><span class="l"><b>${esc(x.n)}</b><small>${x.g ? nf(x.g) + ' g' : 'Rápido'}${x.p || x.c || x.f ? ' · P ' + n1(x.p) + ' · C ' + n1(x.c) + ' · G ' + n1(x.f) : ''}</small></span><em>${nf(x.k)}</em></button>`).join('')}</div>`; }).join('')}
-    <div class="tiles">
-      <button class="tile" style="--c:#22c55e;--i:1" id="nuMenu"><span>🥗</span><b>MENÚ SUGERIDO</b><small>Un día ajustado a tu meta</small></button>
-      <button class="tile" style="--c:#f59e0b;--i:2" id="nuCopy"><span>📋</span><b>COPIAR AYER</b><small>Repite lo de ${day === t ? 'ayer' : 'el día anterior'}</small></button>
-      <button class="tile" style="--c:#8b5cf6;--i:3" id="nuFast"><span>⏳</span><b>AYUNO</b><small id="nuFastTxt">${fast ? 'En curso' : 'Cronómetro de ayuno'}</small></button>
-      <button class="tile" style="--c:#06b6d4;--i:4" id="nuWeek"><span>📊</span><b>MI SEMANA</b><small>Promedios y tendencia</small></button></div>
-    ${items.length ? '' : SF.says('nono', 'Soy <b>Ñoño</b>. Anota lo que comes con <b>+ Agregar</b>: busca el alimento, dime cuánto y yo sumo calorías, proteína, carbohidratos y grasa. Hay comida de acá: arepa, bandeja, tinto, aguapanela…')}`;
+    <button class="btn" id="nuCopy" style="width:100%;flex:none;margin-bottom:14px">📋 COPIAR LAS COMIDAS DE ${day === t ? 'AYER' : 'EL DÍA ANTERIOR'}</button>
+    ${items.length ? '' : SFPets.says('nono', 'Anota lo que comes con <b>+ Agregar</b>: busca el alimento, dime cuánto y yo sumo calorías, proteína, carbohidratos y grasa. Hay comida de acá: arepa, bandeja, tinto, aguapanela…')}`;
   body.querySelector('#nuPrev').addEventListener('click', () => { day = addDays(day, -1); hapticTap(); render(); });
   body.querySelector('#nuNext').addEventListener('click', () => { if (day < t){ day = addDays(day, 1); hapticTap(); render(); } });
   body.querySelector('#nuToday').addEventListener('click', () => { day = t; render(); });
-  body.querySelector('#nuPlan').addEventListener('click', openPlan);
-  body.querySelectorAll('[data-w]').forEach(b => b.addEventListener('click', () => { SF.addWater(+b.dataset.w, day); keepY(render); }));
-  body.querySelectorAll('[data-add]').forEach(b => b.addEventListener('click', () => openAdd(b.dataset.add)));
-  body.querySelectorAll('[data-fi]').forEach(b => b.addEventListener('click', () => openEntry(b.dataset.fi)));
-  body.querySelectorAll('[data-mm]').forEach(b => b.addEventListener('click', () => openMealMenu(b.dataset.mm)));
-  body.querySelector('#nuMenu').addEventListener('click', openMenus);
+  body.querySelectorAll('[data-add]').forEach(x => x.addEventListener('click', () => openAdd(x.dataset.add)));
+  body.querySelectorAll('[data-fi]').forEach(x => x.addEventListener('click', () => openEntry(x.dataset.fi)));
+  body.querySelectorAll('[data-mm]').forEach(x => x.addEventListener('click', () => openMealMenu(x.dataset.mm)));
   body.querySelector('#nuCopy').addEventListener('click', copyPrev);
-  body.querySelector('#nuFast').addEventListener('click', openFast);
-  body.querySelector('#nuWeek').addEventListener('click', openWeek);
+}
+function renderPlan(){
+  const body = $('#nutriBody'), t = targets(), gm = window.SFPlan ? SFPlan.goalCardHTML() : '';
+  const tday = todayISO(), days = []; for (let i = 6; i >= 0; i--) days.push(addDays(tday, -i));
+  const data = days.map(d => ({ l: WD[parseISO(d).getDay()], v: dayTotals(d).k, hi: d === tday }));
+  const logged = days.filter(d => dayTotals(d).k > 0), avg = k => logged.length ? logged.reduce((a, d) => a + dayTotals(d)[k], 0) / logged.length : 0;
+  const bal = logged.reduce((a, d) => a + dayTotals(d).k - (t.maint + SF.dayBurn(d).active), 0);
+  body.innerHTML = `
+    <div class="sect"><h4>MI META DE CADA DÍA</h4>
+      <div class="sfmacs"><div style="--c:${K_COL}"><b>${nf(t.k)}</b><small>kcal</small></div><div style="--c:${P_COL}"><b>${nf(t.p)}</b><small>g proteína</small></div><div style="--c:${C_COL}"><b>${nf(t.c)}</b><small>g carbos</small></div><div style="--c:${F_COL}"><b>${nf(t.f)}</b><small>g grasa</small></div></div>
+      <p class="hint">${nut.manual ? 'Metas puestas a mano.' : ({ lose: 'Bajar ' + n1(nut.rate) + ' kg por semana', gain: 'Subir ' + n1(nut.rate) + ' kg por semana', keep: 'Mantener mi peso' })[nut.goal] + ' · ' + DIETS[nut.diet][0]}. En un día normal gastas ≈${nf(t.maint)} kcal.${nut.addEx ? ' Lo que quemas entrenando se suma a tu meta.' : ''}</p>
+      <button class="btn pri" id="npPlan" style="width:100%;flex:none;margin-bottom:12px;--bc:${K_COL}">🎯 CAMBIAR MI PLAN</button></div>
+    ${gm}
+    <div class="tiles">
+      <button class="tile" style="--c:#22c55e;--i:1" id="npMenu"><span>🥗</span><b>MENÚ SUGERIDO</b><small>Un día ajustado a tu meta</small></button>
+      <button class="tile" style="--c:#8b5cf6;--i:2" id="npDish"><span>🍲</span><b>MIS PLATOS</b><small>${dishes.length} guardado${dishes.length === 1 ? '' : 's'}</small></button></div>
+    <div class="sect"><h4>MI SEMANA</h4>${SF.bars(data, K_COL, t.k, '')}
+      <div class="sfmacs"><div style="--c:${K_COL}"><b>${nf(avg('k'))}</b><small>kcal promedio</small></div><div style="--c:${P_COL}"><b>${nf(avg('p'))}</b><small>g proteína</small></div><div style="--c:${C_COL}"><b>${nf(avg('c'))}</b><small>g carbos</small></div><div style="--c:${F_COL}"><b>${nf(avg('f'))}</b><small>g grasa</small></div></div>
+      <p class="hint">${logged.length >= 3 ? `En los ${logged.length} días anotados tu balance fue de <b>${bal > 0 ? '+' : '−'}${nf(Math.abs(bal))} kcal</b>: eso equivale a ${bal > 0 ? 'subir' : 'bajar'} unos <b>${n1(Math.abs(bal) / 7700)} kg</b>.` : 'Anota al menos 3 días para ver tu balance de la semana.'}</p></div>
+    ${SFPets.says(null, 'Esto es una guía para llevar la cuenta, no una dieta médica. Si tienes una condición de salud, consulta con un nutricionista.')}`;
+  body.querySelector('#npPlan').addEventListener('click', openPlan);
+  body.querySelector('#npMenu').addEventListener('click', openMenus);
+  body.querySelector('#npDish').addEventListener('click', openDishes);
+  if (window.SFPlan) SFPlan.bindGoalCard(body);
+}
+function openDishes(){
+  openForm(`<h3 class="ftitle">🍲 MIS PLATOS</h3><p class="hint">Guarda una comida completa como plato con el botón ⋯ de cada comida en el Diario. Aquí los agregas con un toque.</p>
+    ${dishes.map(d => `<div class="row"><span class="l"><b>${esc(d.n)}</b><small>${d.items.length} alimentos · ${nf(sum(d.items).k)} kcal</small></span><button class="smallbtn go" data-da="${d.id}">+ HOY</button><button class="xbtn" data-dd="${d.id}">×</button></div>`).join('') || '<p class="empty">Todavía no tienes platos guardados.</p>'}
+    <button class="btn pri" id="dsOk" style="width:100%;margin-top:12px;--bc:var(--mode)">CERRAR</button>`, sh => {
+    sh.querySelector('#dsOk').addEventListener('click', closeForm);
+    sh.querySelectorAll('[data-da]').forEach(b => b.addEventListener('click', () => { const d = dishes.find(x => x.id === b.dataset.da); addEntries(d.items.map(x => Object.assign({}, x, { id: uid(), m: mealNow() })), todayISO()); hapticTap(); toast(`${d.n} agregado a hoy`); }));
+    sh.querySelectorAll('[data-dd]').forEach(b => b.addEventListener('click', () => { dishes = dishes.filter(d => d.id !== b.dataset.dd); save('sf_dishes', dishes); b.closest('.row').remove(); }));
+  });
+}
+function renderWater(){
+  const body = $('#nutriBody'), t = todayISO(), w = SF.water()[t] || 0, wg = SF.waterGoal(), glasses = Math.ceil(wg / 250), done = Math.floor(w / 250);
+  const days = []; for (let i = 6; i >= 0; i--){ const d = addDays(t, -i); days.push({ l: WD[parseISO(d).getDay()], v: SF.water()[d] || 0, hi: d === t }); }
+  const fi = fastInfo();
+  body.innerHTML = `
+    <div class="sect sfwaterbig"><h4>AGUA DE HOY</h4>
+      <div class="ringbox">${SF.ring(w / wg, '#38bdf8', 150, 14, `<b>${n1(w / 1000)}</b><small>de ${n1(wg / 1000)} litros</small>`)}</div>
+      <div class="glasses">${Array.from({ length: Math.min(glasses, 16) }, (_, i) => `<i class="${i < done ? 'on' : ''}">🥛</i>`).join('')}</div>
+      <div class="btnrow"><button class="btn" data-w="-250">− VASO</button><button class="btn pri" data-w="250" style="--bc:#38bdf8">+ VASO</button><button class="btn" data-w="500">+ ½ L</button></div>
+      <p class="hint">${w >= wg ? '¡Meta de agua cumplida! 💧' : 'Faltan ' + nf(wg - w) + ' ml. '}${SF.G.water ? '' : 'Tu meta sale de tu peso (35 ml por kilo); en días de entreno toma un poco más.'}</p></div>
+    <div class="sect"><h4>AGUA · 7 DÍAS (ml)</h4>${SF.bars(days, '#38bdf8', wg, '')}</div>
+    <div class="sect"><h4>AYUNO</h4>
+      ${fi ? `<div class="sffast">${SF.ring(fi.el / fi.hours, '#8b5cf6', 150, 14, `<b>${Math.floor(fi.el)}:${pad2(Math.floor(fi.el % 1 * 60))}</b><small>de ${fi.hours} h</small>`)}</div>` : '<p class="hint">Ventana sin comer. La más usada es 16 horas de ayuno y 8 para comer. Es opcional.</p>'}
+      <button class="btn ${fi ? '' : 'pri'}" id="nwFast" style="width:100%;flex:none;margin-bottom:12px;--bc:#8b5cf6">${fi ? 'VER O TERMINAR EL AYUNO' : '⏳ EMPEZAR UN AYUNO'}</button></div>`;
+  body.querySelectorAll('[data-w]').forEach(b => b.addEventListener('click', () => { SF.addWater(+b.dataset.w, t); keepY(render); }));
+  body.querySelector('#nwFast').addEventListener('click', openFast);
 }
 const keepY = fn => { const v = $('#nutri'), y = v.scrollTop; fn(); v.scrollTop = y; };
 function addEntries(list, ds){ ds = ds || day; log[ds] = (log[ds] || []).concat(list); saveLog(); SF.checkMedals(); }
@@ -338,6 +386,6 @@ Object.assign(GUIDE, {
     `<p class="tip">Guarda tus comidas de siempre como <b>plato</b> (botón ⋯) y agrégalas con un toque.</p>`] }),
 });
 
-window.SFNutri = { dayTotals, targets, dayGoal, openPlan, openAdd: m => { day = todayISO(); openAdd(m || mealNow()); }, fastInfo, openFast, MEALS, nut: () => nut, setDay: d => day = d };
+window.SFNutri = { setPlan: (g, r) => { nut.goal = g; nut.rate = r; nut.manual = false; saveNut(); }, dayTotals, targets, dayGoal, openPlan, openAdd: m => { day = todayISO(); openAdd(m || mealNow()); }, fastInfo, openFast, MEALS, nut: () => nut, setDay: d => day = d };
 function mealNow(){ const h = new Date().getHours(); return h < 10 ? 'des' : h < 12 ? 'mm' : h < 15 ? 'alm' : h < 18 ? 'alg' : 'cen'; }
 })();

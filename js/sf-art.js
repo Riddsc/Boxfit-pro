@@ -227,7 +227,7 @@ function mechaBust(label = 'MechaRidds') {
   </svg>`;
 }
 
-return { mechaHead, mechaBust };
+return { mechaHead, mechaBust, head, SKIN, METAL, METAL_D, GLOW };
 })();
 
 const GUIDES = {
@@ -301,7 +301,7 @@ function planetScene(opt){
 const orbit = size => `<svg class="sforbit" width="${size || 200}" height="${size || 200}" viewBox="0 0 512 512" role="img" aria-label="Samy, Troya, Ñoño, Juana y MechaRidds en órbita">${planetScene()}</svg>`;
 const appIcon = size => `<svg xmlns="http://www.w3.org/2000/svg" width="${size || 512}" height="${size || 512}" viewBox="0 0 512 512">${planetScene({ frame:true })}</svg>`;
 
-const API = { GUIDES, badge, headSVG, ringed, planetScene, orbit, appIcon, mechaBust: MECHA_API.mechaBust };
+const API = { GUIDES, badge, headSVG, ringed, planetScene, orbit, appIcon, mechaBust: MECHA_API.mechaBust, mechaHeadRaw: MECHA_API.head, MECHA: MECHA_API };
 root.SFArt = API;
 if (typeof module !== 'undefined' && module.exports) module.exports = API;
 })(typeof window !== 'undefined' ? window : globalThis);

@@ -7,6 +7,7 @@
 <meta name="application-name" content="Satronho BoxFit">
 <meta name="theme-color" content="#09090c">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%2318181b'/><text x='50' y='72' font-size='65' text-anchor='middle'>🥊</text></svg>">
+<script src="js/sf-art.js"></script>
 <script>try{var st=JSON.parse(localStorage.getItem('bfp2_settings')||'{}'),t=st.theme||'dark';if(t==='auto')t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.dataset.theme=t;document.documentElement.dataset.mode=st.disc==='gym'?'gym':'box';}catch(e){}</script>
 <style>
 :root{--hl1:#ffffff0a;--hl2:#ffffff12;--hl3:#ffffff1c;--hl4:#ffffff26;--navbg:rgba(21,21,27,.82);--stripe:#fff;--scheme:dark;--off:#3f3f46}
@@ -841,7 +842,7 @@ h4.mini{font-size:12px;letter-spacing:.14em;color:var(--dim);font-weight:700;mar
     <div class="row"><div class="l"><b>Estadísticas</b><small id="statsLine">—</small></div><button class="smallbtn danger" id="resetStats">BORRAR</button></div>
     <div class="row"><div class="l"><b>Entrenamientos originales</b><small>Recupera los perfiles de fábrica</small></div><button class="smallbtn danger" id="resetProfiles">RESTAURAR</button></div>
   </div>
-  <p class="foot" id="sfFoot">Satronho BoxFit · versión 4.0</p>
+  <p class="foot" id="sfFoot">Satronho BoxFit · versión 4.1</p>
 </section>
 
 <!-- ================= EDITOR ================= -->
@@ -979,7 +980,7 @@ const DEFAULT_PROFILES = [
   { id:'tabata',  name:'Tabata',        icon:'⚡', color:'#22c55e', work:20,  rest:10,  rounds:8,  prep:10, warn:5  },
   { id:'saco',    name:'Saco y Sombra', icon:'💥', color:'#ec4899', work:120, rest:30,  rounds:6,  prep:10, warn:15 },
 ];
-const DEFAULT_SETTINGS = { sound:true, volume:80, countdown:true, warnSound:true, vibrate:true, askAtStart:true, autoTraffic:false, keepAwake:true, flash:true, mode:'personal', theme:'dark', loud:false, guide:true, guideTips:true, guideTimer:true, guideName:'Tito', seen:{} };
+const DEFAULT_SETTINGS = { sound:true, volume:80, countdown:true, warnSound:true, vibrate:true, askAtStart:true, autoTraffic:false, keepAwake:true, flash:true, mode:'personal', theme:'dark', loud:false, guide:true, guideTips:true, guideTimer:true, guideName:'', seen:{} };
 
 let profiles = load('profiles', null) || JSON.parse(JSON.stringify(DEFAULT_PROFILES));
 let S = Object.assign({}, DEFAULT_SETTINGS, load('settings', {}));
@@ -1286,10 +1287,7 @@ function go(view, backAnim=false){
   el.classList.add('active');
   current = view;
   $('#nav').classList.toggle('hide', NAV_HIDE.includes(view));
-  const idx = NAV_ORDER.indexOf(NAV_PARENT[view] || view);
-  $$('#nav button').forEach((b,i) => b.classList.toggle('on', i === idx));
-  $('#navInd').style.opacity = idx >= 0 ? '1' : '0';
-  if (idx >= 0) positionNavInd(idx);
+  renderNav();
   if (view === 'home') renderHome();
   if (view === 'settings') renderSettings();
   if (VIEW_RENDER[view]) VIEW_RENDER[view]();
@@ -1302,10 +1300,10 @@ function go(view, backAnim=false){
   render(true);
 }
 function positionNavInd(idx){
-  const nav = $('#nav'), ind = $('#navInd'); const w = (nav.clientWidth - 12) / 5;
+  const nav = $('#nav'), ind = $('#navInd'); const w = (nav.clientWidth - 12) / Math.max(1, $$('#navBtns button').length);
   ind.style.width = w + 'px'; ind.style.transform = `translateX(${idx*w}px)`;
 }
-window.addEventListener('resize', () => { const i = NAV_ORDER.indexOf(current); if (i>=0) positionNavInd(i); if (current==='roulette') sizeWheel(); });
+window.addEventListener('resize', () => { renderNav(); if (current==='roulette') sizeWheel(); });
 $$('[data-go]').forEach(b => b.addEventListener('click', () => { hapticTap(); go(b.dataset.go); }));
 
 let lastBack = 0;
@@ -2480,66 +2478,56 @@ function renderCalendar(){
    GUÍA BOXEADOR: PERSONAJE, ANIMACIÓN Y EXPLICACIONES
    ========================================================= */
 function boxerFace(){ return boxerSVG('talk').replace('viewBox="0 0 124 162"', 'viewBox="34 14 64 64"'); }
-/* Apariencia del guía (se cambia en Ajustes → Guía) */
+/* MechaRidds boxeador: el guía que boxea en el timer (se viste en Ajustes → Guía) */
 const LOOK_OPTS = {
-  shirt:  { t:'Camiseta',    o:[['rojo','Rojo','#e11d1d'],['azul','Azul','#2563eb'],['negro','Negro','#1f1f23'],['blanco','Blanco','#f4f4f5'],['dorado','Dorado','#eab308']] },
-  shorts: { t:'Pantaloneta', o:[['negro','Negro','#111827'],['azul','Azul','#1e40af'],['rojo','Rojo','#b91c1c'],['blanco','Blanco','#e5e7eb'],['dorado','Dorado','#ca8a04']] },
-  gloves: { t:'Guantes',     o:[['rojo','Rojos','#e11d1d'],['azul','Azules','#2563eb'],['negro','Negros','#27272a'],['blanco','Blancos','#f4f4f5'],['dorado','Dorados','#eab308']] },
-  skin:   { t:'Tono de piel', o:[['muyclara','Muy clara','#f6d7bc'],['clara','Clara','#eabf94'],['trigueña','Trigueña','#d99b68'],['morena','Morena','#a86b3c'],['oscura','Oscura','#6f4325']] },
-  hair:   { t:'Cabello',     o:[['negro','Negro','#1c1917'],['castaño','Castaño','#5b3a1e'],['rubio','Rubio','#d4a64a'],['rojizo','Rojizo','#9a3412'],['canoso','Canoso','#b4b0aa']] },
-  band:   { t:'Bandana',     o:[['rojo','Roja','#e11d1d'],['azul','Azul','#2563eb'],['negro','Negra','#1f1f23'],['blanco','Blanca','#f4f4f5'],['dorado','Dorada','#eab308'],['no','Sin bandana','']] },
+  shirt:  { t:'Camiseta',    o:[['negro','Negra','#1d1b24'],['rojo','Roja','#e11d1d'],['azul','Azul','#2563eb'],['blanco','Blanca','#f4f4f5'],['morado','Morada','#8b5cf6'],['dorado','Dorada','#eab308']] },
+  shorts: { t:'Pantaloneta', o:[['morado','Morada','#6d28d9'],['negro','Negra','#111827'],['azul','Azul','#1e40af'],['rojo','Roja','#b91c1c'],['blanco','Blanca','#e5e7eb'],['dorado','Dorada','#ca8a04']] },
+  gloves: { t:'Guantes',     o:[['verde','Verdes','#74d14c'],['rojo','Rojos','#e11d1d'],['azul','Azules','#2563eb'],['negro','Negros','#27272a'],['blanco','Blancos','#f4f4f5'],['dorado','Dorados','#eab308']] },
 };
-const LOOK_DEFAULT = { shirt:'rojo', shorts:'negro', gloves:'rojo', skin:'trigueña', hair:'negro', band:'rojo' };
-const lookOf = () => Object.assign({}, LOOK_DEFAULT, S.look || {});
+const LOOK_DEFAULT = { shirt:'negro', shorts:'morado', gloves:'verde' };
+const lookOf = () => { const l = Object.assign({}, LOOK_DEFAULT, S.look || {}); Object.keys(LOOK_OPTS).forEach(k => { if (!LOOK_OPTS[k].o.some(o => o[0] === l[k])) l[k] = LOOK_DEFAULT[k]; }); return l; };
 const lookColor = (part, key) => { const o = LOOK_OPTS[part].o.find(x => x[0] === key) || LOOK_OPTS[part].o[0]; return o[2]; };
 const shade2 = (hex, amt) => { if (!hex) return hex; let c = parseInt(hex.slice(1), 16); let r = (c >> 16) + amt, g = ((c >> 8) & 255) + amt, b = (c & 255) + amt; const f = v => Math.max(0, Math.min(255, v)).toString(16).padStart(2, '0'); return '#' + f(r) + f(g) + f(b); };
 const isLight = hex => { const c = parseInt(hex.slice(1), 16); return ((c >> 16)*299 + ((c >> 8) & 255)*587 + (c & 255)*114)/1000 > 170; };
+function boxerFace(){ return SFArt.MECHA.mechaHead('MechaRidds'); }
 function boxerSVG(cls, lk){
   lk = lk || lookOf();
-  const skin = lookColor('skin', lk.skin), skin2 = shade2(skin, -22);
+  const M = SFArt.MECHA, skin = M.SKIN, skin2 = shade2(skin, -22), metal = M.METAL, metal2 = M.METAL_D, glow = M.GLOW;
   const shirt = lookColor('shirt', lk.shirt), shorts = lookColor('shorts', lk.shorts), glove = lookColor('gloves', lk.gloves), glove2 = shade2(glove, -34);
-  const hair = lookColor('hair', lk.hair), band = lookColor('band', lk.band);
-  const trim = isLight(shirt) ? '#a1a1aa' : '#fff', boxTxt = isLight(shirt) ? '#1f1f23' : '#fff', cuff = isLight(glove) ? '#a1a1aa' : '#fff', stripe = isLight(shorts) ? '#1f1f23' : (shorts === '#111827' || shorts === '#1e40af' ? glove : '#fff');
-  const red = shirt;
+  const trim = isLight(shirt) ? '#a1a1aa' : glow, boxTxt = isLight(shirt) ? '#1f1f23' : '#fff', cuff = isLight(glove) ? '#a1a1aa' : '#fff', stripe = isLight(shorts) ? '#1f1f23' : glow;
   return `<svg class="boxer ${cls || ''}" viewBox="0 0 124 162" aria-hidden="true">
   <ellipse class="bx-shadow" cx="60" cy="156" rx="30" ry="4.5" fill="#000" opacity=".35"/>
   <g class="bx-body">
-    <path d="M50 112 L43 144" stroke="${skin2}" stroke-width="10" stroke-linecap="round"/>
+    <path d="M50 112 L43 144" stroke="${metal2}" stroke-width="10" stroke-linecap="round"/>
     <path d="M70 112 L77 144" stroke="${skin}" stroke-width="10" stroke-linecap="round"/>
+    <circle cx="46.5" cy="128" r="3" fill="${glow}"/>
     <rect x="37" y="139" width="13" height="8" rx="2" fill="#fff"/><rect x="71" y="139" width="13" height="8" rx="2" fill="#fff"/>
     <path d="M33 147 h18 a3 3 0 0 1 3 3 v4 h-23 v-3 a4 4 0 0 1 2-4z" fill="#18181b"/>
     <path d="M69 147 h15 a7 7 0 0 1 7 7 h-24 v-5 a2 2 0 0 1 2-2z" fill="#18181b"/>
     <path d="M42 96 H80 L84 121 H64 L61 112 L58 121 H38 Z" fill="${shorts}"/>
     <rect x="41" y="93" width="40" height="7" rx="3" fill="${stripe}"/>
     <path d="M40 117 L43 101" stroke="${stripe}" stroke-width="2.6"/><path d="M82 117 L79 101" stroke="${stripe}" stroke-width="2.6"/>
-    <g class="bx-armB"><g transform="translate(52 76) rotate(-12.5)"><line class="bx-limb" x1="0" y1="0" x2="18.4" y2="0" stroke="${skin2}" stroke-width="9"/></g></g>
-    <path d="M47 66 Q61 60 75 66 L80 95 H42 Z" fill="${red}"/>
-    <path d="M53 63 Q61 71 69 63" fill="${skin}"/>
+    <g class="bx-armB"><g transform="translate(52 76) rotate(-12.5)"><line class="bx-limb" x1="0" y1="0" x2="18.4" y2="0" stroke="${metal2}" stroke-width="9"/></g></g>
+    <path d="M47 66 Q61 60 75 66 L80 95 H42 Z" fill="${shirt}"/>
     <path d="M47 66 Q49 74 45 80" stroke="${trim}" stroke-width="2" fill="none" opacity=".85"/><path d="M75 66 Q73 74 77 80" stroke="${trim}" stroke-width="2" fill="none" opacity=".85"/>
-    <text x="61" y="88" text-anchor="middle" font-family="Bebas Neue,Impact,sans-serif" font-size="11" fill="${boxTxt}" opacity=".9">BOX</text>
-    <circle cx="52" cy="74" r="5.5" fill="${skin2}"/>
+    <circle cx="61" cy="74" r="4.6" fill="${glow}" opacity=".25"/><circle cx="61" cy="74" r="2.8" fill="${glow}"/>
+    <text x="61" y="90" text-anchor="middle" font-family="Bebas Neue,Impact,sans-serif" font-size="10" fill="${boxTxt}" opacity=".9">BOX</text>
+    <circle cx="52" cy="74" r="5.5" fill="${metal}" stroke="${metal2}"/>
     <g class="bx-armB"><g class="bx-glove"><circle cx="70" cy="70" r="9.5" fill="${glove2}"/><path d="M63 74 q7 5 14 0" stroke="${cuff}" stroke-width="2.4" fill="none"/><ellipse cx="67" cy="66" rx="3" ry="2" fill="#fff" opacity=".3"/></g></g>
     <g class="bx-head">
-      <rect x="56" y="56" width="12" height="10" rx="4" fill="${skin2}"/>
-      <circle cx="62" cy="44" r="21" fill="${skin}"/>
-      <path d="M41 45 Q39 22 62 21 Q85 22 84 41 Q74 30 60 32 Q49 33 45 47 Z" fill="${hair}"/>
-      ${band ? `<path d="M41 40 Q62 30 84 37 L84 42 Q62 35 41 46 Z" fill="${band}"/><path d="M42 42 l-7 6 l2 2 l7 -4z" fill="${band}"/>` : ''}
-      <circle cx="45" cy="48" r="4.6" fill="${skin2}"/>
-      <ellipse cx="68" cy="45" rx="2.4" ry="3.2" fill="#1c1917"/><ellipse cx="78" cy="45" rx="2.4" ry="3.2" fill="#1c1917"/>
-      <circle cx="68.8" cy="44" r=".9" fill="#fff"/><circle cx="78.8" cy="44" r=".9" fill="#fff"/>
-      <path d="M64 39 L71 40.5" stroke="#1c1917" stroke-width="2.2" stroke-linecap="round"/><path d="M75 40.5 L82 39" stroke="#1c1917" stroke-width="2.2" stroke-linecap="round"/>
-      <path d="M82 48 q3.5 2 0 4.5" stroke="${skin2}" stroke-width="2" fill="none" stroke-linecap="round"/>
-      <circle cx="72" cy="52" r="3.4" fill="#f472b6" opacity=".28"/>
-      <path class="bx-mouth" d="M70 55.5 q5 4 10 -1" stroke="#7c2d12" stroke-width="2.2" fill="none" stroke-linecap="round"/>
-      <ellipse class="bx-mouth-o" cx="75" cy="56" rx="3.2" ry="3.6" fill="#7c2d12"/>
-      <path class="bx-sweat" d="M50 30 q-3 5 0 7 q3 -2 0 -7z" fill="#7dd3fc"/>
+      <rect x="56" y="54" width="12" height="12" rx="3" fill="${metal}" stroke="${metal2}"/>
+      <g transform="translate(31 6.8) scale(.62)">${M.head()}</g>
+      <path class="bx-sweat" d="M40 26 q-3 5 0 7 q3 -2 0 -7z" fill="#7dd3fc"/>
     </g>
     <g class="bx-armF"><g transform="translate(70 74) rotate(-29.7)"><line class="bx-limb" x1="0" y1="0" x2="16.1" y2="0" stroke="${skin}" stroke-width="9"/></g>
       <circle cx="70" cy="74" r="5.5" fill="${skin}"/>
       <g class="bx-glove"><circle cx="84" cy="66" r="10.5" fill="${glove}"/><path d="M76 71 q8 5.5 16 0" stroke="${cuff}" stroke-width="2.6" fill="none"/><ellipse cx="80" cy="61" rx="3.6" ry="2.4" fill="#fff" opacity=".35"/></g></g>
   </g></svg>`;
 }
-const gName = () => (S.guideName || 'Tito').trim() || 'Tito';
+// El acompañante fijo (botón flotante y explicaciones): MechaRidds por defecto, o el que elija la persona
+const companion = () => (window.SFArt && SFArt.GUIDES[S.companion]) ? S.companion : 'mecha';
+const gName = () => companion() === 'mecha' ? (((S.guideName && S.guideName !== 'Tito') ? S.guideName : 'MechaRidds').trim() || 'MechaRidds') : SFArt.GUIDES[companion()].name;
+const companionArt = () => companion() === 'mecha' ? boxerSVG('talk') : `<div class="gpet">${SFArt.badge(companion(), 96)}</div>`;
 const userFirst = () => me.name ? me.name.trim().split(/\s+/)[0] : '';
 const GUIDE = {
   home: () => ({ t:'tu día', b:[`<p>Aquí ves <b>cómo vas hoy</b>: calorías que quemaste, minutos activos, pasos, lo que comiste y tu racha.</p>`,
@@ -2547,7 +2535,7 @@ const GUIDE = {
       `<p class="tip">Completa tu perfil (peso, altura, edad y género) para que las calorías salgan bien.</p>`] }),
   train: d => d === 'gym' ? { t:'el gimnasio', b:[`<p>Entrena con pesas: elige una <b>rutina</b> o arma la tuya, y anota cada serie con su peso y repeticiones.</p>`,
       `<ul><li>Al marcar una serie arranca solo el <b>descanso</b>.</li><li>Te muestro lo que hiciste la vez pasada para que lo superes.</li><li>Guardo tus <b>récords</b>, el volumen y las calorías.</li></ul>`,
-      `<p class="tip">Arriba cambias entre Boxeo, Gimnasio y Cardio. Todo suma a tu día.</p>`] }
+      `<p class="tip">En la barra de abajo cambias entre Boxeo, Gimnasio y Cardio. Todo suma a tu día.</p>`] }
     : { t:'el boxeo', b:[`<p>Todo lo de boxeo en un solo lugar: <b>timer de rounds</b>, semáforo, ruletas, sesiones guiadas, calentamientos y la escuelita.</p>`,
       `<ul><li>Elige una rutina del timer y dale play.</li><li><b>Sesiones:</b> arma tu clase y te guío paso a paso.</li><li><b>Modo clase:</b> para prestar el celular o dar clase a todos sin guardar nada en tus datos.</li></ul>`,
       `<p class="tip">Cada round que terminas suma calorías y cuida tu racha.</p>`] },
@@ -2575,10 +2563,10 @@ function guideContent(view){
 function openGuide(view){
   view = view || current;
   const g = guideContent(view);
-  openForm(`<div class="gtop">${boxerSVG('talk')}<div class="speech"><small>¡QUIUBO${userFirst() ? ', ' + esc(userFirst().toUpperCase()) : ''}! ${esc(gName().toUpperCase())} TE EXPLICA</small><b>${g.t.toUpperCase()}</b></div></div>
+  openForm(`<div class="gtop">${companionArt()}<div class="speech"><small>¡QUIUBO${userFirst() ? ', ' + esc(userFirst().toUpperCase()) : ''}! ${esc(gName().toUpperCase())} TE EXPLICA</small><b>${g.t.toUpperCase()}</b></div></div>
     <div class="gbody">${g.b.join('')}</div>
     <button class="btn pri" style="width:100%;margin-top:12px;--bc:var(--mode)" id="gOk">¡LISTO, A DARLE! 👊</button>
-    <button class="linkbtn" id="gLook" style="width:100%;text-align:center">Cambiar nombre y apariencia de ${esc(gName())}</button>`, sh => { sh.querySelector('#gOk').addEventListener('click', closeForm); sh.querySelector('#gLook').addEventListener('click', () => { closeForm(); setTimeout(openLookForm, 250); }); });
+    <button class="linkbtn" id="gLook" style="width:100%;text-align:center">Cambiar de acompañante o vestir a MechaRidds</button>`, sh => { sh.querySelector('#gOk').addEventListener('click', closeForm); sh.querySelector('#gLook').addEventListener('click', () => { closeForm(); setTimeout(() => SFPets.openCompanion(), 250); }); });
   hideBubble();
 }
 let bubbleT = null;
@@ -2618,7 +2606,7 @@ function guideRefresh(){
   $('#mSlot').classList.toggle('show', !!on); $('#tMascot').classList.toggle('show', !!on);
   if (current) guideOnView(current);
 }
-function paintMascots(){ mascotState = '__'; $('#mSlot').innerHTML = boxerSVG(); $('#tMascot').innerHTML = boxerSVG(); $('#guideBtn').innerHTML = boxerFace(); const f = $('#setGuideFace'); if (f) f.innerHTML = boxerSVG('talk'); }
+function paintMascots(){ mascotState = '__'; $('#mSlot').innerHTML = boxerSVG(); $('#tMascot').innerHTML = boxerSVG(); $('#guideBtn').innerHTML = companion() === 'mecha' ? boxerFace() : SFArt.headSVG(companion()); const f = $('#setGuideFace'); if (f) f.innerHTML = companionArt(); }
 paintMascots();
 function openLookForm(){
   const lk = lookOf();
@@ -2626,16 +2614,16 @@ function openLookForm(){
     sh.querySelector('#lkPrev').innerHTML = boxerSVG('win', lk);
     sh.querySelectorAll('[data-lp]').forEach(b => b.classList.toggle('on', lk[b.dataset.lp] === b.dataset.lv));
   };
-  let nm = gName();
+  let nm = ((S.guideName && S.guideName !== 'Tito') ? S.guideName : 'MechaRidds');
   openForm(`<h3 class="ftitle">ASÍ SE VE <span id="lkTitle">${esc(nm.toUpperCase())}</span></h3>
     <div id="lkPrev" style="width:150px;margin:0 auto 4px"></div>
-    <label class="field"><span>Nombre del guía</span><input id="lkName" maxlength="16" value="${esc(nm)}" placeholder="Tito" autocomplete="off"></label>
+    <label class="field"><span>Nombre del guía</span><input id="lkName" maxlength="16" value="${esc(nm)}" placeholder="MechaRidds" autocomplete="off"></label>
     ${Object.entries(LOOK_OPTS).map(([p, def]) => `<div class="field"><span>${def.t}</span><div class="lookrow">${def.o.map(([k, l, c]) => `<button type="button" data-lp="${p}" data-lv="${k}" title="${l}" aria-label="${def.t}: ${l}" style="--s:${c || 'transparent'}" class="${c ? '' : 'none'}"><i></i><small>${l}</small></button>`).join('')}</div></div>`).join('')}
     <div class="btnrow" style="margin-top:8px"><button class="btn" id="lkReset">ORIGINAL</button><button class="btn pri" id="lkOk" style="--bc:var(--mode)">GUARDAR</button></div>`, sh => {
     sh.querySelectorAll('[data-lp]').forEach(b => b.addEventListener('click', () => { lk[b.dataset.lp] = b.dataset.lv; hapticTap(); draw(sh); }));
-    sh.querySelector('#lkName').addEventListener('input', e => { nm = e.target.value; sh.querySelector('#lkTitle').textContent = (nm.trim() || 'Tito').toUpperCase(); });
-    sh.querySelector('#lkReset').addEventListener('click', () => { Object.assign(lk, LOOK_DEFAULT); nm = 'Tito'; sh.querySelector('#lkName').value = nm; sh.querySelector('#lkTitle').textContent = 'TITO'; draw(sh); });
-    sh.querySelector('#lkOk').addEventListener('click', () => { S.look = Object.assign({}, lk); S.guideName = (nm.trim() || 'Tito').slice(0, 16); saveSettings(); const gi = $('#gName'); if (gi) gi.value = S.guideName; paintMascots(); closeForm(); toast(`¡${gName()} estrena pinta! 🥊`); });
+    sh.querySelector('#lkName').addEventListener('input', e => { nm = e.target.value; sh.querySelector('#lkTitle').textContent = (nm.trim() || 'MechaRidds').toUpperCase(); });
+    sh.querySelector('#lkReset').addEventListener('click', () => { Object.assign(lk, LOOK_DEFAULT); nm = 'MechaRidds'; sh.querySelector('#lkName').value = nm; sh.querySelector('#lkTitle').textContent = 'MECHARIDDS'; draw(sh); });
+    sh.querySelector('#lkOk').addEventListener('click', () => { S.look = Object.assign({}, lk); S.guideName = (nm.trim() || 'MechaRidds').slice(0, 16); saveSettings(); const gi = $('#gName'); if (gi) gi.value = S.guideName; paintMascots(); closeForm(); toast(`¡${gName()} estrena pinta! 🥊`); });
     draw(sh);
   });
 }
@@ -2680,11 +2668,11 @@ const toolTiles = () => `<button class="tile" style="--c:#ef4444;--i:11" data-op
    AJUSTES EXTRA: GUÍA, COPIA DE SEGURIDAD
    ========================================================= */
 function renderSettingsExtra(){
-  $('#gName').value = S.guideName || 'Tito';
-  $('#setGuideFace').innerHTML = boxerSVG('talk');
+  $('#gName').value = gName(); $('#gName').disabled = companion() !== 'mecha';
+  $('#setGuideFace').innerHTML = companionArt();
 }
-$('#gName').addEventListener('input', e => { S.guideName = e.target.value.slice(0, 16); saveSettings(); });
-$('#gLookBtn').addEventListener('click', () => openLookForm());
+$('#gName').addEventListener('input', e => { if (companion() === 'mecha'){ S.guideName = e.target.value.slice(0, 16); saveSettings(); } });
+$('#gLookBtn').addEventListener('click', () => SFPets.openCompanion());
 $('#gReset').addEventListener('click', () => { S.seen = {}; saveSettings(); toast(`${gName()} volverá a explicarte cada sección`); });
 $('#bkExport').addEventListener('click', () => {
   const data = {}; for (let i = 0; i < localStorage.length; i++){ const k = localStorage.key(i); if (k && k.startsWith('bfp2_')) data[k] = localStorage.getItem(k); }
@@ -2752,16 +2740,23 @@ render(true);
 // El arranque lo llama el último script (js/sf-boot.js), cuando ya cargaron todos los módulos
 function bootApp(){ setMode('sparring'); go(S.askAtStart ? 'home' : 'train'); requestAnimationFrame(loop); }
 </script>
-<script src="js/sf-art.js"></script>
 <script src="js/sf-data.js"></script>
 <script src="js/sf-tecnica.js"></script>
 <script src="js/sf-core.js"></script>
 <script src="js/sf-train.js"></script>
 <script src="js/sf-gym.js"></script>
 <script src="js/sf-nutri.js"></script>
+<script src="js/sf-nav.js"></script>
+<script src="js/sf-pets.js"></script>
+<script src="js/sf-plan.js"></script>
+<script src="js/sf-health.js"></script>
 <script src="js/sf-today.js"></script>
 <script src="js/sf-progress.js"></script>
 <script src="js/sf-somnia.js"></script>
+<script src="js/sf-report.js"></script>
+<script src="js/sf-widget.js"></script>
+<script src="js/sf-lang.js"></script>
+<script src="js/sf-i18n.js"></script>
 <script src="js/sf-boot.js"></script>
 </body>
 </html>

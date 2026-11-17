@@ -8,14 +8,15 @@
    ========================================================= */
 (function(){
 const { nf, n1, hm, G } = SF;
-let tab = 'sum', period = 7;
+let period = 7;
 let body = load('sf_body', []);          // medidas: [{ id, d, waist, neck, hip, chest, arm, thigh }]
-SF.view('progress', 'PROGRESO', { render: render });
+SF.view('progress', 'RESUMEN', { render: render, back: true });
 
+const TITLES = { sum: 'RESUMEN', body: 'CUERPO', med: 'MEDALLAS' };
 function render(){
-  const el = $('#progressBody');
-  el.innerHTML = `<div class="seg"><button type="button" data-pt="sum" class="${tab === 'sum' ? 'on' : ''}">RESUMEN</button><button type="button" data-pt="body" class="${tab === 'body' ? 'on' : ''}">CUERPO</button><button type="button" data-pt="med" class="${tab === 'med' ? 'on' : ''}">MEDALLAS</button></div><div id="prTab"></div>`;
-  el.querySelectorAll('[data-pt]').forEach(b => b.addEventListener('click', () => { tab = b.dataset.pt; hapticTap(); render(); }));
+  const el = $('#progressBody'), tab = SFNav.tab.progress;
+  $('#progressTitle').textContent = TITLES[tab];
+  el.innerHTML = '<div id="prTab"></div>';
   const box = el.querySelector('#prTab');
   if (tab === 'sum') renderSum(box); else if (tab === 'body') renderBody(box); else renderMedals(box);
   box.querySelectorAll('[data-open]').forEach(b => b.addEventListener('click', () => { hapticTap(); go(b.dataset.open); }));
@@ -53,7 +54,7 @@ function renderSum(box){
       <button class="tile" style="--c:#f59e0b;--i:2" id="prStreak"><span>🔥</span><b>RACHAS</b><small>${s.day} días · mejor ${s.bestDay}</small></button></div>
     <div class="sect"><h4>DESDE QUE EMPEZASTE</h4>
       <div class="sfall"><div><b>${nf(all.ses)}</b><small>entrenos</small></div><div><b>${nf(all.min / 60)}</b><small>horas</small></div><div><b>${nf(all.kcal)}</b><small>kcal</small></div><div><b>${nf(all.rounds)}</b><small>rounds</small></div></div></div>
-    ${SF.says('juana', all.ses ? `Llevas <b>${nf(all.ses)} entrenos</b> y <b>${nf(all.kcal)} kcal</b> quemadas. Eso son más o menos <b>${nf(all.kcal / 250)}</b> empanadas. ¡Siga así!` : 'Soy <b>Juana</b> y llevo tus cuentas. Cuando termines tu primer entreno, aquí verás cómo vas.')}`;
+    ${SFPets.says(null, all.ses ? `Llevas <b>${nf(all.ses)} entrenos</b> y <b>${nf(all.kcal)} kcal</b> quemadas. Eso son más o menos <b>${nf(all.kcal / 250)}</b> empanadas. ¡Siga así!` : 'Llevo tus cuentas. Cuando termines tu primer entreno, aquí verás cómo vas.')}`;
   box.querySelectorAll('[data-pp]').forEach(b => b.addEventListener('click', () => { period = +b.dataset.pp; hapticTap(); render(); }));
   box.querySelector('#prStreak').addEventListener('click', () => SFToday.openStreaks());
 }
@@ -142,7 +143,18 @@ function renderSettings(){
       <div class="row"><span class="pic" style="--c:#22c55e">🍽️</span><div class="l"><b>Plan de comida</b><small>${nf(t.k)} kcal · P ${nf(t.p)} · C ${nf(t.c)} · G ${nf(t.f)} g</small></div><button class="smallbtn" id="stPlan">CAMBIAR</button></div>
       <div class="row"><span class="pic" style="--c:#8b5cf6">⚖️</span><div class="l"><b>Peso y medidas</b><small>${lw ? 'Último: ' + fmtKg(lw.kg) + ' kg' : 'Sin registros'}</small></div><button class="smallbtn" id="stBody">VER</button></div>
     </div>
-    ${window.SFSomnia ? SFSomnia.settingsHTML() : ''}`;
+    <div class="sect"><h4>MI SEMANA Y MIS METAS</h4>
+      <div class="row"><span class="pic" style="--c:#22c55e">🗓️</span><div class="l"><b>Plan semanal</b><small>${SFPlan.todayPlan() ? 'Hoy toca: ' + esc(SFPlan.label(SFPlan.todayPlan())) : 'Sin plan: arma tu semana cuando quieras'}</small></div><button class="smallbtn" id="stWeek">${SFPlan.todayPlan() ? 'CAMBIAR' : 'ARMAR'}</button></div>
+      <div class="row"><span class="pic" style="--c:#f59e0b">🎯</span><div class="l"><b>Modo meta</b><small>${SFPlan.goalInfo() ? 'Activo' : 'Meta de peso o pesaje de pelea'}</small></div><button class="smallbtn" id="stGoal">${SFPlan.goalInfo() ? 'VER' : 'ACTIVAR'}</button></div>
+      <div class="row"><span class="pic" style="--c:#f97316">🔥</span><div class="l"><b>Calentamiento sugerido</b><small>${S.warmSug === false ? 'Apagado' : 'Se sugiere antes de entrenar; siempre lo puedes saltar'}</small></div><button class="switch ${S.warmSug !== false ? 'on' : ''}" id="stWarm"></button></div>
+    </div>
+    <div class="sect"><h4>ACOMPAÑANTE</h4>
+      <div class="row"><span class="sfcomp">${SFArt.badge(companion(), 46)}</span><div class="l"><b>${esc(gName())}</b><small>Te acompaña en todas las pantallas. MechaRidds boxeador siempre boxea en el timer.</small></div><button class="smallbtn" id="stComp">CAMBIAR</button></div></div>
+    <div class="sect"><h4>SALUD</h4>
+      <div class="row"><span class="pic" style="--c:#8b5cf6">🌙</span><div class="l"><b>Satronho Somnia</b><small>${SFSomnia.has() ? 'Sueño cruzado con tus entrenos' : 'Cruza tu sueño con tus entrenos'}</small></div><button class="smallbtn" id="stSleep">ABRIR</button></div>
+      <div class="row"><span class="pic" style="--c:#0ea5e9">⌚</span><div class="l"><b>Reloj y Health Connect</b><small>${SFHealth.hcOn() ? 'Conectado' : 'Pasos y pulso desde tu reloj u otras apps'}</small></div><button class="smallbtn" id="stHC">ABRIR</button></div></div>
+    ${window.SFWidget ? SFWidget.settingsHTML() : ''}
+    ${window.SFI18n ? SFI18n.settingsHTML() : ''}`;
   ex.innerHTML = `
     <div class="sect"><h4>RECORDATORIOS</h4>
       ${LN ? '' : '<p class="hint">Funcionan en la app instalada en el teléfono.</p>'}
@@ -150,6 +162,8 @@ function renderSettings(){
       <div class="row"><div class="l"><b>Anotar la comida</b><small>Todos los días a las 8:30 pm</small></div><button class="switch ${r.food ? 'on' : ''}" data-rem="food"></button></div>
       <div class="row"><div class="l"><b>Tomar agua</b><small>Cada dos horas, de 9 am a 7 pm</small></div><button class="switch ${r.water ? 'on' : ''}" data-rem="water"></button></div>
     </div>
+    <div class="sect"><h4>REPORTE</h4>
+      <div class="row"><span class="pic" style="--c:#ef4444">📄</span><div class="l"><b>Exportar un reporte en PDF</b><small>Entrenos, comida, peso, salud y medallas del periodo que elijas. Solo cuando tú quieras.</small></div><button class="smallbtn" id="stPdf">CREAR</button></div></div>
     <div class="sect"><h4>MEDICIÓN</h4>
       <div class="row"><div class="l"><b>Contar pasos con el teléfono</b><small>Usa el sensor del celular; los suma cada vez que abres la app</small></div><button class="switch ${S.stepSensor ? 'on' : ''}" id="stSteps"></button></div>
       <div class="row"><div class="l"><b>Unidad de las pesas</b></div><div class="seg" id="stUnit" style="margin:0;width:120px"><button type="button" data-u="kg">KG</button><button type="button" data-u="lb">LB</button></div></div>
@@ -159,18 +173,26 @@ function renderSettings(){
   top.querySelector('#stGoals').addEventListener('click', () => SF.openGoalsForm());
   top.querySelector('#stPlan').addEventListener('click', () => SFNutri.openPlan());
   top.querySelector('#stBody').addEventListener('click', () => show('body'));
-  if (window.SFSomnia) SFSomnia.bind(top);
+  top.querySelector('#stWeek').addEventListener('click', () => SFPlan.openPlanEditor());
+  top.querySelector('#stGoal').addEventListener('click', () => SFPlan.openGoal());
+  top.querySelector('#stWarm').addEventListener('click', e => { S.warmSug = S.warmSug === false; saveSettings(); e.currentTarget.classList.toggle('on', S.warmSug !== false); });
+  top.querySelector('#stComp').addEventListener('click', () => SFPets.openCompanion());
+  top.querySelector('#stSleep').addEventListener('click', () => SFNav.go('health:sleep'));
+  top.querySelector('#stHC').addEventListener('click', () => SFNav.go('health:steps'));
+  if (window.SFWidget) SFWidget.bind(top);
+  if (window.SFI18n) SFI18n.bind(top);
   ex.querySelectorAll('[data-rem]').forEach(b => b.addEventListener('click', async () => {
     const k = b.dataset.rem, r2 = REM(); r2[k] = !r2[k]; S.rem = r2; saveSettings(); b.classList.toggle('on', r2[k]); hapticTap();
     if (!LN){ if (r2[k]) toast('Los avisos llegan en la app instalada en el teléfono'); return; }
     const ok = await syncRem(r2[k]); if (r2[k] && !ok){ r2[k] = false; S.rem = r2; saveSettings(); b.classList.remove('on'); } else if (r2[k]) toast('Recordatorio activado');
   }));
+  ex.querySelector('#stPdf').addEventListener('click', () => SFReport.open());
   ex.querySelector('#rmT').addEventListener('change', e => { const [h, m] = (e.target.value || '18:00').split(':').map(Number); const r2 = REM(); r2.trainH = h; r2.trainM = m || 0; S.rem = r2; saveSettings(); syncRem(); });
   ex.querySelector('#stSteps').addEventListener('click', async e => { const b = e.currentTarget, on = !b.classList.contains('on'); b.classList.toggle('on', on); const ok = await SF.enableSteps(on); if (on && !ok) b.classList.remove('on'); });
   ex.querySelectorAll('#stUnit [data-u]').forEach(b => { b.classList.toggle('on', b.dataset.u === SFGym.unit()); b.addEventListener('click', () => { S.unit = b.dataset.u; saveSettings(); hapticTap(); ex.querySelectorAll('#stUnit [data-u]').forEach(x => x.classList.toggle('on', x === b)); }); });
   ex.querySelector('#stNoSave').addEventListener('click', e => { S.noSave = !S.noSave; saveSettings(); hapticTap(); e.currentTarget.classList.toggle('on', S.noSave); toast(S.noSave ? 'Modo clase: no se guarda nada' : 'Modo personal: todo vuelve a guardarse'); });
 }
-function show(t){ tab = t; if (current === 'progress') render(); else go('progress'); }
+function show(t){ SFNav.go('progress:' + t); }
 
 Object.assign(GUIDE, {
   progress: () => ({ t:'tu progreso', b:[`<p>Tres pestañas: <b>Resumen</b> (calorías, tiempo y entrenos por periodo), <b>Cuerpo</b> (peso, medidas y % de grasa) y <b>Medallas</b>.</p>`, `<ul><li>Cambia entre 7, 30 y 90 días.</li><li>La barra de colores muestra cuánto fue boxeo, pesas y cardio.</li><li>Desde aquí abres el <b>calendario</b> y tus <b>rachas</b>.</li></ul>`] }),

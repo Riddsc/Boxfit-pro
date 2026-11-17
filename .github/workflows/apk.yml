@@ -15,7 +15,7 @@ jobs:
     - name: 2. Configurar Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: '20'
+        node-version: '22'
 
     - name: 3. Configurar Java 21
       uses: actions/setup-java@v4
@@ -29,7 +29,8 @@ jobs:
         cp index.html www/
         cp -r js css www/
         npm init -y
-        npm install @capacitor/core @capacitor/cli @capacitor/android @capacitor/app @capacitor/haptics @capacitor/filesystem @capacitor/share @capacitor/local-notifications @fontsource/bebas-neue @fontsource/barlow-condensed
+        # Capacitor 7 (la misma versión con la que compila Satronho Somnia y su Health Connect)
+        npm install @capacitor/core@^7 @capacitor/cli@^7 @capacitor/android@^7 @capacitor/app@^7 @capacitor/haptics@^7 @capacitor/filesystem@^7 @capacitor/share@^7 @capacitor/local-notifications@^7 @capacitor/status-bar@^7 @kiwi-health/capacitor-health-connect@^0.0.43 @fontsource/bebas-neue @fontsource/barlow-condensed
         # Fuentes dentro del APK (la app funciona sin internet)
         cp node_modules/@fontsource/bebas-neue/files/bebas-neue-latin-400-normal.woff2 www/fonts/
         for w in 400 600 700; do cp node_modules/@fontsource/barlow-condensed/files/barlow-condensed-latin-$w-normal.woff2 www/fonts/; done
@@ -38,12 +39,18 @@ jobs:
         npx cap add android
         # Código nativo propio: pantalla encendida durante el timer y contador de pasos
         JAVA_DIR=android/app/src/main/java/com/riddsc/boxfitpro
-        cp native/MainActivity.java native/KeepAwakePlugin.java native/StepsPlugin.java $JAVA_DIR/
+        cp native/MainActivity.java native/KeepAwakePlugin.java native/StepsPlugin.java native/WidgetPlugin.java native/BoxFitWidget.java $JAVA_DIR/
+        # Widget de la pantalla de inicio (diseño, fondos y barras)
+        cp -r native/res/* android/app/src/main/res/
         # Permisos (pasos, recordatorios) y el enlace satronhoboxfit:// para el cruce con Satronho Somnia
         python3 scripts/patch-manifest.py android/app/src/main/AndroidManifest.xml
         npx cap sync android
-        # Versión 4.0 (mismo paquete: se instala encima de Boxfit Pro sin perder los datos)
-        sed -i 's/versionCode 1$/versionCode 40/; s/versionName "1.0"/versionName "4.0"/' android/app/build.gradle
+        # Versión 4.1 (mismo paquete: se instala encima de Boxfit Pro sin perder los datos)
+        sed -i 's/versionCode 1$/versionCode 41/; s/versionName "1.0"/versionName "4.1"/' android/app/build.gradle
+        # Health Connect pide Android 8+ y compilar con Android 16 (API 36) y el plugin de Gradle 8.9.1, como en Somnia
+        sed -i -E 's/minSdkVersion = [0-9]+/minSdkVersion = 26/; s/compileSdkVersion = [0-9]+/compileSdkVersion = 36/' android/variables.gradle
+        sed -i -E 's/com\.android\.tools\.build:gradle:[0-9.]+/com.android.tools.build:gradle:8.9.1/' android/build.gradle
+        cat android/variables.gradle
         grep -n "version" android/app/build.gradle
 
     - name: 5. Ícono Satronho (planeta BoxFit con los guías en órbita, ícono adaptativo)

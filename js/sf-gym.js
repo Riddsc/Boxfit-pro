@@ -54,7 +54,7 @@ function renderHome(box){
       <button class="tile" style="--c:#3b82f6;--i:1" data-open="gymHist"><span>🗂️</span><b>HISTORIAL</b><small>${workouts.length} rutinas hechas</small></button>
       <button class="tile" style="--c:#f59e0b;--i:2" data-open="gymLib"><span>📚</span><b>EJERCICIOS</b><small>${EXS().length} con tus récords</small></button></div>
     <div class="sect"><div class="row" style="border:0"><div class="l"><b>Unidad de peso</b><small>Para anotar las pesas del gimnasio</small></div><div class="seg" id="gyUnit" style="margin:0;width:120px"><button type="button" data-u="kg">KG</button><button type="button" data-u="lb">LB</button></div></div></div>
-    ${workouts.length ? '' : SF.says('troya', 'Soy <b>Troya</b>. Elige una rutina, anota el peso y las repeticiones de cada serie, y yo me acuerdo de todo para que la próxima vez lo superes.')}`;
+    ${workouts.length ? '' : SFPets.says(null, 'Elige una rutina, anota el peso y las repeticiones de cada serie, y yo me acuerdo de todo para que la próxima vez lo superes.')}`;
   const rs = box.querySelector('#gyResume'); if (rs) rs.addEventListener('click', () => go('gymLive'));
   box.querySelector('#gyFree').addEventListener('click', () => startWorkout(null));
   box.querySelector('#gyNew').addEventListener('click', () => { const r = { id: uid(), name: 'Mi rutina', color: '#8b5cf6', items: [] }; routines.push(r); saveR(); editing = r; go('gymRoutine'); setTimeout(() => pickExercise(addToRoutine), 350); });
@@ -170,7 +170,7 @@ function renderLive(){
   let tb = $('#gymLive .topbar #glEnd');
   if (!tb){ const b = document.createElement('button'); b.className = 'smallbtn go'; b.id = 'glEnd'; b.textContent = 'TERMINAR'; $('#gymLive .topbar').appendChild(b); b.addEventListener('click', finishWorkout);
     const m = document.createElement('button'); m.className = 'iconbtn'; m.id = 'glMin'; m.setAttribute('aria-label', 'Minimizar'); m.innerHTML = SF.BACK_SVG; $('#gymLive .topbar').prepend(m); m.addEventListener('click', () => go('train', true)); }
-  body.innerHTML = live.ex.map((x, xi) => { const e = ex(x.e), l = lastOf(x.e), b = bestOf(x.e);
+  body.innerHTML = SFPlan.warmCard('gym', 'gymLive') + live.ex.map((x, xi) => { const e = ex(x.e), l = lastOf(x.e), b = bestOf(x.e);
     return `<div class="sfex" style="--c:${M[e.m][1]}">
       <div class="hd"><span class="l"><b>${esc(e.n)}</b><small>${M[e.m][0]}${x.target ? ' · meta ' + esc(x.target) : ''}</small></span><button class="xbtn" data-xr="${xi}">×</button></div>
       ${l ? `<p class="prev">La vez pasada (${shortDate(l.w.d)}): <b>${l.x.sets.filter(s => s.done).map(s => setTxt(s, e.k, l.w.u)).join(' · ')}</b>${e.k === 'w' ? ' ' + l.w.u : ''}</p>` : '<p class="prev">Primera vez: anota lo que hagas y la próxima te lo recuerdo.</p>'}
@@ -211,6 +211,7 @@ function renderLive(){
   body.querySelector('#glCancel').addEventListener('click', async () => { if (await confirmDlg('¿Descartar el entreno?', 'No se guardará nada de esta rutina.', 'DESCARTAR')){ live = null; saveLive(); rest = null; keepAwake(false); go('train', true); } });
   body.querySelectorAll('[data-ra]').forEach(b => b.addEventListener('click', () => { if (rest){ rest.endAt += +b.dataset.ra * 1000; rest.total = Math.max(5, rest.total + +b.dataset.ra); hapticTap(); tick(); } }));
   body.querySelector('#glRestSkip').addEventListener('click', () => { rest = null; tick(); });
+  SFPlan.bindWarm(body, 'gym');
   keepAwake(true); paintElapsed(); tick();
 }
 function keepScroll(fn){ const v = $('#gymLive'), y = v.scrollTop; fn(); v.scrollTop = y; }
@@ -263,7 +264,7 @@ SF.view('gymHist', 'HISTORIAL', { back: true, parent: 'train', backTo: 'train', 
 function renderHist(){
   const body = $('#gymHistBody'), list = workouts.slice().reverse();
   body.innerHTML = list.length ? `<div class="sect" style="padding:4px 14px">${list.slice(0, 120).map(w => `<button class="evrow" data-w="${w.id}" style="--c:${w.color || '#8b5cf6'}"><i></i><span class="l"><b>${esc(w.name)}</b><small>${niceDate(w.d)} · ${hm(w.min)} · ${wkSets(w)} series · ${nf(unit() === 'lb' ? wkVol(w) / 0.45359 : wkVol(w))} ${unit()}</small></span><span class="arrow">›</span></button>`).join('')}</div>`
-    : SF.says('troya', 'Todavía no has terminado ninguna rutina. Cuando termines la primera, aquí queda guardada con cada serie.');
+    : SFPets.says(null, 'Todavía no has terminado ninguna rutina. Cuando termines la primera, aquí queda guardada con cada serie.');
   body.querySelectorAll('[data-w]').forEach(b => b.addEventListener('click', () => openWorkout(b.dataset.w)));
 }
 function openWorkout(id){
@@ -320,5 +321,5 @@ Object.assign(GUIDE, {
   gymEx: () => ({ t:'este ejercicio', b:[`<p>Tu mejor peso, tu <b>1RM estimado</b> (lo máximo que podrías levantar una vez) y cómo has progresado.</p>`] }),
 });
 
-window.SFGym = { renderHome, isLive: () => !!live, prCount: () => prN, workouts: () => workouts, wkVol, wkSets, unit, muscleOf: id => ex(id).m };
+window.SFGym = { routines: () => routines, renderHome, isLive: () => !!live, prCount: () => prN, workouts: () => workouts, wkVol, wkSets, unit, muscleOf: id => ex(id).m };
 })();

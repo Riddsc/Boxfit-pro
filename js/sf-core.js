@@ -76,18 +76,21 @@ function dayStripHTML(ds){
 
 /* ---------- Rachas ---------- */
 const isRest = ds => pmarks[ds] === 'rest' || (me.plan.length > 0 && !me.plan.includes(parseISO(ds).getDay()) && pmarks[ds] !== 'miss');
+// Comodín de racha: una vez por semana (lunes a domingo) se perdona un día que la habría roto
+let freezeWeeks = new Set();
 function dayStreak(){
-  const t = todayISO(), free = 7 - weekGoal();
+  const t = todayISO(), free = 7 - weekGoal(), useFreeze = S.freeze !== false;
   let n = 0, d = t, guard = 0, first = sessLog.reduce((a, h) => h.d < a ? h.d : a, t);
-  const missed = [];
+  const missed = []; freezeWeeks = new Set();
+  const tryFreeze = () => { const w = mondayOf(d); if (!useFreeze || freezeWeeks.has(w)) return false; freezeWeeks.add(w); return true; };
   while (d >= first && guard++ < 2000){
     if (trainedOn(d)) n++;
     else if (d === t || isRest(d)) { /* hoy todavía no cuenta en contra; el descanso es neutro */ }
     else if (!me.plan.length){
       // Sin días fijos: se perdonan los días libres de la semana (7 − tu meta de días)
       missed.push(d);
-      if (missed.filter(x => x <= addDays(d, 6)).length > free) break;
-    } else break;
+      if (missed.filter(x => x <= addDays(d, 6)).length > free && !tryFreeze()) break;
+    } else if (!tryFreeze()) break;
     d = addDays(d, -1);
   }
   return n;
@@ -108,7 +111,7 @@ function streaks(){
   const t = todayISO();
   return { day, week, bestDay: best.day, bestWeek: best.week, today: trainedOn(t), restToday: !trainedOn(t) && isRest(t),
     food: window.SFNutri ? logStreak(d => SFNutri.dayTotals(d).k > 0) : 0, water: logStreak(d => (water[d] || 0) >= waterGoal()),
-    weekDone: weekDays(mondayOf(t)), weekGoal: weekGoal() };
+    weekDone: weekDays(mondayOf(t)), weekGoal: weekGoal(), freezeOn: S.freeze !== false, freezeUsed: freezeWeeks.has(mondayOf(t)) };
 }
 
 /* ---------- Medallas ---------- */
@@ -175,6 +178,7 @@ function onTrain(h){
   const fresh = checkMedals();
   if (!fresh.length && s.day >= 2 && sessLog.filter(x => x.d === h.d).length === 1) setTimeout(() => toast(`🔥 Racha de ${s.day} días`), 1200);
   if (window.SFRemind) SFRemind.sync();
+  if (window.SFWidget) SFWidget.push();
 }
 
 /* ---------- Agua ---------- */
@@ -190,17 +194,27 @@ function addWater(ml, ds){
 const StepsP = plugin('Steps');
 let stepState = load('sf_stepc', null);  // { c: contador del sensor, boot: hora de encendido, ts: última lectura }
 let stepsOn = false;
+let stepH = load('sf_steph', {});        // pasos por hora: { fecha: [24 números] }
 function splitSteps(n, fromTs, toTs){
-  // Reparte los pasos entre los días que pasaron desde la última lectura, según las horas de cada día
+  // Reparte los pasos entre las horas que pasaron desde la última lectura (y así entre los días)
   if (n <= 0) return;
   const span = Math.max(1, toTs - fromTs);
   let cur = fromTs;
   while (cur < toTs){
-    const d = new Date(cur), end = Math.min(toTs, new Date(d.getFullYear(), d.getMonth(), d.getDate() + 1).getTime());
-    const ds = iso(d); steps[ds] = Math.round((steps[ds] || 0) + n * (end - cur) / span);
+    const d = new Date(cur), end = Math.min(toTs, new Date(d.getFullYear(), d.getMonth(), d.getDate(), d.getHours() + 1).getTime());
+    const ds = iso(d), part = n * (end - cur) / span;
+    steps[ds] = Math.round((steps[ds] || 0) + part);
+    const h = stepH[ds] || (stepH[ds] = new Array(24).fill(0)); h[d.getHours()] = Math.round(h[d.getHours()] + part);
     cur = end;
   }
-  save('sf_steps', steps);
+  const keys = Object.keys(stepH).sort(); keys.slice(0, Math.max(0, keys.length - 60)).forEach(k => delete stepH[k]);
+  save('sf_steps', steps); save('sf_steph', stepH);
+}
+// Pasos que llegan de Health Connect (reloj, Google Fit, Samsung Health…): reemplazan los del día
+function setStepsFromHC(byDay, byHour){
+  Object.entries(byDay).forEach(([d, v]) => { if (v > (steps[d] || 0) * 0.5 || !steps[d]) steps[d] = Math.round(v); });
+  Object.entries(byHour || {}).forEach(([d, arr]) => { stepH[d] = arr.map(Math.round); });
+  save('sf_steps', steps); save('sf_steph', stepH);
 }
 async function readSteps(ask){
   if (!StepsP || !S.stepSensor) return false;
@@ -328,7 +342,7 @@ function ring(pct, color, size, sw, inner){
 // Barras de los últimos días: data = [{ l: etiqueta, v: valor, hi: resaltada }]
 function bars(data, color, goal, unit){
   const mx = Math.max(goal || 0, ...data.map(d => d.v), 1);
-  return `<div class="sfbars" style="--bc:${color}">${goal ? `<i class="goal" style="bottom:${(goal / mx * 100).toFixed(1)}%"><em>${nf(goal)}${unit ? ' ' + unit : ''}</em></i>` : ''}${data.map(d => `<div class="b ${d.hi ? 'hi' : ''} ${goal && d.v >= goal ? 'ok' : ''}"><span>${d.v ? nf(d.v) : ''}</span><i style="height:${Math.max(d.v ? 3 : 0, d.v / mx * 100).toFixed(1)}%"></i><small>${d.l}</small></div>`).join('')}</div>`;
+  return `<div class="sfbars" style="--bc:${color}">${goal ? `<div class="plot"><i class="goal" style="bottom:${(goal / mx * 100).toFixed(1)}%"><em>${nf(goal)}${unit ? ' ' + unit : ''}</em></i></div>` : ''}${data.map(d => `<div class="b ${d.hi ? 'hi' : ''} ${goal && d.v >= goal ? 'ok' : ''}"><span>${d.v ? nf(d.v) : ''}</span><i style="height:${Math.max(d.v ? 3 : 0, d.v / mx * 100).toFixed(1)}%"></i><small>${d.l}</small></div>`).join('')}</div>`;
 }
 // Línea simple para tendencias: pts = [{ x: etiqueta, v }]
 function lineChart(pts, color, opt){
@@ -367,7 +381,7 @@ function view(id, title, opt){
 const says = (id, text) => `<div class="sfsays">${SFArt.badge(id, 52)}<div class="bub"><b style="color:${SFArt.GUIDES[id].color}">${SFArt.GUIDES[id].name}</b><p>${text}</p></div></div>`;
 
 window.SF = { ACT, G, saveG, nf, n1, hm, kg, ageY, bmr, profileMissing, waterGoal, weekGoal, kcalCalc, fillKcal, kcalOf, minOf, dayBurn, dayStripHTML, stepKcal,
-  streaks, isRest, mondayOf, weekDays, totals, MEDALS, medals: () => medals, checkMedals, onTrain, water: () => water, addWater, steps: () => steps, readSteps, enableSteps, stepsOn: () => stepsOn, openStepsForm,
+  streaks, isRest, mondayOf, weekDays, totals, MEDALS, medals: () => medals, checkMedals, onTrain, water: () => water, addWater, steps: () => steps, stepHours: () => stepH, setStepsFromHC, readSteps, enableSteps, stepsOn: () => stepsOn, openStepsForm,
   openGoalsForm, ring, bars, lineChart, view, says, BACK_SVG };
 window.SFAct = { openForm: openActForm };
 })();
