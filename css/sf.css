@@ -573,3 +573,15 @@ nav .ind{background:color-mix(in srgb,var(--mode) 26%,transparent)!important;bor
 .sfsetup .it.ok .ck{background:var(--s-nutri);border-color:var(--s-nutri)}
 .sfslsetup .btn{font-size:clamp(17px,5vw,22px);white-space:nowrap}
 :root[data-sec]:not([data-view="timer"]) .switch.on{background:var(--mode)}
+
+/* 4.3.1 · Secciones bien diferenciadas (más color, sin perder lo sobrio) */
+:root[data-sec]:not([data-view="timer"]):not([data-view="traffic"]) .bgfx{background:linear-gradient(180deg,color-mix(in srgb,var(--mode) 34%,var(--bg)) 0,color-mix(in srgb,var(--mode) 12%,var(--bg)) 210px,var(--bg) 520px)!important}
+:root[data-sec="home"] .bgfx{background:linear-gradient(180deg,color-mix(in srgb,var(--s-home) 16%,var(--bg)) 0,var(--bg) 360px)!important}
+:root[data-sec]:not([data-sec="home"]) .view .sect{background:color-mix(in srgb,var(--mode) 7%,var(--panel));border-color:color-mix(in srgb,var(--mode) 22%,var(--line))}
+:root[data-sec]:not([data-sec="home"]) .view .sect>h4,:root[data-sec]:not([data-sec="home"]) .view .sect h4:first-child{color:var(--mode)}
+.view .topbar .title{color:var(--text)}
+.view .topbar .title::after{width:46px;height:5px}
+nav{border-color:color-mix(in srgb,var(--mode) 30%,var(--line))!important}
+nav .ind{background:var(--mode)!important;border-color:transparent!important;opacity:1}
+nav button.on,nav button.on span,nav button.on svg{color:var(--on-mode)!important}
+nav button.on span{position:relative;z-index:2}

@@ -180,7 +180,7 @@ function renderHeart(body){
   body.querySelector('#hmHC').addEventListener('click', async () => { if (!hcState.on){ if (await connectHC()) await syncHC(true); } else await syncHC(true); render(); });
   body.querySelectorAll('[data-hd]').forEach(b => b.addEventListener('click', async () => { if (await confirmDlg('¿Borrar medición?', '', 'BORRAR')){ hr = hr.filter(x => x.id !== b.dataset.hd); saveHR(); render(); } }));
 }
-function addHR(bpm, src, ctx){ hr.push({ id: uid(), ts: Date.now(), bpm: Math.round(bpm), src, ctx }); saveHR(); if (ctx === 'rest') setTimeout(() => hrCheck(Math.round(bpm)), 450); }
+function addHR(bpm, src, ctx, noCheck){ hr.push({ id: uid(), ts: Date.now(), bpm: Math.round(bpm), src, ctx }); saveHR(); if (ctx === 'rest' && !noCheck) setTimeout(() => hrCheck(Math.round(bpm)), 450); }
 // Promedio semanal del pulso en reposo (para 3 meses y año)
 function weeklyRest(list){
   const by = {}; list.forEach(x => { const k = SF.mondayOf(iso(new Date(x.ts))); (by[k] = by[k] || []).push(x.bpm); });
@@ -232,15 +232,15 @@ function stopCam(){
 async function openCamera(){
   const st = { ctx: 'rest' };
   openForm(`<h3 class="ftitle">📷 MEDIR EL PULSO</h3>
-    <p class="hint" id="cmTip">Tapa con la yema del dedo índice la cámara de atrás <b>y el flash</b>, sin apretar. Quédate quieto unos 30 segundos.</p>
+    <p class="hint" id="cmTip">Tapa con la yema del dedo índice la cámara de atrás <b>y el flash</b>, sin apretar. Apoya la mano y quédate quieto unos 20 a 40 segundos.</p>
     <div class="sfcam"><div class="ringbox" id="cmRing">${SF.ring(0, '#d98585', 150, 12, '<b id="cmBpm">—</b><small id="cmSt">PREPARANDO</small>')}</div><canvas id="cmWave" width="320" height="70"></canvas></div>
     ${ctxSeg('cmC', st.ctx)}
     <video id="cmV" playsinline muted style="width:1px;height:1px;opacity:0;position:absolute"></video>
     <div class="btnrow"><button class="btn" id="cmX">CANCELAR</button><button class="btn pri" id="cmOk" style="--bc:#d98585" disabled>GUARDAR</button></div>`, async sh => {
     bindCtx(sh, 'cmC', st);
     sh.querySelector('#cmX').addEventListener('click', () => { stopCam(); closeForm(); });
-    let result = null;
-    sh.querySelector('#cmOk').addEventListener('click', () => { if (!result) return; stopCam(); addHR(result, 'cam', st.ctx); closeForm(); toast(`❤️ ${result} lpm guardado`); render(); });
+    let result = null, quality = 0;
+    sh.querySelector('#cmOk').addEventListener('click', () => { if (!result) return; stopCam(); addHR(result, 'cam', st.ctx, quality < 0.6); closeForm(); toast(`❤️ ${result} lpm guardado`); render(); });
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' }, width: { ideal: 176 }, height: { ideal: 144 }, frameRate: { ideal: 30 } }, audio: false });
       const v = sh.querySelector('#cmV'); v.srcObject = stream; await v.play();
@@ -248,7 +248,7 @@ async function openCamera(){
       try { const cp = track.getCapabilities ? track.getCapabilities() : {}; if (cp.torch) await track.applyConstraints({ advanced: [{ torch: true }] }); else sh.querySelector('#cmTip').innerHTML += ' <b>Este teléfono no deja prender el flash desde la app: mide con buena luz.</b>'; } catch(e){}
       keepAwake(true);
       cam = { stream, stop: false };
-      measure(sh, v, bpm => { result = bpm; sh.querySelector('#cmOk').disabled = false; });
+      measure(sh, v, (bpm, q) => { result = bpm; quality = q; sh.querySelector('#cmOk').disabled = false; });
     } catch(e){
       sh.querySelector('#cmSt').textContent = 'SIN CÁMARA';
       sh.querySelector('#cmTip').innerHTML = 'No pude usar la cámara. Revisa que la app tenga permiso de cámara en los ajustes del teléfono, o anota el pulso a mano.';
@@ -261,77 +261,109 @@ function measure(sh, video, done){
   const c = document.createElement('canvas'); c.width = 40; c.height = 30;
   const ctx = c.getContext('2d', { willReadFrequently: true });
   const wave = sh.querySelector('#cmWave'), wctx = wave.getContext('2d');
-  const sig = [], t0 = performance.now(), DUR = 30000, SETTLE = 3000;
-  let fingerSince = 0, lastBpm = null;
+  const sig = [], MIN = 20000, MAX = 40000, SETTLE = 2500;
+  let fingerSince = 0, lostSince = 0;
+  const $s = q => sh.querySelector(q);
   const step = () => {
     if (!cam || cam.stop) return;
     ctx.drawImage(video, 0, 0, 40, 30);
     const d = ctx.getImageData(0, 0, 40, 30).data; let r = 0, g = 0, b = 0;
     for (let i = 0; i < d.length; i += 4){ r += d[i]; g += d[i + 1]; b += d[i + 2]; }
     const n = d.length / 4; r /= n; g /= n; b /= n;
-    const finger = r > 90 && r > g * 1.6 && r > b * 1.6;
+    // dedo sobre la cámara: la imagen se ve roja (o casi blanca y rojiza si el flash satura)
+    const finger = r > 60 && r >= g * 1.15 && r >= b * 1.15;
     const now = performance.now();
-    if (!finger){ fingerSince = 0; sig.length = 0; sh.querySelector('#cmSt').textContent = 'PON EL DEDO'; paintRing(0); }
-    else {
+    if (!finger){
+      if (!lostSince) lostSince = now;
+      if (now - lostSince > 800){ fingerSince = 0; sig.length = 0; $s('#cmSt').textContent = 'PON EL DEDO'; $s('#cmBpm').textContent = '—'; paintRing(0); }
+    } else {
+      lostSince = 0;
       if (!fingerSince) fingerSince = now;
-      if (now - fingerSince > SETTLE) sig.push({ t: now, v: r });
+      if (now - fingerSince > SETTLE) sig.push({ t: now, r, g });
       const el = sig.length ? now - sig[0].t : 0;
-      paintRing(el / DUR);
-      sh.querySelector('#cmSt').textContent = el ? 'MIDIENDO…' : 'QUIETO…';
-      if (sig.length > 90 && sig.length % 15 === 0){ const bpm = calcBpm(sig); if (bpm){ lastBpm = bpm; sh.querySelector('#cmBpm').textContent = bpm; } }
-      if (el >= DUR){
-        const bpm = calcBpm(sig, true);
-        if (bpm){ sh.querySelector('#cmBpm').textContent = bpm; sh.querySelector('#cmSt').textContent = 'LISTO'; Sound.bell(1); vibrate(200); stopCam(); done(bpm); return; }
-        sh.querySelector('#cmSt').textContent = 'REPETIR'; sh.querySelector('#cmTip').innerHTML = 'La señal salió con mucho ruido. Quédate quieto, no aprietes el dedo y vuelve a intentar.'; sig.length = 0; fingerSince = 0;
+      paintRing(el / MIN);
+      $s('#cmSt').textContent = el ? 'MIDIENDO…' : 'QUIETO…';
+      if (el > 10000 && sig.length % 10 === 0){
+        const live = calcBpm(sig, false);
+        if (live){ $s('#cmBpm').textContent = live.bpm; if (el >= MIN && live.frac >= 0.7) return finish(live); }
+      }
+      if (el >= MAX){
+        const fin = calcBpm(sig, true);
+        if (fin) return finish(fin);
+        $s('#cmSt').textContent = 'REPETIR'; $s('#cmBpm').textContent = '—';
+        $s('#cmTip').innerHTML = 'No logré leer bien el pulso. Apoya la mano en la mesa, tapa la cámara y el flash con la yema (sin apretar) y no hables mientras mide.';
+        sig.length = 0; fingerSince = 0;
       }
     }
     drawWave(wctx, wave, sig);
     if (video.requestVideoFrameCallback) video.requestVideoFrameCallback(step); else requestAnimationFrame(step);
   };
+  const finish = res => { $s('#cmBpm').textContent = res.bpm; $s('#cmSt').textContent = 'LISTO'; paintRing(1); drawWave(wctx, wave, sig); Sound.bell(1); vibrate(200); stopCam(); done(res.bpm, res.frac); };
   const paintRing = p => { const fg = sh.querySelector('#cmRing .fg'); if (!fg) return; const c0 = +fg.style.getPropertyValue('--c0') || 440; fg.style.animation = 'none'; fg.setAttribute('stroke-dashoffset', (c0 * (1 - clamp(p, 0, 1))).toFixed(1)); };
   step();
 }
-// Señal filtrada: se le resta la media móvil de 1 s (quita la deriva) y se suaviza con 3 muestras
-function filtered(sig){
-  const out = [];
-  for (let i = 0; i < sig.length; i++){
-    let a = 0, n = 0; for (let j = i; j >= 0 && sig[i].t - sig[j].t < 1000; j--){ a += sig[j].v; n++; }
-    out.push({ t: sig[i].t, v: sig[i].v - a / n });
+// Pulso por cámara (4.3.1): canal rojo y verde, ventanas de 8 s y mediana. Más estable con el ritmo
+// natural del corazón, la respiración y el flash que satura el rojo.
+const PPG_FS = 30;
+// Remuestreo uniforme a 30 Hz de un canal ('r' o 'g')
+function ppgResample(sig, k){
+  const t0 = sig[0].t, n = Math.floor((sig[sig.length - 1].t - t0) / 1000 * PPG_FS), x = new Array(Math.max(0, n)); let j = 0;
+  for (let i = 0; i < n; i++){
+    const tt = t0 + i * 1000 / PPG_FS; while (j < sig.length - 2 && sig[j + 1].t < tt) j++;
+    const a = sig[j], b = sig[j + 1] || a, w = b.t > a.t ? clamp((tt - a.t) / (b.t - a.t), 0, 1) : 0; x[i] = a[k] + (b[k] - a[k]) * w;
   }
-  for (let i = 2; i < out.length; i++) out[i].s = (out[i].v + out[i - 1].v + out[i - 2].v) / 3;
-  return out.slice(2);
+  return x;
 }
-// El ritmo se saca por autocorrelación: se busca cada cuánto se repite la señal (entre 0,3 y 1,7 s)
-function calcBpm(sig, strict){
-  const f = filtered(sig); if (f.length < 90) return null;
-  const FS = 30, t0 = f[0].t, n = Math.floor((f[f.length - 1].t - t0) / 1000 * FS);
-  if (n < 90) return null;
-  const x = new Array(n); let j = 0;
-  for (let i = 0; i < n; i++){                                        // remuestreo uniforme a 30 Hz
-    const tt = t0 + i * 1000 / FS; while (j < f.length - 2 && f[j + 1].t < tt) j++;
-    const a = f[j], b = f[j + 1], w = b.t > a.t ? (tt - a.t) / (b.t - a.t) : 0; x[i] = a.s + (b.s - a.s) * clamp(w, 0, 1);
-  }
-  const mean = x.reduce((p, v) => p + v, 0) / n; for (let i = 0; i < n; i++) x[i] -= mean;
-  const e0 = x.reduce((p, v) => p + v * v, 0); if (!e0) return null;
-  const minL = Math.round(0.29 * FS), maxL = Math.min(Math.round(1.75 * FS), Math.floor(n / 2));
-  const ac = []; for (let L = 0; L <= maxL; L++){ let p = 0; for (let i = 0; i + L < n; i++) p += x[i] * x[i + L]; ac[L] = p / e0 * n / (n - L); }
-  // primer pico fuerte (evita quedarse con el doble del período)
-  let best = -1, bv = -1;
-  for (let L = minL; L < maxL; L++) if (ac[L] > ac[L - 1] && ac[L] >= ac[L + 1] && ac[L] > bv){ bv = ac[L]; best = L; }
-  if (best < 0) return null;
-  for (let L = minL; L < best; L++) if (ac[L] > ac[L - 1] && ac[L] >= ac[L + 1] && ac[L] > bv * 0.85){ best = L; bv = ac[L]; break; }
-  if (bv < (strict ? 0.35 : 0.25)) return null;                      // demasiado ruido
-  const y0 = ac[best - 1], y1 = ac[best], y2 = ac[best + 1], den = y0 - 2 * y1 + y2, off = den ? 0.5 * (y0 - y2) / den : 0;
-  const bpm = Math.round(60 * FS / (best + clamp(off, -0.5, 0.5)));
-  return bpm >= 35 && bpm <= 210 ? bpm : null;
+// Quita la deriva (media móvil centrada de 1,5 s) y suaviza (4 muestras ≈ filtro paso bajo de ~7 Hz)
+function ppgPrep(x){
+  const n = x.length, H = Math.round(0.75 * PPG_FS), y = new Array(n), cs = [0];
+  for (let i = 0; i < n; i++) cs.push(cs[i] + x[i]);
+  for (let i = 0; i < n; i++){ const a = Math.max(0, i - H), b = Math.min(n, i + H + 1); y[i] = x[i] - (cs[b] - cs[a]) / (b - a); }
+  const z = new Array(n); for (let i = 0; i < n; i++){ let s = 0, c = 0; for (let k = Math.max(0, i - 3); k <= i; k++){ s += y[k]; c++; } z[i] = s / c; }
+  return z;
+}
+// Ritmo de una ventana por autocorrelación (40–180 lpm). Devuelve { bpm, q } (q = parecido entre latidos, 0–1)
+function ppgAc(x){
+  const n = x.length, m = x.reduce((p, v) => p + v, 0) / n, d = x.map(v => v - m), e0 = d.reduce((p, v) => p + v * v, 0);
+  if (!e0) return null;
+  const minL = Math.round(PPG_FS * 60 / 180), maxL = Math.min(Math.round(PPG_FS * 60 / 40), Math.floor(n * 0.6));
+  const ac = []; for (let L = 0; L <= maxL + 1; L++){ let p = 0; for (let i = 0; i + L < n; i++) p += d[i] * d[i + L]; ac[L] = p / e0 * n / (n - L); }
+  const peaks = []; for (let L = minL; L <= maxL; L++) if (ac[L] > ac[L - 1] && ac[L] >= ac[L + 1]) peaks.push(L);
+  if (!peaks.length) return null;
+  let best = peaks.reduce((a, b) => ac[b] > ac[a] ? b : a);
+  // si el pico más alto es el doble de un período real (ritmo rápido), quedarse con el más corto
+  const half = peaks.find(L => Math.abs(L - best / 2) <= 2 && ac[L] > ac[best] * 0.9); if (half) best = half;
+  const y0 = ac[best - 1], y1 = ac[best], y2 = ac[best + 1], den = y0 - 2 * y1 + y2, off = den ? clamp(0.5 * (y0 - y2) / den, -0.5, 0.5) : 0;
+  return { bpm: 60 * PPG_FS / (best + off), q: ac[best] };
+}
+// Ventanas de 8 s cada 2 s, en el canal rojo y en el verde; se queda con el canal más limpio y la mediana
+function calcBpm(sig, final){
+  if (sig.length < 2 || sig[sig.length - 1].t - sig[0].t < 9000) return null;
+  let pick = null;
+  ['r', 'g'].forEach(k => {
+    const x = ppgPrep(ppgResample(sig, k)), W = 8 * PPG_FS, S = 2 * PPG_FS, ok = [];
+    for (let s = 0; s + W <= x.length; s += S){ const r = ppgAc(x.slice(s, s + W)); if (r && r.q >= 0.3) ok.push(r); }
+    const wins = Math.max(1, Math.floor((x.length - W) / S) + 1);
+    if (ok.length < 2) return;
+    const med = ok.map(r => r.bpm).sort((a, b) => a - b)[Math.floor(ok.length / 2)];
+    const agree = ok.filter(r => Math.abs(r.bpm - med) <= 7), frac = agree.length / wins;
+    const bpm = agree.reduce((p, r) => p + r.bpm, 0) / agree.length;
+    const cand = { bpm: Math.round(bpm), frac, q: agree.reduce((p, r) => p + r.q, 0) / agree.length, n: agree.length };
+    if (!pick || cand.frac * cand.q > pick.frac * pick.q) pick = cand;
+  });
+  if (!pick || pick.bpm < 38 || pick.bpm > 200) return null;
+  if (pick.frac < (final ? 0.45 : 0.5) || pick.n < 3) return null;
+  return pick;
 }
 function drawWave(c, cv, sig){
   const W = cv.width, H = cv.height; c.clearRect(0, 0, W, H);
-  const last = sig.slice(-120); if (last.length < 10) return;
-  const f = filtered(last); if (f.length < 5) return;
-  const mx = Math.max(...f.map(x => Math.abs(x.s))) || 1;
+  const last = sig.slice(-150); if (last.length < 40 || last[last.length - 1].t - last[0].t < 2000) return;
+  const xr = ppgPrep(ppgResample(last, 'r')), xg = ppgPrep(ppgResample(last, 'g'));
+  const sd = x => Math.sqrt(x.reduce((p, v) => p + v * v, 0) / (x.length || 1)), f = sd(xg) > sd(xr) * 1.2 ? xg : xr;
+  if (f.length < 5) return;
+  const mx = Math.max(...f.map(Math.abs)) || 1;
   c.strokeStyle = '#d98585'; c.lineWidth = 2.5; c.lineJoin = 'round'; c.beginPath();
-  f.forEach((x, i) => { const px = i / (f.length - 1) * W, py = H / 2 + (x.s / mx) * (H / 2 - 4); i ? c.lineTo(px, py) : c.moveTo(px, py); });
+  f.forEach((v, i) => { const px = i / (f.length - 1) * W, py = H / 2 - (v / mx) * (H / 2 - 4); i ? c.lineTo(px, py) : c.moveTo(px, py); });
   c.stroke();
 }
 
@@ -481,5 +513,5 @@ function inviteHTML(){
 Object.assign(GUIDE, {
   health: () => ({ t: 'tu salud', b: [`<p>Como en las apps de salud de Google: abajo cambias entre <b>Resumen</b>, <b>Pasos</b>, <b>Corazón</b> y <b>Sueño</b>.</p>`, `<ul><li><b>Resumen:</b> lo que registraste hoy, tus áreas, los avisos de pulso y tus récords.</li><li><b>Pasos:</b> se cuentan solos, aunque la app esté cerrada. Arriba eliges día, semana, mes, 3 meses o año.</li><li><b>Corazón:</b> mide tu pulso con la cámara o tráelo de tu reloj.</li><li><b>Sueño:</b> arma tu horario, anota tus noches o crúzalas con Satronho Somnia.</li></ul>`] }),
 });
-window.SFHealth = { _hrCheck: b => hrCheck(b), sleepPlan: () => slp, sleepMin, lastNight, _calc: (s, st) => calcBpm(s, st), render, syncHC, restingHR, maxHR, cardioPts, weekPts, lastHR: () => hr[hr.length - 1] || null, hcOn: () => hcState.on };
+window.SFHealth = { _ppg: calcBpm, _hrCheck: b => hrCheck(b), sleepPlan: () => slp, sleepMin, lastNight, _calc: (s, st) => calcBpm(s, st), render, syncHC, restingHR, maxHR, cardioPts, weekPts, lastHR: () => hr[hr.length - 1] || null, hcOn: () => hcState.on };
 })();
