@@ -32,16 +32,16 @@ function renderBox(box){
   const week = sessLog.filter(h => h.d >= wk && h.t !== 'gym' && h.t !== 'cardio');
   const rounds = week.reduce((a, h) => a + (h.r || 0), 0), kc = week.reduce((a, h) => a + SF.kcalOf(h), 0);
   box.innerHTML = `
-    <div class="kpis sfk3"><div class="kpi" style="--kc:#f97316"><b>${week.length}</b><span>Entrenos esta semana</span></div><div class="kpi" style="--kc:#ef4444"><b>${rounds}</b><span>Rounds</span></div><div class="kpi" style="--kc:#f59e0b"><b>${nf(kc)}</b><span>kcal</span></div></div>
+    <div class="kpis sfk3"><div class="kpi" style="--kc:#dc9a6e"><b>${week.length}</b><span>Entrenos esta semana</span></div><div class="kpi" style="--kc:#d98585"><b>${rounds}</b><span>Rounds</span></div><div class="kpi" style="--kc:#d6a660"><b>${nf(kc)}</b><span>kcal</span></div></div>
     ${SFPlan.warmCard('box', 'train')}
-    ${S.noSave ? `<div class="note" style="--c:#3b82f6;margin:0 0 12px">📣 <span><b>Modo clase activo:</b> el timer y las sesiones no guardan nada en tus datos.</span></div>` : ''}
-    ${hsec('🛠️', 'HERRAMIENTAS', 'Timer de rounds, semáforo y ruletas', '#ef4444', `<div class="tiles three">${toolTiles()}</div>`)}
-    ${hsec('🥋', 'ENTRENO GUIADO', 'Te llevo paso a paso con tiempo y campana', '#f97316', `<div class="tiles">
-      <button class="tile" style="--c:#f97316;--i:1" data-open="psessions"><span>🥊</span><b>SESIONES</b><small>${pSessions.length} preparadas</small></button>
-      <button class="tile" style="--c:#eab308;--i:2" data-open="warmups"><span>🔥</span><b>CALENTAMIENTOS</b><small>${bhWarmups.length} rutinas guiadas</small></button>
-      <button class="tile" style="--c:#06b6d4;--i:3" data-open="tecnica"><span>📖</span><b>ESCUELITA</b><small>${SFTecnica.items.length} técnicas explicadas</small></button>
-      <button class="tile" style="--c:#22c55e;--i:4" id="trAct"><span>📝</span><b>+ ACTIVIDAD</b><small>Clase, sparring, saco…</small></button></div>`)}
-    <div class="gridlbl">${hsecHead('⏱️', 'RUTINAS DEL TIMER', 'Elige una y queda lista para darle play', '#ef4444')}</div>
+    ${S.noSave ? `<div class="note" style="--c:#7f9bd6;margin:0 0 12px">📣 <span><b>Modo clase activo:</b> el timer y las sesiones no guardan nada en tus datos.</span></div>` : ''}
+    ${hsec('🛠️', 'HERRAMIENTAS', 'Timer de rounds, semáforo y ruletas', '#d98585', `<div class="tiles three">${toolTiles()}</div>`)}
+    ${hsec('🥋', 'ENTRENO GUIADO', 'Te llevo paso a paso con tiempo y campana', '#dc9a6e', `<div class="tiles">
+      <button class="tile" style="--c:#dc9a6e;--i:1" data-open="psessions"><span>🥊</span><b>SESIONES</b><small>${pSessions.length} preparadas</small></button>
+      <button class="tile" style="--c:#cdb262;--i:2" data-open="warmups"><span>🔥</span><b>CALENTAMIENTOS</b><small>${bhWarmups.length} rutinas guiadas</small></button>
+      <button class="tile" style="--c:#6fb0b6;--i:3" data-open="tecnica"><span>📖</span><b>ESCUELITA</b><small>${SFTecnica.items.length} técnicas explicadas</small></button>
+      <button class="tile" style="--c:#7fb38a;--i:4" id="trAct"><span>📝</span><b>+ ACTIVIDAD</b><small>Clase, sparring, saco…</small></button></div>`)}
+    <div class="gridlbl">${hsecHead('⏱️', 'RUTINAS DEL TIMER', 'Elige una y queda lista para darle play', '#d98585')}</div>
     <div class="grid" id="profileGrid"></div>
     <div class="sect" style="margin-top:14px"><h4>AJUSTES DEL BOXEO</h4>
       <div class="row"><div class="l"><b>Intensidad de mis rounds</b><small>Para calcular mejor las calorías del timer</small></div></div>
@@ -64,8 +64,8 @@ function renderCardio(box){
   const st = SF.steps()[todayISO()] || 0;
   box.innerHTML = `
     ${SFPlan.warmCard('cardio', 'train')}
-    <div class="kpis sfk3"><div class="kpi" style="--kc:#06b6d4"><b>${week.length}</b><span>Actividades esta semana</span></div><div class="kpi" style="--kc:#22c55e"><b>${hm(week.reduce((a, h) => a + SF.minOf(h), 0))}</b><span>Tiempo</span></div><div class="kpi" style="--kc:#38bdf8"><b>${nf(st)}</b><span>Pasos hoy</span></div></div>
-    ${hsec('⏱️', 'EMPEZAR AHORA', 'Toca una actividad y el cronómetro arranca; al terminar se guarda sola', '#06b6d4',
+    <div class="kpis sfk3"><div class="kpi" style="--kc:#6fb0b6"><b>${week.length}</b><span>Actividades esta semana</span></div><div class="kpi" style="--kc:#7fb38a"><b>${hm(week.reduce((a, h) => a + SF.minOf(h), 0))}</b><span>Tiempo</span></div><div class="kpi" style="--kc:#7aa9d1"><b>${nf(st)}</b><span>Pasos hoy</span></div></div>
+    ${hsec('⏱️', 'EMPEZAR AHORA', 'Toca una actividad y el cronómetro arranca; al terminar se guarda sola', '#6fb0b6',
       `<div class="sfquick">${QUICK.map(k => { const a = SF.ACT[k]; return `<button type="button" data-live="${k}"><span>${a.ic}</span><b>${a.n}</b><small>≈${nf(SF.kcalCalc({ a:k, m:30, manual:true }))} kcal / 30 min</small></button>`; }).join('')}</div>`)}
     <button class="btn" id="cdMore" style="width:100%;margin-bottom:10px;flex:none">📝 ANOTAR LO QUE YA HICE</button>
     <button class="btn" id="cdSteps" style="width:100%;margin-bottom:14px;flex:none">👟 PASOS DE HOY</button>
@@ -106,7 +106,7 @@ async function stopLive(){
   logTrain({ p: a.n, a: a.k, t: a.g, m: min, manual: true });
   stats.sessions++; stats.trainSec = (stats.trainSec || 0) + min * 60; save('stats', stats);
   live = null; save('sf_liveact', null);
-  Sound.win(); confetti('#06b6d4'); toast(`¡Guardado! ≈${nf(lastTrain.k)} kcal`); rerender();
+  Sound.win(); confetti('#6fb0b6'); toast(`¡Guardado! ≈${nf(lastTrain.k)} kcal`); rerender();
 }
 function tickLive(){
   const el = document.getElementById('liveTime'); if (!el || !live) return;
@@ -118,7 +118,7 @@ setInterval(tickLive, 1000);
 /* ---------- Escuelita de boxeo ---------- */
 let tecCat = 'fundamentos', tecOpen = null;
 SF.view('tecnica', 'ESCUELITA', { back: true, parent: 'train', backTo: 'train', render: renderTec });
-const LV_COLOR = { 'Básico':'#22c55e', 'Intermedio':'#f59e0b', 'Avanzado':'#ef4444' };
+const LV_COLOR = { 'Básico':'#7fb38a', 'Intermedio':'#d6a660', 'Avanzado':'#d98585' };
 function renderTec(){
   const body = $('#tecnicaBody'), T0 = SFTecnica;
   const list = T0.items.filter(x => x.c === tecCat);

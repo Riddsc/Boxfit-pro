@@ -15,6 +15,8 @@ if (!load('sf_v4', false)){ if (S.askAtStart === undefined) S.askAtStart = true;
 // Pasos: se leen al abrir y cada vez que la app vuelve al frente
 const refresh = async () => { const a = await SF.readSteps(false), b = await SFHealth.syncHC(false); if (a || b){ if (current === 'home') SFToday.render(); else if (current === 'health') SFHealth.render(); SF.checkMedals(); } SFWidget.push(); };
 refresh();
+// 4.3: los pasos se cuentan solos. El permiso se pide una sola vez al empezar (luego se maneja en Salud › Pasos)
+if (SF.stepsPlugin() && !S.stepAsked && !S.stepSensor) setTimeout(async () => { if (await SF.enableSteps(true)) refresh(); }, 1800);
 document.addEventListener('visibilitychange', () => { if (!document.hidden){ refresh(); if (current === 'home') SFToday.render(); } });
 SF.checkMedals(true);
 if (window.SFRemind) SFRemind.sync();
@@ -33,4 +35,17 @@ if (!load('sf_news41', false)) setTimeout(() => {
     </ul>
     <button class="btn pri" id="nwOk" style="width:100%;--bc:var(--mode)">${SF.profileMissing().length ? 'COMPLETAR MI PERFIL' : '¡A DARLE!'}</button></div>`, sh => sh.querySelector('#nwOk').addEventListener('click', () => { save('sf_news41', true); closeForm(); if (SF.profileMissing().length) go('me'); }));
 }, 600);
+// Novedades de la 4.3 (solo para quien ya venía usando la app)
+if (load('sf_news41', false) && !load('sf_news43', false)) setTimeout(() => {
+  openForm(`<div class="sfnews"><div class="orb">${SFArt.orbit(150)}</div><h3>NOVEDADES DE LA 4.3</h3>
+    <ul>
+      <li><span>👟</span><div><b>Pasos automáticos:</b> el teléfono los cuenta solo, aunque la app esté cerrada.</div></li>
+      <li><span>🎨</span><div><b>Un color por sección,</b> más sobrio, para saber siempre dónde estás.</div></li>
+      <li><span>📊</span><div><b>Día, semana, mes, 3 meses o año</b> en pasos, pulso, sueño, comida, agua y progreso.</div></li>
+      <li><span>❤️</span><div><b>Salud ordenada:</b> resumen del día, áreas, avisos de pulso y tus récords.</div></li>
+      <li><span>🌙</span><div><b>Horario de sueño:</b> tu meta de horas y tus noches, con o sin Somnia.</div></li>
+    </ul>
+    <button class="btn pri" id="nwOk" style="width:100%">¡A DARLE!</button></div>`, sh => sh.querySelector('#nwOk').addEventListener('click', () => { save('sf_news43', true); closeForm(); }));
+}, 900);
+else save('sf_news43', true);
 })();

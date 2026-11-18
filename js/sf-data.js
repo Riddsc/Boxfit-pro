@@ -64,8 +64,8 @@ const ACTS = [
 
 /* ---------- Ejercicios de gimnasio: [id, nombre, músculo, equipo, tipo] ----------
    tipo: w = peso × repeticiones · b = peso corporal (repeticiones) · t = por tiempo (segundos) */
-const MUSCLES = { pecho:['Pecho','#ef4444'], espalda:['Espalda','#3b82f6'], hombro:['Hombros','#f59e0b'], biceps:['Bíceps','#8b5cf6'], triceps:['Tríceps','#ec4899'],
-  pierna:['Piernas','#22c55e'], gluteo:['Glúteo y femoral','#10b981'], pantorrilla:['Pantorrillas','#14b8a6'], core:['Abdomen y core','#f97316'], todo:['Cuerpo completo','#06b6d4'] };
+const MUSCLES = { pecho:['Pecho','#d98585'], espalda:['Espalda','#7f9bd6'], hombro:['Hombros','#d6a660'], biceps:['Bíceps','#9d8fd0'], triceps:['Tríceps','#d08aa8'],
+  pierna:['Piernas','#7fb38a'], gluteo:['Glúteo y femoral','#6fb39a'], pantorrilla:['Pantorrillas','#6fb3a8'], core:['Abdomen y core','#dc9a6e'], todo:['Cuerpo completo','#6fb0b6'] };
 const EXERCISES = [
   // Pecho
   ['bench','Press de banca','pecho','Barra','w'], ['bench_db','Press con mancuernas','pecho','Mancuernas','w'], ['incline','Press inclinado','pecho','Barra','w'],
@@ -117,27 +117,27 @@ const EXERCISES = [
 
 /* ---------- Rutinas de fábrica: items [ejercicio, series, repeticiones, descanso s] ---------- */
 const ROUTINES = [
-  { id:'r_fbA', name:'Cuerpo completo A', color:'#8b5cf6', level:'Principiante', desc:'Lo básico de todo el cuerpo. Ideal para empezar: 3 días por semana alternando A y B.',
+  { id:'r_fbA', name:'Cuerpo completo A', color:'#9d8fd0', level:'Principiante', desc:'Lo básico de todo el cuerpo. Ideal para empezar: 3 días por semana alternando A y B.',
     items:[['squat',3,'8-10',120],['bench',3,'8-10',120],['row_seat',3,'10-12',90],['ohp_db',3,'10-12',90],['legcurl',3,'12',75],['plank',3,'40',45]] },
-  { id:'r_fbB', name:'Cuerpo completo B', color:'#6366f1', level:'Principiante', desc:'El segundo día: se alterna con el A.',
+  { id:'r_fbB', name:'Cuerpo completo B', color:'#8f8fd2', level:'Principiante', desc:'El segundo día: se alterna con el A.',
     items:[['legpress',3,'10-12',120],['lat',3,'10-12',90],['incline_db',3,'10-12',90],['rdl_db',3,'10-12',90],['lateral',3,'12-15',60],['curl_db',2,'12',60],['pushdown',2,'12',60]] },
-  { id:'r_push', name:'Empuje · pecho, hombro y tríceps', color:'#ef4444', level:'Intermedio', desc:'Día de empuje de la rutina de tres días (empuje, jalón y pierna).',
+  { id:'r_push', name:'Empuje · pecho, hombro y tríceps', color:'#d98585', level:'Intermedio', desc:'Día de empuje de la rutina de tres días (empuje, jalón y pierna).',
     items:[['bench',4,'6-8',150],['incline_db',3,'8-10',120],['ohp_db',3,'8-10',120],['lateral',3,'12-15',60],['cross',3,'12-15',60],['pushdown',3,'10-12',75],['oh_tri',2,'12',60]] },
-  { id:'r_pull', name:'Jalón · espalda y bíceps', color:'#3b82f6', level:'Intermedio', desc:'Día de jalón: espalda ancha y fuerte para pegar y aguantar.',
+  { id:'r_pull', name:'Jalón · espalda y bíceps', color:'#7f9bd6', level:'Intermedio', desc:'Día de jalón: espalda ancha y fuerte para pegar y aguantar.',
     items:[['pullup',4,'6-10',150],['row_bar',4,'8-10',120],['lat',3,'10-12',90],['row_seat',3,'10-12',90],['facepull',3,'15',60],['curl_bar',3,'8-10',75],['hammer',2,'12',60]] },
-  { id:'r_legs', name:'Pierna completa', color:'#22c55e', level:'Intermedio', desc:'Cuádriceps, femoral, glúteo y pantorrilla.',
+  { id:'r_legs', name:'Pierna completa', color:'#7fb38a', level:'Intermedio', desc:'Cuádriceps, femoral, glúteo y pantorrilla.',
     items:[['squat',4,'6-8',180],['legpress',3,'10-12',120],['rdl',3,'8-10',120],['lunge',3,'10',90],['legext',3,'12-15',60],['legcurl',3,'12-15',60],['calf',4,'12-15',45]] },
-  { id:'r_upper', name:'Torso', color:'#f59e0b', level:'Intermedio', desc:'Pecho, espalda, hombros y brazos en un día. Se combina con «Pierna y glúteo».',
+  { id:'r_upper', name:'Torso', color:'#d6a660', level:'Intermedio', desc:'Pecho, espalda, hombros y brazos en un día. Se combina con «Pierna y glúteo».',
     items:[['bench_db',4,'8-10',120],['lat',4,'8-10',120],['ohp_db',3,'10',90],['row_db',3,'10',90],['lateral',3,'15',60],['curl_db',3,'10-12',60],['rope_pd',3,'10-12',60]] },
-  { id:'r_glute', name:'Pierna y glúteo', color:'#10b981', level:'Intermedio', desc:'Énfasis en glúteo y femoral.',
+  { id:'r_glute', name:'Pierna y glúteo', color:'#6fb39a', level:'Intermedio', desc:'Énfasis en glúteo y femoral.',
     items:[['hipthrust',4,'8-10',120],['goblet',3,'10-12',90],['rdl_db',3,'10-12',90],['bulgarian',3,'10',90],['abduct',3,'15',60],['kickback',3,'12-15',60],['calf',3,'15',45]] },
-  { id:'r_boxer', name:'Fuerza para boxeadores', color:'#f97316', level:'Intermedio', desc:'Potencia de piernas y cadera, tronco que gira y hombros que aguantan. Dos veces por semana, lejos del sparring.',
+  { id:'r_boxer', name:'Fuerza para boxeadores', color:'#dc9a6e', level:'Intermedio', desc:'Potencia de piernas y cadera, tronco que gira y hombros que aguantan. Dos veces por semana, lejos del sparring.',
     items:[['clean',4,'3-5',150],['squat',4,'4-6',150],['land_press',3,'6-8',90],['med_rot',3,'8',60],['pullup',3,'6-10',120],['pushup',3,'15-20',60],['woodchop',3,'12',60],['neck',2,'15',45]] },
-  { id:'r_home', name:'En casa sin equipo', color:'#06b6d4', level:'Principiante', desc:'Para los días sin gimnasio: solo tu cuerpo.',
+  { id:'r_home', name:'En casa sin equipo', color:'#6fb0b6', level:'Principiante', desc:'Para los días sin gimnasio: solo tu cuerpo.',
     items:[['bw_squat',4,'15-20',60],['pushup',4,'10-15',60],['bridge',3,'15',45],['lunge',3,'12',60],['bench_dip',3,'12',60],['mountain',3,'30',40],['plank',3,'45',40]] },
-  { id:'r_core', name:'Core de acero', color:'#eab308', level:'Todos', desc:'Abdomen y zona media para aguantar golpes al cuerpo y pegar más duro. 15 minutos al final de cualquier entreno.',
+  { id:'r_core', name:'Core de acero', color:'#cdb262', level:'Todos', desc:'Abdomen y zona media para aguantar golpes al cuerpo y pegar más duro. 15 minutos al final de cualquier entreno.',
     items:[['plank',3,'45',40],['legraise',3,'12-15',45],['russian',3,'20',45],['bicycle',3,'20',45],['side_plank',2,'30',30],['hollow',2,'30',30]] },
-  { id:'r_hiit', name:'Circuito quema grasa', color:'#ec4899', level:'Intermedio', desc:'Circuito de cuerpo completo con poco descanso. Sube pulsaciones y gasta muchas calorías.',
+  { id:'r_hiit', name:'Circuito quema grasa', color:'#d08aa8', level:'Intermedio', desc:'Circuito de cuerpo completo con poco descanso. Sube pulsaciones y gasta muchas calorías.',
     items:[['burpee',4,'12',45],['kb_swing',4,'15',45],['jump_sq',4,'15',45],['pushup',4,'15',45],['mountain',4,'30',30],['battle',4,'30',45]] },
 ];
 

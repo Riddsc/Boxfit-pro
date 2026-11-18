@@ -4,6 +4,7 @@ import sys
 p = sys.argv[1]
 s = open(p, encoding='utf-8').read()
 perms = ['android.permission.ACTIVITY_RECOGNITION', 'android.permission.POST_NOTIFICATIONS', 'android.permission.SCHEDULE_EXACT_ALARM', 'android.permission.RECEIVE_BOOT_COMPLETED',
+         'android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS',  # pasos con la app cerrada en teléfonos estrictos
          'android.permission.CAMERA',  # pulso con la cámara y el flash
          # Health Connect (solo lectura): pasos y pulso del reloj u otras apps
          'android.permission.health.READ_STEPS', 'android.permission.health.READ_HEART_RATE', 'android.permission.health.READ_RESTING_HEART_RATE']
@@ -27,6 +28,9 @@ s = s[:i] + link + s[i:]
 extra = '''        <activity-alias android:name="ViewPermissionUsageActivity" android:exported="true" android:targetActivity=".MainActivity" android:permission="android.permission.START_VIEW_PERMISSION_USAGE">
             <intent-filter><action android:name="android.intent.action.VIEW_PERMISSION_USAGE" /><category android:name="android.intent.category.HEALTH_PERMISSIONS" /></intent-filter>
         </activity-alias>
+        <receiver android:name=".StepAlarm" android:exported="false">
+            <intent-filter><action android:name="android.intent.action.BOOT_COMPLETED" /><action android:name="android.intent.action.MY_PACKAGE_REPLACED" /><action android:name="com.riddsc.boxfitpro.STEP_TICK" /></intent-filter>
+        </receiver>
         <receiver android:name=".BoxFitWidget" android:exported="false" android:label="Satronho BoxFit">
             <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
             <meta-data android:name="android.appwidget.provider" android:resource="@xml/sf_widget_info" />

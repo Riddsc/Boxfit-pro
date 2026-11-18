@@ -16,7 +16,7 @@
 const D = window.SFData, { nf, n1 } = SF;
 const MEALS = [['des', 'Desayuno', '🌅'], ['mm', 'Media mañana', '🍎'], ['alm', 'Almuerzo', '🍽️'], ['alg', 'Algo', '☕'], ['cen', 'Cena', '🌙'], ['otr', 'Otros', '🍬']];
 const DIETS = { eq: ['Equilibrada', 'De todo, en su medida'], hp: ['Alta en proteína', 'Para ganar o cuidar músculo'], lc: ['Baja en harinas', 'Menos arroz, pan y azúcar'], keto: ['Keto', 'Casi sin carbohidratos'], veg: ['Vegetariana', 'Sin carnes'] };
-const P_COL = '#ef4444', C_COL = '#f59e0b', F_COL = '#8b5cf6', K_COL = '#22c55e';
+const P_COL = '#d98585', C_COL = '#d6a660', F_COL = '#9d8fd0', K_COL = '#7fb38a';
 
 /* ---------- Datos ---------- */
 let log = load('sf_food', {});                         // { fecha: [{ id, m, n, g, k, p, c, f }] }
@@ -66,13 +66,13 @@ function renderDiary(){
       <button class="calmonth" id="nuToday"><b style="font-size:22px">${day === t ? 'HOY' : day === addDays(t, -1) ? 'AYER' : niceDate(day).toUpperCase()}</b><small>${day === t ? niceDate(day) : 'Toca para volver a hoy'}</small></button>
       <button class="iconbtn" id="nuNext" aria-label="Día siguiente" ${day >= t ? 'disabled style="opacity:.3"' : ''}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M9 5l7 7-7 7"/></svg></button></div>
     <div class="sect sfnsum">
-      <div class="ringbox">${SF.ring(g.k ? tot.k / g.k : 0, left < 0 ? '#ef4444' : K_COL, 132, 13, `<b>${nf(Math.abs(left))}</b><small>${left < 0 ? 'kcal de más' : 'kcal quedan'}</small>`)}</div>
+      <div class="ringbox">${SF.ring(g.k ? tot.k / g.k : 0, left < 0 ? '#d98585' : K_COL, 132, 13, `<b>${nf(Math.abs(left))}</b><small>${left < 0 ? 'kcal de más' : 'kcal quedan'}</small>`)}</div>
       <div class="eq"><div><b>${nf(g.base)}</b><small>Meta</small></div><i>+</i><div><b>${nf(g.ex)}</b><small>Ejercicio</small></div><i>−</i><div><b>${nf(tot.k)}</b><small>Comido</small></div></div>
       ${bar('Proteína', tot.p, g.t.p, P_COL)}${bar('Carbohidratos', tot.c, g.t.c, C_COL)}${bar('Grasa', tot.f, g.t.f, F_COL)}
     </div>
     <div class="sect sfbal"><h4>ENERGÍA DEL DÍA</h4>
       <div class="eq"><div><b>${nf(tot.k)}</b><small>🍽️ Comido</small></div><i>−</i><div><b>${nf(spent)}</b><small>⚡ Gastado</small></div><i>=</i><div class="${bal > 0 ? 'pos' : 'neg'}"><b>${bal > 0 ? '+' : '−'}${nf(Math.abs(bal))}</b><small>Balance</small></div></div>
-      <div class="split"><span><i style="background:#71717a"></i>En reposo ${nf(b.rest)}</span><span><i style="background:#ff5a36"></i>Entrenos ${nf(b.train)}</span><span><i style="background:#38bdf8"></i>Pasos ${nf(SF.stepKcal(b.steps))}</span></div></div>
+      <div class="split"><span><i style="background:#71717a"></i>En reposo ${nf(b.rest)}</span><span><i style="background:#d98a78"></i>Entrenos ${nf(b.train)}</span><span><i style="background:#7aa9d1"></i>Pasos ${nf(SF.stepKcal(b.steps))}</span></div></div>
     ${MEALS.map(([k, name, ic]) => { const li = items.filter(x => x.m === k), s = sum(li);
       return `<div class="sect sfmeal"><div class="mh"><span class="ic">${ic}</span><span class="l"><b>${name.toUpperCase()}</b><small>${li.length ? nf(s.k) + ' kcal · P ' + nf(s.p) + ' · C ' + nf(s.c) + ' · G ' + nf(s.f) : 'Nada todavía'}</small></span>
         ${li.length ? `<button class="xbtn" data-mm="${k}" aria-label="Opciones">⋯</button>` : ''}<button class="smallbtn go" data-add="${k}">+ AGREGAR</button></div>
@@ -89,8 +89,8 @@ function renderDiary(){
 }
 function renderPlan(){
   const body = $('#nutriBody'), t = targets(), gm = window.SFPlan ? SFPlan.goalCardHTML() : '';
-  const tday = todayISO(), days = []; for (let i = 6; i >= 0; i--) days.push(addDays(tday, -i));
-  const data = days.map(d => ({ l: WD[parseISO(d).getDay()], v: dayTotals(d).k, hi: d === tday }));
+  const pk = SFPeriod.get('food', 'w'), tday = todayISO(), days = []; for (let i = SFPeriod.DAYS[pk] - 1; i >= 0; i--) days.push(addDays(tday, -i));
+  const data = SFPeriod.buckets(pk, d => dayTotals(d).k, { agg: 'avg' });
   const logged = days.filter(d => dayTotals(d).k > 0), avg = k => logged.length ? logged.reduce((a, d) => a + dayTotals(d)[k], 0) / logged.length : 0;
   const bal = logged.reduce((a, d) => a + dayTotals(d).k - (t.maint + SF.dayBurn(d).active), 0);
   body.innerHTML = `
@@ -100,9 +100,9 @@ function renderPlan(){
       <button class="btn pri" id="npPlan" style="width:100%;flex:none;margin-bottom:12px;--bc:${K_COL}">🎯 CAMBIAR MI PLAN</button></div>
     ${gm}
     <div class="tiles">
-      <button class="tile" style="--c:#22c55e;--i:1" id="npMenu"><span>🥗</span><b>MENÚ SUGERIDO</b><small>Un día ajustado a tu meta</small></button>
-      <button class="tile" style="--c:#8b5cf6;--i:2" id="npDish"><span>🍲</span><b>MIS PLATOS</b><small>${dishes.length} guardado${dishes.length === 1 ? '' : 's'}</small></button></div>
-    <div class="sect"><h4>MI SEMANA</h4>${SF.bars(data, K_COL, t.k, '')}
+      <button class="tile" style="--c:#7fb38a;--i:1" id="npMenu"><span>🥗</span><b>MENÚ SUGERIDO</b><small>Un día ajustado a tu meta</small></button>
+      <button class="tile" style="--c:#9d8fd0;--i:2" id="npDish"><span>🍲</span><b>MIS PLATOS</b><small>${dishes.length} guardado${dishes.length === 1 ? '' : 's'}</small></button></div>
+    <div class="sect"><h4>LO QUE COMES · ${SFPeriod.title(pk).toUpperCase()}</h4>${SFPeriod.seg('food', 'w', ['w', 'm', 'q', 'y'])}${SF.bars(data, K_COL, t.k, '')}
       <div class="sfmacs"><div style="--c:${K_COL}"><b>${nf(avg('k'))}</b><small>kcal promedio</small></div><div style="--c:${P_COL}"><b>${nf(avg('p'))}</b><small>g proteína</small></div><div style="--c:${C_COL}"><b>${nf(avg('c'))}</b><small>g carbos</small></div><div style="--c:${F_COL}"><b>${nf(avg('f'))}</b><small>g grasa</small></div></div>
       <p class="hint">${logged.length >= 3 ? `En los ${logged.length} días anotados tu balance fue de <b>${bal > 0 ? '+' : '−'}${nf(Math.abs(bal))} kcal</b>: eso equivale a ${bal > 0 ? 'subir' : 'bajar'} unos <b>${n1(Math.abs(bal) / 7700)} kg</b>.` : 'Anota al menos 3 días para ver tu balance de la semana.'}</p></div>
     ${SFPets.says(null, 'Esto es una guía para llevar la cuenta, no una dieta médica. Si tienes una condición de salud, consulta con un nutricionista.')}`;
@@ -110,6 +110,7 @@ function renderPlan(){
   body.querySelector('#npMenu').addEventListener('click', openMenus);
   body.querySelector('#npDish').addEventListener('click', openDishes);
   if (window.SFPlan) SFPlan.bindGoalCard(body);
+  SFPeriod.bind(body, 'food', () => renderPlan());
 }
 function openDishes(){
   openForm(`<h3 class="ftitle">🍲 MIS PLATOS</h3><p class="hint">Guarda una comida completa como plato con el botón ⋯ de cada comida en el Diario. Aquí los agregas con un toque.</p>
@@ -122,19 +123,20 @@ function openDishes(){
 }
 function renderWater(){
   const body = $('#nutriBody'), t = todayISO(), w = SF.water()[t] || 0, wg = SF.waterGoal(), glasses = Math.ceil(wg / 250), done = Math.floor(w / 250);
-  const days = []; for (let i = 6; i >= 0; i--){ const d = addDays(t, -i); days.push({ l: WD[parseISO(d).getDay()], v: SF.water()[d] || 0, hi: d === t }); }
+  const wk = SFPeriod.get('water', 'w'), days = SFPeriod.buckets(wk, d => SF.water()[d] || 0, { agg: 'avg' });
   const fi = fastInfo();
   body.innerHTML = `
     <div class="sect sfwaterbig"><h4>AGUA DE HOY</h4>
-      <div class="ringbox">${SF.ring(w / wg, '#38bdf8', 150, 14, `<b>${n1(w / 1000)}</b><small>de ${n1(wg / 1000)} litros</small>`)}</div>
+      <div class="ringbox">${SF.ring(w / wg, '#7aa9d1', 150, 14, `<b>${n1(w / 1000)}</b><small>de ${n1(wg / 1000)} litros</small>`)}</div>
       <div class="glasses">${Array.from({ length: Math.min(glasses, 16) }, (_, i) => `<i class="${i < done ? 'on' : ''}">🥛</i>`).join('')}</div>
-      <div class="btnrow"><button class="btn" data-w="-250">− VASO</button><button class="btn pri" data-w="250" style="--bc:#38bdf8">+ VASO</button><button class="btn" data-w="500">+ ½ L</button></div>
+      <div class="btnrow"><button class="btn" data-w="-250">− VASO</button><button class="btn pri" data-w="250" style="--bc:#7aa9d1">+ VASO</button><button class="btn" data-w="500">+ ½ L</button></div>
       <p class="hint">${w >= wg ? '¡Meta de agua cumplida! 💧' : 'Faltan ' + nf(wg - w) + ' ml. '}${SF.G.water ? '' : 'Tu meta sale de tu peso (35 ml por kilo); en días de entreno toma un poco más.'}</p></div>
-    <div class="sect"><h4>AGUA · 7 DÍAS (ml)</h4>${SF.bars(days, '#38bdf8', wg, '')}</div>
+    <div class="sect"><h4>AGUA · ${SFPeriod.title(wk).toUpperCase()} (ml)</h4>${SFPeriod.seg('water', 'w', ['w', 'm', 'q', 'y'])}${SF.bars(days, '#7aa9d1', wg, '')}</div>
     <div class="sect"><h4>AYUNO</h4>
-      ${fi ? `<div class="sffast">${SF.ring(fi.el / fi.hours, '#8b5cf6', 150, 14, `<b>${Math.floor(fi.el)}:${pad2(Math.floor(fi.el % 1 * 60))}</b><small>de ${fi.hours} h</small>`)}</div>` : '<p class="hint">Ventana sin comer. La más usada es 16 horas de ayuno y 8 para comer. Es opcional.</p>'}
-      <button class="btn ${fi ? '' : 'pri'}" id="nwFast" style="width:100%;flex:none;margin-bottom:12px;--bc:#8b5cf6">${fi ? 'VER O TERMINAR EL AYUNO' : '⏳ EMPEZAR UN AYUNO'}</button></div>`;
+      ${fi ? `<div class="sffast">${SF.ring(fi.el / fi.hours, '#9d8fd0', 150, 14, `<b>${Math.floor(fi.el)}:${pad2(Math.floor(fi.el % 1 * 60))}</b><small>de ${fi.hours} h</small>`)}</div>` : '<p class="hint">Ventana sin comer. La más usada es 16 horas de ayuno y 8 para comer. Es opcional.</p>'}
+      <button class="btn ${fi ? '' : 'pri'}" id="nwFast" style="width:100%;flex:none;margin-bottom:12px;--bc:#9d8fd0">${fi ? 'VER O TERMINAR EL AYUNO' : '⏳ EMPEZAR UN AYUNO'}</button></div>`;
   body.querySelectorAll('[data-w]').forEach(b => b.addEventListener('click', () => { SF.addWater(+b.dataset.w, t); keepY(render); }));
+  SFPeriod.bind(body, 'water', () => keepY(render));
   body.querySelector('#nwFast').addEventListener('click', openFast);
 }
 const keepY = fn => { const v = $('#nutri'), y = v.scrollTop; fn(); v.scrollTop = y; };
@@ -154,7 +156,7 @@ function openAdd(meal, keepTab){
     <div class="sfchips" id="faG" style="display:none"><button type="button" data-g="" class="on">Todo</button>${Object.entries(D.FOOD_GROUPS).map(([k, v]) => `<button type="button" data-g="${k}">${v[1]} ${v[0]}</button>`).join('')}<button type="button" data-g="mio">⭐ Míos</button></div>
     <div id="faL" class="sfpick"></div>
     <div class="btnrow sfsmallbtns" style="margin-top:10px"><button class="btn" id="faQuick">⚡ RÁPIDO</button><button class="btn" id="faNew">+ CREAR</button><button class="btn pri" id="faOk" style="--bc:var(--mode)">LISTO</button></div>`, sh => {
-    const row = (f, g) => `<button type="button" data-f="${esc(f[0])}" data-g0="${g || ''}"><i style="background:${f[7] === 'mio' ? '#f59e0b' : '#22c55e'}"></i><span class="l"><b>${esc(f[0])}</b><small>${g ? nf(g) + ' g' : '1 ' + esc(f[5]) + ' (' + nf(f[6]) + ' g)'} · ${nf(f[1] * (g || f[6]) / 100)} kcal</small></span><em>+</em></button>`;
+    const row = (f, g) => `<button type="button" data-f="${esc(f[0])}" data-g0="${g || ''}"><i style="background:${f[7] === 'mio' ? '#d6a660' : '#7fb38a'}"></i><span class="l"><b>${esc(f[0])}</b><small>${g ? nf(g) + ' g' : '1 ' + esc(f[5]) + ' (' + nf(f[6]) + ' g)'} · ${nf(f[1] * (g || f[6]) / 100)} kcal</small></span><em>+</em></button>`;
     const draw = () => {
       sh.querySelectorAll('#faT [data-t]').forEach(b => b.classList.toggle('on', b.dataset.t === tabk));
       sh.querySelector('#faG').style.display = tabk === 'all' && !q ? '' : 'none';
@@ -163,7 +165,7 @@ function openAdd(meal, keepTab){
         const nq = norm(q), list = FOODS().filter(f => norm(f[0]).includes(nq)).sort((a, b) => (norm(a[0]).startsWith(nq) ? 0 : 1) - (norm(b[0]).startsWith(nq) ? 0 : 1)).slice(0, 40);
         el.innerHTML = list.map(f => row(f)).join('') || `<p class="empty">No está “${esc(q)}”. Créalo con <b>+ Crear</b> o usa <b>Rápido</b> para poner solo las calorías.</p>`;
       } else if (tabk === 'rec'){ const r = recents(); el.innerHTML = r.map(x => row(x.f, x.g)).join('') || '<p class="empty">Aquí saldrá lo que más comes para agregarlo con un toque.</p>'; }
-      else if (tabk === 'dish'){ el.innerHTML = dishes.map(d => { const s = sum(d.items); return `<button type="button" data-dish="${d.id}"><i style="background:#8b5cf6"></i><span class="l"><b>${esc(d.n)}</b><small>${d.items.length} alimentos · ${nf(s.k)} kcal</small></span><em>+</em></button>`; }).join('') || '<p class="empty">Guarda una comida completa como plato (botón ⋯ de cada comida) y agrégala aquí con un toque.</p>'; }
+      else if (tabk === 'dish'){ el.innerHTML = dishes.map(d => { const s = sum(d.items); return `<button type="button" data-dish="${d.id}"><i style="background:#9d8fd0"></i><span class="l"><b>${esc(d.n)}</b><small>${d.items.length} alimentos · ${nf(s.k)} kcal</small></span><em>+</em></button>`; }).join('') || '<p class="empty">Guarda una comida completa como plato (botón ⋯ de cada comida) y agrégala aquí con un toque.</p>'; }
       else el.innerHTML = FOODS().filter(f => !grp || f[7] === grp).slice(0, grp ? 200 : 60).map(f => row(f)).join('') || '<p class="empty">Aún no has creado alimentos.</p>';
       el.querySelectorAll('[data-f]').forEach(b => b.addEventListener('click', () => openPortion(foodByName(b.dataset.f), meal, +b.dataset.g0 || 0, tabk)));
       el.querySelectorAll('[data-dish]').forEach(b => b.addEventListener('click', () => { const d = dishes.find(x => x.id === b.dataset.dish); addEntries(d.items.map(x => Object.assign({}, x, { id: uid(), m: meal }))); hapticTap(); toast(TF('{s}: agregado', d.n)); b.classList.add('added'); b.querySelector('em').textContent = '✓'; }));
@@ -184,7 +186,7 @@ function openPortion(f, meal, g0, backTab, editId){
     <div class="frow"><div class="field"><span>Porciones (${esc(f[5])})</span><div class="stepper" id="poN"></div></div><div class="field"><span>Gramos</span><div class="stepper" id="poG"></div></div></div>
     <div class="sfmacs"><div style="--c:${K_COL}"><b id="poK">0</b><small>kcal</small></div><div style="--c:${P_COL}"><b id="poP">0</b><small>proteína</small></div><div style="--c:${C_COL}"><b id="poC">0</b><small>carbos</small></div><div style="--c:${F_COL}"><b id="poF">0</b><small>grasa</small></div></div>
     <div class="field"><span>Comida</span><div class="typechips">${MEALS.map(m => `<button type="button" data-m="${m[0]}" style="--c:var(--mode)" class="${m[0] === meal ? 'on' : ''}">${m[2]} ${m[1]}</button>`).join('')}</div></div>
-    <div class="btnrow">${editId ? '<button class="btn" id="poDel" style="color:#f87171">QUITAR</button>' : '<button class="btn" id="poBack">VOLVER</button>'}<button class="btn pri" id="poOk" style="--bc:${K_COL}">${editId ? 'GUARDAR' : 'AGREGAR'}</button></div>`, sh => {
+    <div class="btnrow">${editId ? '<button class="btn" id="poDel" style="color:#dc9696">QUITAR</button>' : '<button class="btn" id="poBack">VOLVER</button>'}<button class="btn pri" id="poOk" style="--bc:${K_COL}">${editId ? 'GUARDAR' : 'AGREGAR'}</button></div>`, sh => {
     const paint = () => { const e = mk(f, st.g, st.meal); sh.querySelector('#poK').textContent = nf(e.k); sh.querySelector('#poP').textContent = n1(e.p); sh.querySelector('#poC').textContent = n1(e.c); sh.querySelector('#poF').textContent = n1(e.f); };
     const sN = sh.querySelector('#poN'), sG = sh.querySelector('#poG');
     makeStepper(sN, { get: () => st.n, set: v => { st.n = Math.round(v * 4) / 4; st.g = Math.round(st.n * f[6]); }, min: 0.25, max: 30, step: 0.25, input: true, fmt: v => n1(Math.round(v * 100) / 100), label: 'Porciones', onChange: () => { sG._paint(); paint(); } });
@@ -213,7 +215,7 @@ function openQuick(meal, edit){
     <label class="field"><span>¿Qué fue?</span><input id="fqN" maxlength="40" value="${esc(v.n)}" placeholder="Ej: Almuerzo en restaurante"></label>
     <div class="field"><span>Calorías</span><div class="stepper big" id="fqK"></div></div>
     <div class="frow"><div class="field"><span>Proteína g</span><div class="stepper sm" id="fqP"></div></div><div class="field"><span>Carbos g</span><div class="stepper sm" id="fqC"></div></div><div class="field"><span>Grasa g</span><div class="stepper sm" id="fqF"></div></div></div>
-    <div class="btnrow">${edit ? '<button class="btn" id="fqDel" style="color:#f87171">QUITAR</button>' : '<button class="btn" id="fqBack">VOLVER</button>'}<button class="btn pri" id="fqOk" style="--bc:${K_COL}">${edit ? 'GUARDAR' : 'AGREGAR'}</button></div>`, sh => {
+    <div class="btnrow">${edit ? '<button class="btn" id="fqDel" style="color:#dc9696">QUITAR</button>' : '<button class="btn" id="fqBack">VOLVER</button>'}<button class="btn pri" id="fqOk" style="--bc:${K_COL}">${edit ? 'GUARDAR' : 'AGREGAR'}</button></div>`, sh => {
     makeStepper(sh.querySelector('#fqK'), { get: () => v.k, set: x => v.k = Math.round(x), min: 0, max: 5000, step: 10, input: true, label: 'Calorías' });
     [['#fqP', 'p'], ['#fqC', 'c'], ['#fqF', 'f']].forEach(([s, k]) => makeStepper(sh.querySelector(s), { get: () => v[k], set: x => v[k] = Math.round(x), min: 0, max: 500, input: true, label: k }));
     const bk = sh.querySelector('#fqBack'); if (bk) bk.addEventListener('click', () => openAdd(meal));
@@ -233,7 +235,7 @@ function openNewFood(name, meal){
     <div class="field"><span>Calorías por 100 g (o 100 ml)</span><div class="stepper" id="nfK"></div></div>
     <div class="frow"><div class="field"><span>Proteína g</span><div class="stepper sm" id="nfP"></div></div><div class="field"><span>Carbos g</span><div class="stepper sm" id="nfC"></div></div><div class="field"><span>Grasa g</span><div class="stepper sm" id="nfF"></div></div></div>
     <div class="frow"><label class="field"><span>Nombre de la porción</span><input id="nfU" maxlength="16" value="porción"></label><div class="field"><span>Gramos de la porción</span><div class="stepper sm" id="nfUG"></div></div></div>
-    <div class="btnrow"><button class="btn" id="nfBack">VOLVER</button><button class="btn pri" id="nfOk" style="--bc:#f59e0b">CREAR</button></div>`, sh => {
+    <div class="btnrow"><button class="btn" id="nfBack">VOLVER</button><button class="btn pri" id="nfOk" style="--bc:#d6a660">CREAR</button></div>`, sh => {
     makeStepper(sh.querySelector('#nfK'), { get: () => v.k, set: x => v.k = Math.round(x), min: 0, max: 900, step: 5, input: true, label: 'Calorías' });
     [['#nfP', 'p'], ['#nfC', 'c'], ['#nfF', 'f']].forEach(([s, k]) => makeStepper(sh.querySelector(s), { get: () => v[k], set: x => v[k] = Math.round(x * 10) / 10, min: 0, max: 100, input: true, label: k }));
     makeStepper(sh.querySelector('#nfUG'), { get: () => v.ug, set: x => v.ug = Math.round(x), min: 1, max: 2000, step: 5, input: true, label: 'Gramos' });
@@ -251,7 +253,7 @@ function openMealMenu(k){
   const name = MEALS.find(m => m[0] === k)[1], li = (log[day] || []).filter(x => x.m === k);
   openForm(`<h3 class="ftitle">${name.toUpperCase()}</h3><p class="hint">${li.length} alimentos · ${nf(sum(li).k)} kcal</p>
     <label class="field"><span>Guardar como plato (para repetirlo con un toque)</span><input id="mmN" maxlength="30" placeholder="Ej: Mi desayuno de siempre"></label>
-    <div class="btnrow"><button class="btn" id="mmClr" style="color:#f87171">VACIAR</button><button class="btn pri" id="mmSave" style="--bc:#8b5cf6">GUARDAR PLATO</button></div>
+    <div class="btnrow"><button class="btn" id="mmClr" style="color:#dc9696">VACIAR</button><button class="btn pri" id="mmSave" style="--bc:#9d8fd0">GUARDAR PLATO</button></div>
     ${dishes.length ? `<h4 class="mini" style="margin-top:14px">MIS PLATOS</h4>${dishes.map(d => `<div class="row"><span class="l"><b>${esc(d.n)}</b><small>${nf(sum(d.items).k)} kcal</small></span><button class="xbtn" data-dd="${d.id}">×</button></div>`).join('')}` : ''}`, sh => {
     sh.querySelector('#mmSave').addEventListener('click', () => { const n = sh.querySelector('#mmN').value.trim(); if (!n) return toast('Ponle un nombre al plato'); dishes.push({ id: uid(), n, items: li.map(x => ({ n: x.n, g: x.g, k: x.k, p: x.p, c: x.c, f: x.f })) }); save('sf_dishes', dishes); closeForm(); toast('Plato guardado'); });
     sh.querySelector('#mmClr').addEventListener('click', async () => { closeForm(); if (await confirmDlg('¿Vaciar ' + name.toLowerCase() + '?', 'Se quitan los alimentos de esta comida.', 'VACIAR')){ log[day] = log[day].filter(x => x.m !== k); if (!log[day].length) delete log[day]; saveLog(); render(); } });
@@ -350,14 +352,14 @@ function openFast(){
   const st = { h: hrs };
   const body = () => { if (!fast) return `<p class="hint">Ventana sin comer. La más usada es 16 horas de ayuno y 8 para comer. El agua, el tinto y el té sin azúcar no lo rompen.</p><div class="field"><span>Horas de ayuno</span><div class="seg" id="fsH">${[12, 14, 16, 18, 20].map(h => `<button type="button" data-h="${h}" class="${h === st.h ? 'on' : ''}">${h} H</button>`).join('')}</div></div>`;
     const el = (Date.now() - fast.start) / 3600000, pct = el / fast.hours, end = new Date(fast.start + fast.hours * 3600000);
-    return `<div class="sffast">${SF.ring(pct, '#8b5cf6', 150, 14, `<b>${Math.floor(el)}:${pad2(Math.floor(el % 1 * 60))}</b><small>de ${fast.hours} h</small>`)}</div><p class="hint" style="text-align:center">${pct >= 1 ? '¡Ayuno cumplido! Rompe el ayuno con algo liviano.' : 'Termina ' + (iso(end) === todayISO() ? 'hoy' : 'mañana') + ' a las ' + pad2(end.getHours()) + ':' + pad2(end.getMinutes())}</p>`; };
+    return `<div class="sffast">${SF.ring(pct, '#9d8fd0', 150, 14, `<b>${Math.floor(el)}:${pad2(Math.floor(el % 1 * 60))}</b><small>de ${fast.hours} h</small>`)}</div><p class="hint" style="text-align:center">${pct >= 1 ? '¡Ayuno cumplido! Rompe el ayuno con algo liviano.' : 'Termina ' + (iso(end) === todayISO() ? 'hoy' : 'mañana') + ' a las ' + pad2(end.getHours()) + ':' + pad2(end.getMinutes())}</p>`; };
   openForm(`<h3 class="ftitle">⏳ AYUNO</h3><div id="fsB">${body()}</div>
     <p class="hint">No es para todo el mundo: si tienes diabetes, estás embarazada o eres menor de edad, consulta primero.</p>
-    <div class="btnrow"><button class="btn" id="fsC">CERRAR</button><button class="btn pri" id="fsGo" style="--bc:#8b5cf6">${fast ? 'TERMINAR AYUNO' : 'EMPEZAR AYUNO'}</button></div>`, sh => {
+    <div class="btnrow"><button class="btn" id="fsC">CERRAR</button><button class="btn pri" id="fsGo" style="--bc:#9d8fd0">${fast ? 'TERMINAR AYUNO' : 'EMPEZAR AYUNO'}</button></div>`, sh => {
     sh.querySelectorAll('#fsH [data-h]').forEach(b => b.addEventListener('click', () => { st.h = +b.dataset.h; sh.querySelectorAll('#fsH [data-h]').forEach(x => x.classList.toggle('on', x === b)); }));
     sh.querySelector('#fsC').addEventListener('click', closeForm);
     sh.querySelector('#fsGo').addEventListener('click', () => {
-      if (fast){ const el = (Date.now() - fast.start) / 3600000; toast(el >= fast.hours ? `¡Ayuno de ${fast.hours} h cumplido! 💪` : `Ayuno terminado a las ${n1(el)} h`); if (el >= fast.hours) confetti('#8b5cf6'); fast = null; }
+      if (fast){ const el = (Date.now() - fast.start) / 3600000; toast(el >= fast.hours ? `¡Ayuno de ${fast.hours} h cumplido! 💪` : `Ayuno terminado a las ${n1(el)} h`); if (el >= fast.hours) confetti('#9d8fd0'); fast = null; }
       else { fast = { start: Date.now(), hours: st.h }; S.fastHours = st.h; saveSettings(); toast('Ayuno en marcha'); }
       save('sf_fast', fast); closeForm(); if (window.SFRemind) SFRemind.sync();
     });

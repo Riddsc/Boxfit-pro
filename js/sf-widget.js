@@ -14,7 +14,7 @@ function push(){
   const data = { title: me.name ? TF('Hola, {s}', me.name.trim().split(/\s+/)[0]) : 'Satronho BoxFit', streak: s.day, showStreak: o.streak, light: o.light,
     kcal: { on: o.kcal, t: `Calorías ${SF.nf(b.active)} / ${SF.nf(G.kcal)}`, p: pc(b.active, G.kcal) },
     min: { on: o.min, t: `Minutos ${b.min} / ${G.min}`, p: pc(b.min, G.min) },
-    steps: { on: o.steps, t: `Pasos ${SF.nf(b.steps)} / ${SF.nf(G.steps)}`, p: pc(b.steps, G.steps) },
+    steps: { on: o.steps, t: `Pasos ${SF.nf(b.steps)} / ${SF.nf(G.steps)}`, p: pc(b.steps, G.steps), goal: G.steps, label: TT('Pasos'), day: todayISO(), manual: b.steps },
     water: { on: o.water, t: `Agua ${SF.n1(w / 1000)} / ${SF.n1(wg / 1000)} L`, p: pc(w, wg) } };
   ['kcal','min','steps','water'].forEach(k => data[k].t = TT(data[k].t) );
   const j = JSON.stringify(data); if (j === lastSent) return; lastSent = j;

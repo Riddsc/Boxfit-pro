@@ -167,8 +167,8 @@ function showMedal(list){
   const m = list[0];
   openForm(`<div class="sfmedalwin"><div class="big">${m[1]}</div><small>MEDALLA NUEVA${list.length > 1 ? ' · y ' + (list.length - 1) + ' más' : ''}</small><h3>${esc(m[2])}</h3><p>${esc(m[3])}</p>
     <div class="who">${SFArt.badge('samy', 46)}<span>¡Qué berraquera! Samy te guarda esta medalla en <b>Progreso</b>.</span></div>
-    <button class="btn pri" id="mdOk" style="width:100%;--bc:#f59e0b">¡VAMOS!</button></div>`, sh => sh.querySelector('#mdOk').addEventListener('click', closeForm));
-  Sound.win(); confetti('#f59e0b');
+    <button class="btn pri" id="mdOk" style="width:100%;--bc:#d6a660">¡VAMOS!</button></div>`, sh => sh.querySelector('#mdOk').addEventListener('click', closeForm));
+  Sound.win(); confetti('#d6a660');
 }
 
 /* ---------- Al terminar cualquier entreno ---------- */
@@ -187,7 +187,7 @@ function addWater(ml, ds){
   const before = water[ds] || 0;
   water[ds] = Math.max(0, before + ml); if (!water[ds]) delete water[ds];
   save('sf_water', water); hapticTap();
-  if (before < waterGoal() && (water[ds] || 0) >= waterGoal()){ toast('💧 ¡Meta de agua cumplida!'); confetti('#38bdf8'); checkMedals(); }
+  if (before < waterGoal() && (water[ds] || 0) >= waterGoal()){ toast('💧 ¡Meta de agua cumplida!'); confetti('#7aa9d1'); checkMedals(); }
 }
 
 /* ---------- Pasos (sensor del teléfono, si lo hay; si no, a mano) ---------- */
@@ -216,18 +216,31 @@ function setStepsFromHC(byDay, byHour){
   Object.entries(byHour || {}).forEach(([d, arr]) => { stepH[d] = arr.map(Math.round); });
   save('sf_steps', steps); save('sf_steph', stepH);
 }
+// Desde la 4.3 el teléfono guarda los pasos solo (StepStore.java) aunque la app esté cerrada; aquí solo se traen
+function mergeNative(h){
+  if (!h || !h.days) return;
+  Object.entries(h.days).forEach(([d, v]) => { v = Math.round(v); if (v > (steps[d] || 0)) steps[d] = v; });
+  Object.entries(h.hours || {}).forEach(([d, arr]) => {
+    const a = arr.map(x => Math.round(x)), sum = x => (x || []).reduce((p, q) => p + q, 0);
+    if (sum(a) >= sum(stepH[d])) stepH[d] = a;
+  });
+  save('sf_steps', steps); save('sf_steph', stepH);
+}
 async function readSteps(ask){
   if (!StepsP || !S.stepSensor) return false;
   try {
     if (ask){ const p = await StepsP.requestPermissions(); if (p && p.activity && p.activity !== 'granted'){ toast('Sin permiso de actividad física no se pueden contar los pasos'); return false; } }
-    const r = await StepsP.read();
+    let h = null;
+    try { h = await StepsP.history(); } catch(e){}
+    const r = h && !h.active ? await StepsP.start() : await StepsP.read();
     if (!r || r.steps == null || r.steps < 0) return false;
+    if (h){ mergeNative(await StepsP.history()); stepsOn = true; return true; }
     const now = Date.now(), prev = stepState;
     if (prev && Math.abs((prev.boot || 0) - r.boot) < 120000 && r.steps >= prev.c){
       const delta = r.steps - prev.c;
       if (delta > 0 && delta < 150000) splitSteps(delta, Math.max(prev.ts, now - 3 * 864e5), now);
     } else if (prev && r.boot > prev.ts){
-      splitSteps(Math.min(r.steps, 150000), Math.max(r.boot, now - 864e5), now);   // el teléfono se reinició: cuenta lo que lleva desde que encendió
+      splitSteps(Math.min(r.steps, 150000), Math.max(r.boot, now - 864e5), now);
     }
     stepState = { c: r.steps, boot: r.boot, ts: now }; save('sf_stepc', stepState);
     stepsOn = true;
@@ -235,8 +248,8 @@ async function readSteps(ask){
   } catch(e){ return false; }
 }
 async function enableSteps(on){
-  S.stepSensor = !!on; saveSettings();
-  if (!on) return false;
+  S.stepSensor = !!on; S.stepAsked = true; saveSettings();
+  if (!on){ try { StepsP && await StepsP.stop(); } catch(e){} stepsOn = false; return false; }
   if (!StepsP){ toast('El contador automático funciona en la app instalada en el teléfono'); S.stepSensor = false; saveSettings(); return false; }
   try { const a = await StepsP.available(); if (!a || !a.available){ toast('Este teléfono no tiene sensor de pasos; anótalos a mano'); S.stepSensor = false; saveSettings(); return false; } } catch(e){}
   stepState = null;                       // la primera lectura solo marca el punto de partida
@@ -251,7 +264,7 @@ function openStepsForm(){
     <div class="field"><span>Pasos</span><div class="stepper big" id="stN"></div></div>
     <div class="row" style="border:0"><div class="l"><b>Contar con el teléfono</b><small>Usa el sensor de pasos del celular (pide permiso de actividad física)</small></div><button class="switch ${S.stepSensor ? 'on' : ''}" id="stAuto"></button></div>
     <div class="field"><span>Meta diaria</span><div class="stepper" id="stG"></div></div>
-    <div class="btnrow"><button class="btn" id="stC">CANCELAR</button><button class="btn pri" id="stS" style="--bc:#38bdf8">GUARDAR</button></div>`, sh => {
+    <div class="btnrow"><button class="btn" id="stC">CANCELAR</button><button class="btn pri" id="stS" style="--bc:#7aa9d1">GUARDAR</button></div>`, sh => {
     makeStepper(sh.querySelector('#stN'), { get:() => v.n, set:x => v.n = Math.round(x), min:0, max:99999, step:500, input:true, label:'Pasos' });
     makeStepper(sh.querySelector('#stG'), { get:() => G.steps, set:x => G.steps = Math.round(x), min:1000, max:40000, step:500, input:true, label:'Meta de pasos' });
     sh.querySelector('#stAuto').addEventListener('click', async e => { const b = e.currentTarget, on = !b.classList.contains('on'); b.classList.toggle('on', on); const ok = await enableSteps(on); if (on && !ok) b.classList.remove('on'); });
@@ -276,7 +289,7 @@ function openActForm(date, preset){
     <div class="field"><span>¿Qué tan duro estuvo?</span><div class="seg" id="acI"><button type="button" data-i="1">SUAVE</button><button type="button" data-i="2">NORMAL</button><button type="button" data-i="3">FUERTE</button></div></div>
     <div class="sfkcalprev"><b id="acK">0</b><span>kcal activas, más o menos</span></div>
     <div class="frow"><label class="field"><span>Fecha</span><input type="date" id="acD" value="${rec.d}" max="${todayISO()}"></label><label class="field"><span>Nota (opcional)</span><input id="acN" maxlength="60" placeholder="Ej: con el profe"></label></div>
-    <div class="btnrow"><button class="btn" id="acC">CANCELAR</button><button class="btn pri" id="acS" style="--bc:#22c55e">GUARDAR</button></div>`, sh => {
+    <div class="btnrow"><button class="btn" id="acC">CANCELAR</button><button class="btn pri" id="acS" style="--bc:#7fb38a">GUARDAR</button></div>`, sh => {
     const prev = () => { sh.querySelector('#acK').textContent = nf(kcalCalc({ a: rec.a, m: rec.m, i: rec.i, manual: true })); };
     const paintL = () => {
       sh.querySelectorAll('#acG [data-g]').forEach(b => b.classList.toggle('on', b.dataset.g === grp));
@@ -297,7 +310,7 @@ function openActForm(date, preset){
       const a = ACT[rec.a];
       logTrain({ d, p: a.n, a: a.k, t: a.g, m: rec.m, r: grp === 'box' ? rec.r : 0, i: rec.i, note: sh.querySelector('#acN').value.trim(), manual: true });
       stats.sessions++; stats.rounds += grp === 'box' ? rec.r : 0; stats.trainSec = (stats.trainSec || 0) + rec.m * 60; save('stats', stats);
-      closeForm(); Sound.win(); confetti('#22c55e'); toast(`¡Guardado! ≈${nf(lastTrain.k)} kcal 💪`);
+      closeForm(); Sound.win(); confetti('#7fb38a'); toast(`¡Guardado! ≈${nf(lastTrain.k)} kcal 💪`);
       if (current === 'calendar') renderCalendar(); else if (current === 'home') SFToday.render(); else if (current === 'train' && window.SFTrain) SFTrain.render();
     });
   });
@@ -342,7 +355,7 @@ function ring(pct, color, size, sw, inner){
 // Barras de los últimos días: data = [{ l: etiqueta, v: valor, hi: resaltada }]
 function bars(data, color, goal, unit){
   const mx = Math.max(goal || 0, ...data.map(d => d.v), 1);
-  return `<div class="sfbars" style="--bc:${color}">${goal ? `<div class="plot"><i class="goal" style="bottom:${(goal / mx * 100).toFixed(1)}%"><em>${nf(goal)}${unit ? ' ' + unit : ''}</em></i></div>` : ''}${data.map(d => `<div class="b ${d.hi ? 'hi' : ''} ${goal && d.v >= goal ? 'ok' : ''}"><span>${d.v ? nf(d.v) : ''}</span><i style="height:${Math.max(d.v ? 3 : 0, d.v / mx * 100).toFixed(1)}%"></i><small>${d.l}</small></div>`).join('')}</div>`;
+  return `<div class="sfbars ${data.length > 14 ? 'dense' : ''}" style="--bc:${color}">${goal ? `<div class="plot"><i class="goal" style="bottom:${(goal / mx * 100).toFixed(1)}%"><em>${goal % 1 ? n1(goal) : nf(goal)}${unit ? ' ' + unit : ''}</em></i></div>` : ''}${data.map(d => `<div class="b ${d.hi ? 'hi' : ''} ${goal && d.v >= goal ? 'ok' : ''}"><span>${d.v ? (d.t != null ? d.t : nf(d.v)) : ''}</span><i style="height:${Math.max(d.v ? 3 : 0, d.v / mx * 100).toFixed(1)}%"></i><small>${d.l}</small></div>`).join('')}</div>`;
 }
 // Línea simple para tendencias: pts = [{ x: etiqueta, v }]
 function lineChart(pts, color, opt){
@@ -354,7 +367,7 @@ function lineChart(pts, color, opt){
   const d = pts.map((p, i) => (i ? 'L' : 'M') + x(i).toFixed(1) + ' ' + y(p.v).toFixed(1)).join(' ');
   const id = 'lg' + Math.random().toString(36).slice(2, 7);
   return `<svg viewBox="0 0 ${W} ${H}" class="wtsvg"><defs><linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${color}" stop-opacity=".35"/><stop offset="1" stop-color="${color}" stop-opacity="0"/></linearGradient></defs>
-    ${opt.goal ? `<line x1="${px}" x2="${W - px}" y1="${y(opt.goal)}" y2="${y(opt.goal)}" stroke="#facc15" stroke-dasharray="5 5" stroke-width="1.5"/>` : ''}
+    ${opt.goal ? `<line x1="${px}" x2="${W - px}" y1="${y(opt.goal)}" y2="${y(opt.goal)}" stroke="#d8c06e" stroke-dasharray="5 5" stroke-width="1.5"/>` : ''}
     <path d="${d} L${x(pts.length - 1).toFixed(1)} ${H - py} L${x(0).toFixed(1)} ${H - py} Z" fill="url(#${id})"/><path d="${d}" fill="none" stroke="${color}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="wtline"/>
     ${pts.map((p, i) => `<circle cx="${x(i)}" cy="${y(p.v)}" r="${i === pts.length - 1 ? 5 : 2.6}" fill="${i === pts.length - 1 ? 'var(--text)' : color}"/>`).join('')}
     <text x="${px}" y="${H - 2}" fill="#71717a" font-size="11" font-weight="700">${pts[0].x}</text><text x="${W - px}" y="${H - 2}" text-anchor="end" fill="#71717a" font-size="11" font-weight="700">${pts[pts.length - 1].x}</text>
@@ -381,7 +394,7 @@ function view(id, title, opt){
 const says = (id, text) => `<div class="sfsays">${SFArt.badge(id, 52)}<div class="bub"><b style="color:${SFArt.GUIDES[id].color}">${SFArt.GUIDES[id].name}</b><p>${text}</p></div></div>`;
 
 window.SF = { ACT, G, saveG, nf, n1, hm, kg, ageY, bmr, profileMissing, waterGoal, weekGoal, kcalCalc, fillKcal, kcalOf, minOf, dayBurn, dayStripHTML, stepKcal,
-  streaks, isRest, mondayOf, weekDays, totals, MEDALS, medals: () => medals, checkMedals, onTrain, water: () => water, addWater, steps: () => steps, stepHours: () => stepH, setStepsFromHC, readSteps, enableSteps, stepsOn: () => stepsOn, openStepsForm,
+  streaks, isRest, mondayOf, weekDays, totals, MEDALS, medals: () => medals, checkMedals, onTrain, water: () => water, addWater, steps: () => steps, stepHours: () => stepH, setStepsFromHC, readSteps, enableSteps, stepsPlugin: () => StepsP, stepsOn: () => stepsOn, openStepsForm,
   openGoalsForm, ring, bars, lineChart, view, says, BACK_SVG };
 window.SFAct = { openForm: openActForm };
 })();

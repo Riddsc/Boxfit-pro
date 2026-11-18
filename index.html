@@ -50,8 +50,8 @@ html,body,.view,.sect,.card,.stat,.info,nav,.tile,.calcard,.day,.chip,.iconbtn,.
 :root{
   --bg:#09090c; --bg2:#0f0f14; --panel:#15151b; --panel2:#1d1d25; --line:#2a2a35;
   --text:#f4f4f5; --muted:#a1a1aa; --dim:#6b6b76;
-  --accent:#ef4444;
-  --c-prep:#38bdf8; --c-work:#22c55e; --c-warn:#facc15; --c-rest:#ef4444; --c-done:#a1a1aa; --c-idle:#ef4444;
+  --accent:#d98585;
+  --c-prep:#7aa9d1; --c-work:#7fb38a; --c-warn:#d8c06e; --c-rest:#d98585; --c-done:#a1a1aa; --c-idle:#d98585;
   --phase:var(--accent);
   --display:'Bebas Neue','Impact','Arial Narrow',sans-serif;
   --body:'Barlow Condensed','Roboto Condensed','Arial Narrow',sans-serif;
@@ -209,7 +209,7 @@ input{font:inherit;color:inherit}
 .tabs{position:relative;display:flex;background:var(--panel);border:1px solid var(--line);border-radius:99px;padding:4px;margin-bottom:14px;width:100%;max-width:380px}
 .tabs button{flex:1;position:relative;z-index:1;padding:10px 0;font-weight:700;font-size:16px;letter-spacing:.06em;color:var(--muted);transition:color .25s}
 .tabs button.on{color:#fff}
-.tabs .pill{position:absolute;top:4px;bottom:4px;left:4px;border-radius:99px;background:var(--tabc,#3b82f6);transition:transform .35s cubic-bezier(.3,.9,.3,1.1),background .35s;box-shadow:0 6px 20px -6px var(--tabc)}
+.tabs .pill{position:absolute;top:4px;bottom:4px;left:4px;border-radius:99px;background:var(--tabc,#7f9bd6);transition:transform .35s cubic-bezier(.3,.9,.3,1.1),background .35s;box-shadow:0 6px 20px -6px var(--tabc)}
 .wheelbox{position:relative;width:min(88vw,370px,52vh);aspect-ratio:1;margin:12px 0 6px}
 .wheelbox canvas{position:absolute;inset:0;width:100%;height:100%;filter:drop-shadow(0 18px 30px rgba(0,0,0,.55))}
 .pointer{position:absolute;left:50%;top:-14px;width:44px;height:54px;margin-left:-22px;z-index:3;transform-origin:50% 20%;transition:transform .09s ease-out}
@@ -224,7 +224,7 @@ input{font:inherit;color:inherit}
 .addrow{display:flex;gap:8px}
 .addrow input{flex:1;min-width:0;background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:10px 12px;font-size:17px;outline:none}
 .addrow input:focus{border-color:var(--tabc)}
-.addrow button{width:46px;border-radius:12px;background:var(--tabc,#3b82f6);font-family:var(--display);font-size:28px;line-height:1}
+.addrow button{width:46px;border-radius:12px;background:var(--tabc,#7f9bd6);font-family:var(--display);font-size:28px;line-height:1}
 .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;max-height:150px;overflow-y:auto}
 .ritem{display:inline-flex;align-items:center;gap:6px;background:var(--panel2);border:1px solid var(--line);border-left:4px solid var(--ic);border-radius:10px;padding:5px 4px 5px 10px;font-weight:600;font-size:15px;animation:pop .25s both}
 .ritem button{width:26px;height:26px;border-radius:8px;color:var(--dim);font-size:18px;line-height:1}
@@ -262,7 +262,7 @@ input[type=range]{-webkit-appearance:none;appearance:none;width:130px;height:6px
 input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:24px;height:24px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 4px color-mix(in srgb,var(--accent) 30%,transparent)}
 .smallbtn{padding:8px 14px;border-radius:12px;background:var(--panel2);border:1px solid var(--line);font-weight:700;font-size:15px}
 .smallbtn:active{transform:scale(.95)}
-.smallbtn.danger{color:#f87171}
+.smallbtn.danger{color:#dc9696}
 .foot{text-align:center;color:var(--dim);font-size:14px;padding:6px 0 10px}
 
 /* ---------- Editor de entrenamiento ---------- */
@@ -315,8 +315,8 @@ nav button.on svg{transform:translateY(-2px) scale(1.12);color:var(--accent)}
 .modes .bhseg{background:#fff;color:#111;padding:6px 6px 5px}
 .modes .bhseg img{height:34px;max-width:100%;object-fit:contain}
 .modes .bhseg small{font-size:10.5px;letter-spacing:.08em;color:#111;font-weight:700}
-.modes .bhseg.on{border-color:#ef4444;box-shadow:0 0 0 2px #ef4444,0 10px 30px -8px #ef4444;animation:bhGlow 2.4s infinite}
-@keyframes bhGlow{50%{box-shadow:0 0 0 2px #ef4444,0 10px 40px -2px #ef4444}}
+.modes .bhseg.on{border-color:#d98585;box-shadow:0 0 0 2px #d98585,0 10px 30px -8px #d98585;animation:bhGlow 2.4s infinite}
+@keyframes bhGlow{50%{box-shadow:0 0 0 2px #d98585,0 10px 40px -2px #d98585}}
 .seclbl{font-size:13px;letter-spacing:.14em;color:var(--dim);font-weight:700;margin:4px 0 10px}
 .tiles{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
 .tile{overflow:hidden;min-width:0;text-align:left;border-radius:20px;padding:14px;min-height:104px;display:flex;flex-direction:column;gap:2px;
@@ -326,7 +326,7 @@ nav button.on svg{transform:translateY(-2px) scale(1.12);color:var(--accent)}
 .tile span{font-size:28px}
 .tile b{font-family:var(--display);font-size:clamp(17px,5.2vw,22px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;font-weight:400;letter-spacing:.04em;margin-top:auto}
 .tile small{color:var(--muted);font-weight:600;font-size:14px}
-.calcard{width:100%;display:flex;align-items:center;gap:12px;text-align:left;border-radius:18px;padding:12px 14px;margin-bottom:14px;background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--c,#3b82f6);animation:cardIn .45s both}
+.calcard{width:100%;display:flex;align-items:center;gap:12px;text-align:left;border-radius:18px;padding:12px 14px;margin-bottom:14px;background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--c,#7f9bd6);animation:cardIn .45s both}
 .calcard:active{transform:scale(.98)}
 .calic{font-size:28px}
 .calcard .l{flex:1;min-width:0}
@@ -381,13 +381,13 @@ nav button.on svg{transform:translateY(-2px) scale(1.12);color:var(--accent)}
 .clcard .tot{font-size:13px;font-weight:700;background:rgba(0,0,0,.35);padding:3px 8px;border-radius:99px}
 .cldays{display:flex;gap:4px;align-items:center;margin:6px 0}
 .cldays i{font-style:normal;width:24px;height:24px;border-radius:7px;display:grid;place-items:center;font-size:12px;font-weight:700;background:var(--hl1);color:var(--dim)}
-.cldays i.on{background:#ef4444;color:#fff}
+.cldays i.on{background:#d98585;color:#fff}
 .cldays span{margin-left:6px;font-weight:700}
 .clcard small{color:var(--muted);font-weight:600;font-size:14px}
 .daypick{display:flex;gap:6px;padding:4px 0 6px}
 .daypick button{flex:1;aspect-ratio:1;max-width:46px;border-radius:12px;background:var(--panel2);border:1px solid var(--line);font-weight:700;transition:all .2s}
-.daypick button.on{background:#ef4444;border-color:#ef4444;color:#fff;transform:scale(1.05)}
-.blk .num{width:28px;height:28px;border-radius:9px;display:grid;place-items:center;background:#ef4444;font-weight:700;font-size:14px;flex:none}
+.daypick button.on{background:#d98585;border-color:#d98585;color:#fff;transform:scale(1.05)}
+.blk .num{width:28px;height:28px;border-radius:9px;display:grid;place-items:center;background:#d98585;font-weight:700;font-size:14px;flex:none}
 .blk .l b{font-size:16px}
 .xbtn{width:32px;height:32px;border-radius:10px;color:var(--dim);font-size:22px;line-height:1;flex:none}
 .xbtn:active{background:var(--hl2)}
@@ -414,7 +414,7 @@ nav button.on svg{transform:translateY(-2px) scale(1.12);color:var(--accent)}
 /* ---------- Gráfico ---------- */
 .bars{display:flex;align-items:flex-end;gap:6px;height:170px;padding:18px 0 4px}
 .bar{flex:1;height:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:4px;min-width:0}
-.bar i{width:100%;max-width:30px;border-radius:8px 8px 3px 3px;background:linear-gradient(180deg,#22c55e,#15803d);transform-origin:bottom;animation:grow .6s cubic-bezier(.2,.9,.3,1.2) both}
+.bar i{width:100%;max-width:30px;border-radius:8px 8px 3px 3px;background:linear-gradient(180deg,#7fb38a,#15803d);transform-origin:bottom;animation:grow .6s cubic-bezier(.2,.9,.3,1.2) both}
 .bar em{font-style:normal;font-weight:700;font-size:13px}
 .bar span{font-size:11px;color:var(--dim);font-weight:700}
 @keyframes grow{from{transform:scaleY(0)}}
@@ -457,10 +457,10 @@ nav button.on svg{transform:translateY(-2px) scale(1.12);color:var(--accent)}
 .wtdiffs{display:flex;flex-direction:column;gap:6px}
 .wtdiffs > div{background:var(--panel2);border-radius:12px;padding:6px 10px;text-align:right;min-width:104px}
 .wtdiffs b{font-family:var(--display);font-size:26px;font-weight:400;line-height:1}
-.wtdiffs .down b,.chg.down{color:#22c55e}
-.wtdiffs .up b,.chg.up{color:#f87171}
+.wtdiffs .down b,.chg.down{color:#7fb38a}
+.wtdiffs .up b,.chg.up{color:#dc9696}
 .goalbar{height:10px;border-radius:9px;background:var(--hl2);overflow:hidden;margin:12px 0 6px}
-.goalbar i{display:block;height:100%;border-radius:9px;background:linear-gradient(90deg,#22c55e,#facc15);animation:growx .9s cubic-bezier(.2,.9,.3,1) both;transform-origin:left}
+.goalbar i{display:block;height:100%;border-radius:9px;background:linear-gradient(90deg,#7fb38a,#d8c06e);animation:growx .9s cubic-bezier(.2,.9,.3,1) both;transform-origin:left}
 @keyframes growx{from{transform:scaleX(0)}}
 #wtHero > small{color:var(--muted);font-weight:600}
 .wtsvg{width:100%;height:auto;display:block}
@@ -472,8 +472,8 @@ nav button.on svg{transform:translateY(-2px) scale(1.12);color:var(--accent)}
 /* =========================================================
    v3 · COLOR POR MODO, NUEVAS SECCIONES, GUÍA BOXEADOR
    ========================================================= */
-:root{--mode:#f97316}
-:root[data-mode="gym"]{--mode:#8b5cf6}
+:root{--mode:#dc9a6e}
+:root[data-mode="gym"]{--mode:#9d8fd0}
 .hello em{color:var(--mode)}
 nav .ind{background:color-mix(in srgb,var(--mode) 22%,transparent);border-color:color-mix(in srgb,var(--mode) 40%,transparent);transition:transform .4s cubic-bezier(.3,.9,.3,1.15),opacity .3s,background .4s}
 nav button.on svg{color:var(--mode)}
@@ -505,7 +505,7 @@ nav button.on svg{color:var(--mode)}
 .kpi span{color:var(--dim);font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
 .kpi.wide{grid-column:1/-1}
 .money{font-variant-numeric:tabular-nums}
-.pos{color:#22c55e}.neg{color:#f87171}
+.pos{color:#7fb38a}.neg{color:#dc9696}
 .mrow{display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--hl1);width:100%;text-align:left}
 .mrow:first-child{border-top:0}
 .mrow .av{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:15px;flex:none;background:color-mix(in srgb,var(--ac,#71717a) 25%,var(--panel2));color:var(--text);border:2px solid color-mix(in srgb,var(--ac,#71717a) 55%,transparent)}
@@ -516,11 +516,11 @@ nav button.on svg{color:var(--mode)}
 .mrow .r b{display:block;font-weight:700}
 .mrow .r small{color:var(--dim);font-size:12px}
 .chk{width:34px;height:34px;border-radius:11px;border:2px solid var(--line);display:grid;place-items:center;flex:none;transition:all .18s;color:transparent;font-size:20px;font-weight:700}
-.mrow.on .chk{background:#22c55e;border-color:#22c55e;color:#fff;transform:scale(1.05)}
+.mrow.on .chk{background:#7fb38a;border-color:#7fb38a;color:#fff;transform:scale(1.05)}
 .mrow.on{background:linear-gradient(90deg,#22c55e14,transparent 70%)}
 .rollhead{position:sticky;top:calc(-1*(var(--st) + 14px));z-index:4;background:var(--bg);padding:6px 0 4px;margin:0 -2px}
 .bigcount{display:flex;align-items:center;gap:12px;background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:10px 14px;margin-bottom:10px}
-.bigcount b{font-family:var(--display);font-size:52px;line-height:.9;color:#22c55e}
+.bigcount b{font-family:var(--display);font-size:52px;line-height:.9;color:#7fb38a}
 .bigcount .l{flex:1}
 .bigcount small{display:block;color:var(--muted);font-weight:600}
 .slotcard{width:100%;display:flex;align-items:center;gap:12px;text-align:left;border-radius:18px;padding:12px 14px;margin-bottom:10px;background:linear-gradient(150deg,color-mix(in srgb,var(--c) 22%,var(--panel)),var(--panel) 70%);border:1px solid color-mix(in srgb,var(--c) 35%,var(--line));animation:cardIn .4s both;animation-delay:calc(var(--i)*50ms)}
@@ -537,7 +537,7 @@ nav button.on svg{color:var(--mode)}
 .statusbar i{display:block;height:100%}
 .legend{display:flex;flex-wrap:wrap;gap:10px;font-size:13px;color:var(--muted);font-weight:700;padding-bottom:8px}
 .legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
-.catcard{border-radius:18px;padding:14px;background:linear-gradient(150deg,color-mix(in srgb,var(--cc,#f59e0b) 26%,var(--panel)),var(--panel) 72%);border:1px solid color-mix(in srgb,var(--cc,#f59e0b) 40%,var(--line));margin-bottom:14px}
+.catcard{border-radius:18px;padding:14px;background:linear-gradient(150deg,color-mix(in srgb,var(--cc,#d6a660) 26%,var(--panel)),var(--panel) 72%);border:1px solid color-mix(in srgb,var(--cc,#d6a660) 40%,var(--line));margin-bottom:14px}
 .catcard small{display:block;color:var(--dim);font-weight:700;font-size:12px;letter-spacing:.1em}
 .catcard .nm{font-family:var(--display);font-size:clamp(30px,10vw,42px);line-height:1;margin:2px 0}
 .catcard p{color:var(--muted);font-weight:600;font-size:15px;line-height:1.25}
@@ -547,7 +547,7 @@ nav button.on svg{color:var(--mode)}
 .cattable td:last-child{text-align:right;color:var(--muted);white-space:nowrap}
 .cattable tr.me td{background:color-mix(in srgb,var(--mode) 22%,transparent);color:var(--text)}
 .cattable tr.me td:first-child{border-radius:8px 0 0 8px}.cattable tr.me td:last-child{border-radius:0 8px 8px 0}
-.gauge{position:relative;height:14px;border-radius:9px;margin:14px 0 4px;background:linear-gradient(90deg,#60a5fa 0 14%,#22c55e 14% 46%,#facc15 46% 66%,#f97316 66% 82%,#ef4444 82%)}
+.gauge{position:relative;height:14px;border-radius:9px;margin:14px 0 4px;background:linear-gradient(90deg,#8aaedb 0 14%,#7fb38a 14% 46%,#d8c06e 46% 66%,#dc9a6e 66% 82%,#d98585 82%)}
 .gauge i{position:absolute;top:-6px;width:4px;height:26px;border-radius:3px;background:var(--text);box-shadow:0 0 0 2px var(--bg);transform:translateX(-2px);transition:left .8s cubic-bezier(.2,.9,.3,1)}
 .gaugelbl{display:flex;justify-content:space-between;font-size:11px;color:var(--dim);font-weight:700}
 .bmibig{display:flex;align-items:baseline;gap:10px}
@@ -555,11 +555,11 @@ nav button.on svg{color:var(--mode)}
 .daymarks{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:6px 0 10px}
 .daymarks button{padding:10px 4px;border-radius:12px;font-weight:700;font-size:14px;background:var(--panel2);border:1px solid var(--line)}
 .daymarks button.on{background:color-mix(in srgb,var(--c) 30%,var(--panel2));border-color:var(--c);box-shadow:0 0 0 1px var(--c)}
-.day.tr{background:color-mix(in srgb,#22c55e 26%,var(--panel));border-color:color-mix(in srgb,#22c55e 55%,var(--line))}
-.day.ms{background:color-mix(in srgb,#ef4444 22%,var(--panel));border-color:color-mix(in srgb,#ef4444 50%,var(--line))}
-.day.ms.auto{background:color-mix(in srgb,#ef4444 10%,var(--panel));border-style:dashed}
+.day.tr{background:color-mix(in srgb,#7fb38a 26%,var(--panel));border-color:color-mix(in srgb,#7fb38a 55%,var(--line))}
+.day.ms{background:color-mix(in srgb,#d98585 22%,var(--panel));border-color:color-mix(in srgb,#d98585 50%,var(--line))}
+.day.ms.auto{background:color-mix(in srgb,#d98585 10%,var(--panel));border-style:dashed}
 .day.rs{background:color-mix(in srgb,#64748b 22%,var(--panel))}
-.day.pl{border-color:color-mix(in srgb,#22c55e 55%,var(--line));border-style:dashed}
+.day.pl{border-color:color-mix(in srgb,#7fb38a 55%,var(--line));border-style:dashed}
 .day.sel{background:var(--mode);border-color:var(--mode);color:#fff}
 .day.today:not(.sel){border-color:var(--mode);color:var(--mode)}
 .fab{position:fixed;left:16px;right:16px;bottom:calc(var(--nav-h) + var(--sb) + 20px);z-index:20}
@@ -584,7 +584,7 @@ nav button.on svg{color:var(--mode)}
 .paylist .row{padding:8px 0}
 .minibars{display:flex;align-items:flex-end;gap:4px;height:120px;padding:14px 0 2px}
 .minibars .bar i{max-width:18px}
-.minibars .bar i.out{background:linear-gradient(180deg,#f87171,#b91c1c)}
+.minibars .bar i.out{background:linear-gradient(180deg,#dc9696,#b86a6a)}
 .minibars .pair{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;height:100%;justify-content:flex-end;min-width:0}
 .minibars .pair > div{display:flex;gap:2px;align-items:flex-end;height:100%;width:100%;justify-content:center}
 .minibars .pair i{width:42%;max-width:14px;border-radius:5px 5px 2px 2px;transform-origin:bottom;animation:grow .6s cubic-bezier(.2,.9,.3,1.2) both}
@@ -686,7 +686,7 @@ nav button.on svg{color:var(--mode)}
 .gridlbl .hh{margin:4px 0 10px}
 .note{width:100%;display:flex;align-items:center;gap:8px;text-align:left;margin-top:8px;padding:9px 12px;border-radius:14px;font-size:15px;font-weight:600;background:color-mix(in srgb,var(--c) 14%,var(--panel2));border:1px solid color-mix(in srgb,var(--c) 35%,var(--line))}
 .note span{flex:1}
-.smallbtn.go{background:#22c55e;border-color:#22c55e;color:#fff}
+.smallbtn.go{background:#7fb38a;border-color:#7fb38a;color:#fff}
 h4.mini{font-size:12px;letter-spacing:.14em;color:var(--dim);font-weight:700;margin:12px 0 2px}
 .sectabs{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:4px;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:4px;margin:-4px 0 14px}
 .sectabs button{display:flex;flex-direction:column;align-items:center;gap:1px;padding:6px 2px;border-radius:12px;font-weight:700;font-size:11px;letter-spacing:.05em;color:var(--muted);min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -791,7 +791,7 @@ h4.mini{font-size:12px;letter-spacing:.14em;color:var(--dim);font-weight:700;mar
     <button data-r="penitencia">CASTIGO</button>
   </div>
   <div class="wheelbox" id="wheelbox">
-    <svg class="pointer" id="pointer" viewBox="0 0 44 54"><defs><linearGradient id="pg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#d4d4d8"/></linearGradient></defs><path d="M22 52 L6 14 A17 17 0 1 1 38 14 Z" fill="url(#pg)" stroke="#18181b" stroke-width="3"/><circle cx="22" cy="17" r="6" fill="var(--tabc,#3b82f6)"/></svg>
+    <svg class="pointer" id="pointer" viewBox="0 0 44 54"><defs><linearGradient id="pg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#d4d4d8"/></linearGradient></defs><path d="M22 52 L6 14 A17 17 0 1 1 38 14 Z" fill="url(#pg)" stroke="#18181b" stroke-width="3"/><circle cx="22" cy="17" r="6" fill="var(--tabc,#7f9bd6)"/></svg>
     <canvas id="wheel"></canvas>
     <button class="hub" id="btnSpin">GIRAR</button>
   </div>
@@ -843,7 +843,7 @@ h4.mini{font-size:12px;letter-spacing:.14em;color:var(--dim);font-weight:700;mar
     <div class="row"><div class="l"><b>Estadísticas</b><small id="statsLine">—</small></div><button class="smallbtn danger" id="resetStats">BORRAR</button></div>
     <div class="row"><div class="l"><b>Entrenamientos originales</b><small>Recupera los perfiles de fábrica</small></div><button class="smallbtn danger" id="resetProfiles">RESTAURAR</button></div>
   </div>
-  <p class="foot" id="sfFoot">Satronho BoxFit · versión 4.2</p>
+  <p class="foot" id="sfFoot">Satronho BoxFit · versión 4.3</p>
 </section>
 
 <!-- ================= EDITOR ================= -->
@@ -858,7 +858,7 @@ h4.mini{font-size:12px;letter-spacing:.14em;color:var(--dim);font-weight:700;mar
     <div class="row"><div class="l"><b>Aviso final</b><small>Pantalla amarilla y silbato</small></div><div class="stepper" data-k="warn"></div></div>
   </div>
   <div class="sect" style="--i:1"><h4>COLOR</h4><div class="swatches" id="edSwatches"></div><h4>ÍCONO</h4><div class="emojis" id="edEmojis"></div></div>
-  <div class="btnrow" style="margin-bottom:10px"><button class="btn" id="edDelete" style="color:#f87171">ELIMINAR</button><button class="btn pri" id="edSave">GUARDAR</button></div>
+  <div class="btnrow" style="margin-bottom:10px"><button class="btn" id="edDelete" style="color:#dc9696">ELIMINAR</button><button class="btn pri" id="edSave">GUARDAR</button></div>
 </section>
 
 
@@ -919,7 +919,7 @@ h4.mini{font-size:12px;letter-spacing:.14em;color:var(--dim);font-weight:700;mar
 <section class="view" id="weight">
   <div class="topbar"><button class="iconbtn" data-back aria-label="Atrás"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M15 5l-7 7 7 7"/></svg></button><div class="title">MI PESO</div><button class="smallbtn" id="wtGoal">🎯 META</button></div>
   <div class="sect" style="--i:0;padding:14px" id="wtHero"></div>
-  <button class="btn pri" id="wtAdd" style="--bc:#22c55e;width:100%;margin-bottom:14px;flex:none">+ REGISTRAR PESO</button>
+  <button class="btn pri" id="wtAdd" style="--bc:#7fb38a;width:100%;margin-bottom:14px;flex:none">+ REGISTRAR PESO</button>
   <div id="wtCards"></div>
   <div class="sect" style="--i:1"><h4>PROGRESO</h4><div id="wtChart" style="padding-bottom:10px"></div></div>
   <div class="sect" style="--i:2"><h4>HISTORIAL</h4><div id="wtLog"></div></div>
@@ -971,19 +971,22 @@ const AppP = plugin('App'), Haptics = plugin('Haptics'), Awake = plugin('KeepAwa
 /* =========================================================
    1. DATOS: ENTRENAMIENTOS Y AJUSTES
    ========================================================= */
-const COLORS = ['#ef4444','#f97316','#f59e0b','#eab308','#22c55e','#10b981','#06b6d4','#3b82f6','#6366f1','#8b5cf6','#d946ef','#ec4899'];
+const COLORS = ['#d98585','#dc9a6e','#d6a660','#cdb262','#7fb38a','#6fb39a','#6fb0b6','#7f9bd6','#8f8fd2','#9d8fd0','#c79bd0','#d08aa8'];
 const EMOJIS = ['🥊','🏆','🤼','🦵','⚡','💥','🔥','🏃','💪','🥋','⏱️','🎯','🧘','🚴','🦾','👊'];
 const DEFAULT_PROFILES = [
-  { id:'amateur', name:'Boxeo Amateur', icon:'🥊', color:'#ef4444', work:180, rest:60,  rounds:3,  prep:10, warn:30 },
-  { id:'pro',     name:'Boxeo Pro',     icon:'🏆', color:'#f59e0b', work:180, rest:60,  rounds:12, prep:10, warn:30 },
-  { id:'mma',     name:'MMA',           icon:'🤼', color:'#8b5cf6', work:300, rest:60,  rounds:5,  prep:10, warn:30 },
-  { id:'muay',    name:'Muay Thai',     icon:'🦵', color:'#06b6d4', work:180, rest:120, rounds:5,  prep:10, warn:30 },
-  { id:'tabata',  name:'Tabata',        icon:'⚡', color:'#22c55e', work:20,  rest:10,  rounds:8,  prep:10, warn:5  },
-  { id:'saco',    name:'Saco y Sombra', icon:'💥', color:'#ec4899', work:120, rest:30,  rounds:6,  prep:10, warn:15 },
+  { id:'amateur', name:'Boxeo Amateur', icon:'🥊', color:'#d98585', work:180, rest:60,  rounds:3,  prep:10, warn:30 },
+  { id:'pro',     name:'Boxeo Pro',     icon:'🏆', color:'#d6a660', work:180, rest:60,  rounds:12, prep:10, warn:30 },
+  { id:'mma',     name:'MMA',           icon:'🤼', color:'#9d8fd0', work:300, rest:60,  rounds:5,  prep:10, warn:30 },
+  { id:'muay',    name:'Muay Thai',     icon:'🦵', color:'#6fb0b6', work:180, rest:120, rounds:5,  prep:10, warn:30 },
+  { id:'tabata',  name:'Tabata',        icon:'⚡', color:'#7fb38a', work:20,  rest:10,  rounds:8,  prep:10, warn:5  },
+  { id:'saco',    name:'Saco y Sombra', icon:'💥', color:'#d08aa8', work:120, rest:30,  rounds:6,  prep:10, warn:15 },
 ];
 const DEFAULT_SETTINGS = { sound:true, volume:80, countdown:true, warnSound:true, vibrate:true, askAtStart:true, autoTraffic:false, keepAwake:true, flash:true, mode:'personal', theme:'dark', loud:false, guide:true, guideTips:true, guideTimer:true, guideName:'', seen:{} };
 
 let profiles = load('profiles', null) || JSON.parse(JSON.stringify(DEFAULT_PROFILES));
+// 4.3: los colores guardados antes (muy brillantes) pasan a su versión sobria
+(function(){ const M = {'#ef4444':'#d98585','#f97316':'#dc9a6e','#f59e0b':'#d6a660','#eab308':'#cdb262','#22c55e':'#7fb38a','#10b981':'#6fb39a','#06b6d4':'#6fb0b6','#3b82f6':'#7f9bd6','#6366f1':'#8f8fd2','#8b5cf6':'#9d8fd0','#d946ef':'#c79bd0','#ec4899':'#d08aa8'};
+  let ch = false; profiles.forEach(p => { const c = M[(p.color || '').toLowerCase()]; if (c){ p.color = c; ch = true; } }); if (ch) save('profiles', profiles); })();
 let S = Object.assign({}, DEFAULT_SETTINGS, load('settings', {}));
 // v4: el antiguo «modo gimnasio» (no guardar nada) ahora es el interruptor «Modo clase»; el modo Box House salió de la app
 if (S.noSave === undefined) S.noSave = (S.mode === 'gym') || (!!S.gymMode && load('settings', {}).mode === undefined);
@@ -1407,7 +1410,7 @@ function stepFor(k, v, dir){
 function openEditor(id, from){
   editorReturn = from;
   const src = id ? profiles.find(p => p.id === id) : null;
-  draft = src ? Object.assign({}, src) : { id:'c' + Date.now().toString(36), name:'Mi rutina', icon:'🔥', color:'#f97316', work:120, rest:45, rounds:4, prep:10, warn:15, _new:true };
+  draft = src ? Object.assign({}, src) : { id:'c' + Date.now().toString(36), name:'Mi rutina', icon:'🔥', color:'#dc9a6e', work:120, rest:45, rounds:4, prep:10, warn:15, _new:true };
   $('#edTitle').textContent = src ? 'EDITAR' : 'NUEVO';
   $('#edDelete').style.display = (src && profiles.length > 1) ? '' : 'none';
   $('#edName').value = draft.name;
@@ -1477,9 +1480,9 @@ const toLazo = t => typeof t === 'string' ? t.replace(/soga/g, 'lazo').replace(/
   ['bfp2_roulettes','bfp2_bh_warmups'].forEach(k => { const v = localStorage.getItem(k); if (v && /soga/i.test(v)) localStorage.setItem(k, toLazo(v)); });
 } catch(e){} })();
 const R_META = {
-  sparring:   { label:'SPARRING', color:'#3b82f6', pal:['#2563eb','#0891b2','#7c3aed','#0d9488','#4f46e5','#0284c7'] },
-  combos:     { label:'COMBO',    color:'#22c55e', pal:['#16a34a','#ca8a04','#0d9488','#65a30d','#059669','#b45309'] },
-  penitencia: { label:'CASTIGO',  color:'#ef4444', pal:['#dc2626','#ea580c','#d97706','#be123c','#c2410c','#b91c1c'] },
+  sparring:   { label:'SPARRING', color:'#7f9bd6', pal:['#7b93cf','#5fa5b0','#9a8bd0','#5ea69c','#8a86c9','#6a9fbf'] },
+  combos:     { label:'COMBO',    color:'#7fb38a', pal:['#6fa87c','#b89a4e','#5ea69c','#8fae66','#5fa58a','#b48252'] },
+  penitencia: { label:'CASTIGO',  color:'#d98585', pal:['#c97a7a','#d38d66','#cf9a5c','#bb6f7e','#bf7f5e','#b86a6a'] },
 };
 // migra listas de la versión anterior
 const oldSp = (() => { try { return JSON.parse(localStorage.getItem('boxfit_sparring')); } catch(e){ return null; } })();
@@ -1646,7 +1649,7 @@ $$('#rTabs button').forEach(b => b.addEventListener('click', () => { hapticTap()
 const cf = $('#confetti'), cfx = cf.getContext('2d'); let parts = [], cfRun = false;
 function confetti(color){
   const W = cf.width = innerWidth*dpr, H = cf.height = innerHeight*dpr;
-  const cols = color ? [color,'#ffffff','#facc15', color] : ['#ef4444','#22c55e','#facc15','#3b82f6','#ec4899','#ffffff'];
+  const cols = color ? [color,'#ffffff','#d8c06e', color] : ['#d98585','#7fb38a','#d8c06e','#7f9bd6','#d08aa8','#ffffff'];
   for (let i=0;i<140;i++) parts.push({ x: W/2, y: H*0.42, vx:(Math.random()-0.5)*16*dpr, vy:(-Math.random()*16-4)*dpr, s:(Math.random()*6+4)*dpr, r:Math.random()*6, vr:(Math.random()-0.5)*0.4, c: cols[i%cols.length], life: 1 });
   if (!cfRun){ cfRun = true; requestAnimationFrame(cfStep); }
 }
@@ -1694,15 +1697,15 @@ const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,6
 
 /* ---- Datos ---- */
 const DEFAULT_WARMUPS = [
-  { id:'wg', name:'Calentamiento general', color:'#f97316', items:[
+  { id:'wg', name:'Calentamiento general', color:'#dc9a6e', items:[
     {n:'Saltar lazo',s:120},{n:'Movilidad articular',s:60},{n:'Jumping jacks',s:45},{n:'Rodillas arriba',s:30},{n:'Sombra suave',s:120},{n:'Estiramiento dinámico',s:60},{n:'Desplazamientos',s:45}] },
-  { id:'wr', name:'Activación rápida', color:'#22c55e', items:[
+  { id:'wr', name:'Activación rápida', color:'#7fb38a', items:[
     {n:'Trote en el sitio',s:60},{n:'Rotación de hombros',s:30},{n:'Sentadillas',s:30},{n:'Burpees',s:30},{n:'Sombra rápida',s:60}] },
-  { id:'wt', name:'Técnico con sombra', color:'#3b82f6', items:[
+  { id:'wt', name:'Técnico con sombra', color:'#7f9bd6', items:[
     {n:'Guardia y desplazamientos',s:60},{n:'Solo jab',s:60},{n:'Combinación 1-2',s:60},{n:'Esquivas y bloqueos',s:60},{n:'Combos libres',s:90}] },
 ];
 const EV_TYPES = {
-  personal: [['entreno','Entreno','#22c55e'],['competencia','Competencia','#f59e0b'],['cita','Cita','#3b82f6'],['otro','Otro','#71717a']],
+  personal: [['entreno','Entreno','#7fb38a'],['competencia','Competencia','#d6a660'],['cita','Cita','#7f9bd6'],['otro','Otro','#71717a']],
 };
 const evColor = (mode, type) => (EV_TYPES[mode].find(t => t[0] === type) || EV_TYPES[mode][EV_TYPES[mode].length-1])[2];
 const evLabel = (mode, type) => (EV_TYPES[mode].find(t => t[0] === type) || ['','Otro'])[1];
@@ -1774,7 +1777,7 @@ function openEventForm(id){
     <div class="field"><span>Número de participantes</span><div class="stepper" id="fPart"></div></div>
     <label class="field"><span>Deportistas (uno por línea, opcional)</span><textarea id="fAth" rows="3" placeholder="Ana Gómez&#10;Carlos Ruiz">${esc(ev.athletes)}</textarea></label>
     <label class="field"><span>Notas</span><textarea id="fNotes" rows="2" placeholder="Lugar, categorías, lo que haga falta…">${esc(ev.notes)}</textarea></label>
-    <div class="btnrow">${src ? '<button class="btn" id="fDel" style="color:#f87171">BORRAR</button>' : '<button class="btn" id="fCancel">CANCELAR</button>'}<button class="btn pri" id="fSave">GUARDAR</button></div>`, sh => {
+    <div class="btnrow">${src ? '<button class="btn" id="fDel" style="color:#dc9696">BORRAR</button>' : '<button class="btn" id="fCancel">CANCELAR</button>'}<button class="btn pri" id="fSave">GUARDAR</button></div>`, sh => {
     makeStepper(sh.querySelector('#fPart'), { get:() => ev.participants, set:v => ev.participants = v, min:0, max:500 });
     sh.querySelectorAll('[data-type]').forEach(b => b.addEventListener('click', () => { ev.type = b.dataset.type; sh.querySelectorAll('[data-type]').forEach(x => x.classList.toggle('on', x === b)); }));
     // al escribir nombres, sugiere el número de participantes
@@ -1805,7 +1808,7 @@ function renderWarmups(){
   $$('#warmList [data-we]').forEach(b => b.addEventListener('click', () => { editingWarm = bhWarmups.find(w => w.id === b.dataset.we); go('warmupEdit'); }));
   $$('#warmList [data-wp]').forEach(b => b.addEventListener('click', () => { playReturn = 'warmups'; startWarmup(b.dataset.wp); }));
 }
-$('#warmNew').addEventListener('click', () => { const w = { id: uid(), name:'Nuevo calentamiento', color:'#f97316', items:[{n:'Saltar lazo',s:60},{n:'Sombra',s:60}] }; bhWarmups.push(w); saveBH(); editingWarm = w; go('warmupEdit'); });
+$('#warmNew').addEventListener('click', () => { const w = { id: uid(), name:'Nuevo calentamiento', color:'#dc9a6e', items:[{n:'Saltar lazo',s:60},{n:'Sombra',s:60}] }; bhWarmups.push(w); saveBH(); editingWarm = w; go('warmupEdit'); });
 function renderWarmEdit(){
   const w = editingWarm; if (!w) return;
   const body = $('#warmEditBody');
@@ -1814,7 +1817,7 @@ function renderWarmEdit(){
     <div class="sect"><h4>COLOR</h4><div class="swatches">${COLORS.map(c => `<button style="--s:${c}" data-wc="${c}" class="${c===w.color?'on':''}"></button>`).join('')}</div></div>
     <div class="sect"><h4>EJERCICIOS</h4><div id="wItems"></div>
       <div class="addrow" style="padding:10px 0 12px"><input id="wIn" maxlength="40" placeholder="Agregar ejercicio…" enterkeyhint="done"><button id="wAdd" style="--tabc:${w.color}">+</button></div></div>
-    <div class="btnrow" style="margin-bottom:8px"><button class="btn" id="wDel" style="color:#f87171">ELIMINAR</button><button class="btn pri" id="wPlay" style="--bc:${w.color}">▶ PROBAR</button></div>`;
+    <div class="btnrow" style="margin-bottom:8px"><button class="btn" id="wDel" style="color:#dc9696">ELIMINAR</button><button class="btn pri" id="wPlay" style="--bc:${w.color}">▶ PROBAR</button></div>`;
   const sv = () => { saveBH(); body.querySelector('#wSum').textContent = `${w.items.length} ejercicios · ${fmt(warmTotal(w))}`; };
   body.querySelector('#wName').addEventListener('input', e => { w.name = e.target.value || 'Calentamiento'; saveBH(); });
   body.querySelectorAll('[data-wc]').forEach(b => b.addEventListener('click', () => { w.color = b.dataset.wc; saveBH(); renderWarmEdit(); }));
@@ -1901,26 +1904,26 @@ function exitWarmup(){ W.on = false; keepAwake(isActive() && !T.paused); go(play
    ========================================================= */
 /* ---- Catálogo de ejercicios de boxeo ---- */
 const DRILLS = {
-  escuelita:  { n:'Escuelita de boxeo', ic:'🥊', c:'#ef4444', d:'Fundamentos: guardia, postura, jab y cross frente al espejo.', cues:['Mentón abajo, manos arriba','Pies a la anchura de los hombros','Regresa la mano a la guardia','Gira la cadera en el cross','Codos pegados al cuerpo'] },
-  combos:     { n:'Combos', ic:'👊', c:'#f97316', d:'Encadena golpes con técnica y velocidad.', combos:true },
-  pasosL:     { n:'Pasos en L', ic:'📐', c:'#eab308', d:'Paso al frente y salida lateral formando una L para cambiar el ángulo.', cues:['Adelante con el pie delantero, luego sal al lado','Nunca cruces los pies','Termina en guardia, listo para golpear','Alterna salida izquierda y derecha'] },
-  pasosV:     { n:'Pasos en V', ic:'✌️', c:'#22c55e', d:'Salidas en diagonal adelante-afuera y regreso al centro, dibujando una V.', cues:['Diagonal izquierda, regresa al centro','Diagonal derecha, regresa al centro','Peso en la punta de los pies','Mantén la guardia alta en cada salida'] },
-  laterales:  { n:'Pasos laterales', ic:'↔️', c:'#06b6d4', d:'Desplazamiento lateral sin cruzar los pies, manteniendo la guardia.', cues:['Mueve primero el pie del lado hacia donde vas','Pasos cortos y rápidos','No juntes los pies','Mirada al frente'] },
-  adelante:   { n:'Adelante y atrás', ic:'↕️', c:'#3b82f6', d:'Entradas y salidas en línea recta con pasos cortos.', cues:['Empuja con el pie de atrás para entrar','Empuja con el pie de adelante para salir','Entra con jab, sal con guardia'] },
-  pivotes:    { n:'Pivotes', ic:'🔄', c:'#6366f1', d:'Gira sobre el pie delantero para salir de la línea de ataque.', cues:['Pivota sobre la punta del pie delantero','Gira un cuarto de vuelta','Golpea al terminar el giro'] },
-  esquivas:   { n:'Esquivas y bloqueos', ic:'🛡️', c:'#8b5cf6', d:'Slip, rolling y bloqueos con los antebrazos.', cues:['Slip: mueve la cabeza fuera de la línea','Rolling: flexiona rodillas, dibuja una U','Bloquea y contraataca','Ojos siempre al frente'] },
-  sombra:     { n:'Sombra', ic:'👤', c:'#a855f7', d:'Boxeo libre contra un rival imaginario: golpes, defensa y pies.', cues:['Combina golpes y desplazamientos','Imagina a tu rival','Respira al golpear'] },
-  saco:       { n:'Saco', ic:'💥', c:'#ec4899', d:'Potencia y combinaciones sobre el saco.', cues:['Golpea y muévete','Combinaciones de 3 a 4 golpes','Gira el puño al impactar','No te quedes quieto frente al saco'] },
-  manoplas:   { n:'Manoplas', ic:'🎯', c:'#d946ef', d:'Precisión y reacción con tu compañero o entrenador.', cues:['Golpea al centro de la manopla','Reacciona rápido a la señal','Vuelve a la guardia'] },
-  soga:       { n:'Saltar lazo', ic:'🪢', c:'#10b981', d:'Ritmo, coordinación y resistencia.', cues:['Saltos bajos, en la punta de los pies','Muñecas, no brazos','Alterna pies cuando agarres ritmo'] },
-  core:       { n:'Core', ic:'🔥', c:'#f59e0b', d:'Abdomen y zona media para aguantar y golpear más fuerte.', cues:['Plancha firme','Giros rusos','Abdominales bicicleta','Aprieta el abdomen'] },
+  escuelita:  { n:'Escuelita de boxeo', ic:'🥊', c:'#d98585', d:'Fundamentos: guardia, postura, jab y cross frente al espejo.', cues:['Mentón abajo, manos arriba','Pies a la anchura de los hombros','Regresa la mano a la guardia','Gira la cadera en el cross','Codos pegados al cuerpo'] },
+  combos:     { n:'Combos', ic:'👊', c:'#dc9a6e', d:'Encadena golpes con técnica y velocidad.', combos:true },
+  pasosL:     { n:'Pasos en L', ic:'📐', c:'#cdb262', d:'Paso al frente y salida lateral formando una L para cambiar el ángulo.', cues:['Adelante con el pie delantero, luego sal al lado','Nunca cruces los pies','Termina en guardia, listo para golpear','Alterna salida izquierda y derecha'] },
+  pasosV:     { n:'Pasos en V', ic:'✌️', c:'#7fb38a', d:'Salidas en diagonal adelante-afuera y regreso al centro, dibujando una V.', cues:['Diagonal izquierda, regresa al centro','Diagonal derecha, regresa al centro','Peso en la punta de los pies','Mantén la guardia alta en cada salida'] },
+  laterales:  { n:'Pasos laterales', ic:'↔️', c:'#6fb0b6', d:'Desplazamiento lateral sin cruzar los pies, manteniendo la guardia.', cues:['Mueve primero el pie del lado hacia donde vas','Pasos cortos y rápidos','No juntes los pies','Mirada al frente'] },
+  adelante:   { n:'Adelante y atrás', ic:'↕️', c:'#7f9bd6', d:'Entradas y salidas en línea recta con pasos cortos.', cues:['Empuja con el pie de atrás para entrar','Empuja con el pie de adelante para salir','Entra con jab, sal con guardia'] },
+  pivotes:    { n:'Pivotes', ic:'🔄', c:'#8f8fd2', d:'Gira sobre el pie delantero para salir de la línea de ataque.', cues:['Pivota sobre la punta del pie delantero','Gira un cuarto de vuelta','Golpea al terminar el giro'] },
+  esquivas:   { n:'Esquivas y bloqueos', ic:'🛡️', c:'#9d8fd0', d:'Slip, rolling y bloqueos con los antebrazos.', cues:['Slip: mueve la cabeza fuera de la línea','Rolling: flexiona rodillas, dibuja una U','Bloquea y contraataca','Ojos siempre al frente'] },
+  sombra:     { n:'Sombra', ic:'👤', c:'#ad95d6', d:'Boxeo libre contra un rival imaginario: golpes, defensa y pies.', cues:['Combina golpes y desplazamientos','Imagina a tu rival','Respira al golpear'] },
+  saco:       { n:'Saco', ic:'💥', c:'#d08aa8', d:'Potencia y combinaciones sobre el saco.', cues:['Golpea y muévete','Combinaciones de 3 a 4 golpes','Gira el puño al impactar','No te quedes quieto frente al saco'] },
+  manoplas:   { n:'Manoplas', ic:'🎯', c:'#c79bd0', d:'Precisión y reacción con tu compañero o entrenador.', cues:['Golpea al centro de la manopla','Reacciona rápido a la señal','Vuelve a la guardia'] },
+  soga:       { n:'Saltar lazo', ic:'🪢', c:'#6fb39a', d:'Ritmo, coordinación y resistencia.', cues:['Saltos bajos, en la punta de los pies','Muñecas, no brazos','Alterna pies cuando agarres ritmo'] },
+  core:       { n:'Core', ic:'🔥', c:'#d6a660', d:'Abdomen y zona media para aguantar y golpear más fuerte.', cues:['Plancha firme','Giros rusos','Abdominales bicicleta','Aprieta el abdomen'] },
   estira:     { n:'Estiramiento', ic:'🧘', c:'#64748b', d:'Baja pulsaciones y estira hombros, espalda y piernas.', cues:['Respira lento y profundo','Mantén cada estiramiento 20 s','Sin rebotes'] },
 };
 const LEVELS = { principiante:{ n:'Principiante', s:90, rest:45 }, intermedio:{ n:'Intermedio', s:120, rest:45 }, avanzado:{ n:'Avanzado', s:180, rest:60 } };
 const DEFAULT_PSESSIONS = [
-  { id:'ps1', name:'Técnica de pies', color:'#06b6d4', level:'principiante', goal:'Moverme mejor y no cruzar los pies',
+  { id:'ps1', name:'Técnica de pies', color:'#6fb0b6', level:'principiante', goal:'Moverme mejor y no cruzar los pies',
     blocks:[{k:'soga',s:120,r:1,rest:30},{k:'escuelita',s:90,r:2,rest:30},{k:'pasosL',s:90,r:2,rest:30},{k:'pasosV',s:90,r:2,rest:30},{k:'laterales',s:90,r:2,rest:30},{k:'estira',s:120,r:1,rest:0}] },
-  { id:'ps2', name:'Combos y saco', color:'#f97316', level:'intermedio', goal:'Velocidad y potencia',
+  { id:'ps2', name:'Combos y saco', color:'#dc9a6e', level:'intermedio', goal:'Velocidad y potencia',
     blocks:[{k:'sombra',s:120,r:2,rest:30},{k:'combos',s:120,r:3,rest:45},{k:'saco',s:180,r:3,rest:60},{k:'core',s:120,r:1,rest:0}] },
 ];
 let pSessions = load('psessions', null) || JSON.parse(JSON.stringify(DEFAULT_PSESSIONS));
@@ -1951,7 +1954,7 @@ function renderPSessions(){
   $$('#psList [data-psp]').forEach(b => b.addEventListener('click', () => playPSession(b.dataset.psp, 'psessions')));
 }
 $('#psNew').addEventListener('click', () => {
-  const ps = { id: uid(), name:'Mi sesión', color:'#ef4444', level:'principiante', goal:'', blocks:[] };
+  const ps = { id: uid(), name:'Mi sesión', color:'#d98585', level:'principiante', goal:'', blocks:[] };
   pSessions.push(ps); savePS(); editingPS = ps; go('psessionEdit'); setTimeout(openDrillPicker, 350);
 });
 function renderPSEdit(){
@@ -1964,7 +1967,7 @@ function renderPSEdit(){
     <div class="sect"><h4>EJERCICIOS DE LA SESIÓN</h4><div id="psBlocks"></div>
       <button class="btn" id="psAddDrill" style="width:100%;margin:10px 0 12px;border-style:dashed">+ AGREGAR EJERCICIO DE BOXEO</button></div>
     <div class="sect"><h4>COLOR</h4><div class="swatches">${COLORS.map(c => `<button style="--s:${c}" data-psc="${c}" class="${c===ps.color?'on':''}"></button>`).join('')}</div></div>
-    <div class="btnrow" style="margin-bottom:8px"><button class="btn" id="psDel" style="color:#f87171">ELIMINAR</button><button class="btn pri" id="psPlay" style="--bc:${ps.color}">▶ ENTRENAR</button></div>`;
+    <div class="btnrow" style="margin-bottom:8px"><button class="btn" id="psDel" style="color:#dc9696">ELIMINAR</button><button class="btn pri" id="psPlay" style="--bc:${ps.color}">▶ ENTRENAR</button></div>`;
   const sum = () => { body.querySelector('#psSum').textContent = `${ps.blocks.length} ejercicios · ${fmt(psTotal(ps))} · ${Math.round(psWork(ps)/60)} min de trabajo`; savePS(); };
   body.querySelector('#psName').addEventListener('input', e => { ps.name = e.target.value || 'Mi sesión'; savePS(); });
   body.querySelector('#psGoal').addEventListener('input', e => { ps.goal = e.target.value; savePS(); });
@@ -2022,7 +2025,7 @@ function playPSession(id, from){
       else if (d.cues) cue = d.cues[(r-1) % d.cues.length];
       items.push({ n: d.n + (b.r > 1 ? ` · ${r}/${b.r}` : ''), s: b.s, c: d.c, d: cue });
       const last = r === b.r && bi === ps.blocks.length - 1;
-      if (b.rest > 0 && !last) items.push({ n:'Descanso', s: b.rest, c:'#ef4444', d: r === b.r && ps.blocks[bi+1] ? 'Prepárate: viene ' + (DRILLS[ps.blocks[bi+1].k]?.n || 'el siguiente') : 'Respira, hidrátate y vuelve a la guardia.' });
+      if (b.rest > 0 && !last) items.push({ n:'Descanso', s: b.rest, c:'#d98585', d: r === b.r && ps.blocks[bi+1] ? 'Prepárate: viene ' + (DRILLS[ps.blocks[bi+1].k]?.n || 'el siguiente') : 'Respira, hidrátate y vuelve a la guardia.' });
     }
   });
   playReturn = from;
@@ -2064,7 +2067,7 @@ const shiftMonth = (k, d) => { let [y, m] = k.split('-').map(Number); m += d; wh
 const addDays = (ds, n) => { const d = parseISO(ds); d.setDate(d.getDate() + n); return iso(d); };
 const initials = n => String(n || '?').trim().split(/\s+/).slice(0, 2).map(w => w[0] || '').join('').toUpperCase() || '?';
 const SEXES = [['M', 'Masculino'], ['F', 'Femenino']];
-const sexColor = s => s === 'F' ? '#ec4899' : s === 'M' ? '#3b82f6' : '#71717a';
+const sexColor = s => s === 'F' ? '#d08aa8' : s === 'M' ? '#7f9bd6' : '#71717a';
 
 /* Edad: con fecha de nacimiento (exacta) o con la edad en años (se va actualizando sola) */
 function ageOf(p, at){
@@ -2096,9 +2099,9 @@ function whoZ(bmi, sex, months){
   else if (z < -3){ const s3 = sd(-3); z = -3 + (bmi - s3)/(sd(-2) - s3); }
   return z;
 }
-const BMI_ADULT = [[16,'Delgadez severa','#3b82f6'],[17,'Delgadez moderada','#60a5fa'],[18.5,'Delgadez leve','#93c5fd'],[25,'Peso normal','#22c55e'],[30,'Sobrepeso','#facc15'],[35,'Obesidad grado I','#f97316'],[40,'Obesidad grado II','#ef4444'],[Infinity,'Obesidad grado III','#b91c1c']];
-const GAUGE_ADULT = 'linear-gradient(90deg,#60a5fa 0 16%,#22c55e 16% 39%,#facc15 39% 57%,#f97316 57% 75%,#ef4444 75%)';
-const GAUGE_CHILD = 'linear-gradient(90deg,#3b82f6 0 0%,#60a5fa 0 16.7%,#22c55e 16.7% 66.7%,#facc15 66.7% 83.3%,#ef4444 83.3%)';
+const BMI_ADULT = [[16,'Delgadez severa','#7f9bd6'],[17,'Delgadez moderada','#8aaedb'],[18.5,'Delgadez leve','#93c5fd'],[25,'Peso normal','#7fb38a'],[30,'Sobrepeso','#d8c06e'],[35,'Obesidad grado I','#dc9a6e'],[40,'Obesidad grado II','#d98585'],[Infinity,'Obesidad grado III','#b86a6a']];
+const GAUGE_ADULT = 'linear-gradient(90deg,#8aaedb 0 16%,#7fb38a 16% 39%,#d8c06e 39% 57%,#dc9a6e 57% 75%,#d98585 75%)';
+const GAUGE_CHILD = 'linear-gradient(90deg,#7f9bd6 0 0%,#8aaedb 0 16.7%,#7fb38a 16.7% 66.7%,#d8c06e 66.7% 83.3%,#d98585 83.3%)';
 function bmiInfo(kg, cm, sex, age){
   if (!kg || !cm) return null;
   const bmi = kg/Math.pow(cm/100, 2);
@@ -2106,7 +2109,7 @@ function bmiInfo(kg, cm, sex, age){
   if (age && age.m < 228){
     if (!sex) return { bmi, label:'Falta el género', color:'#71717a', kind:'need', note:'Para menores de 19 años la OMS usa tablas distintas para niños y niñas. Indica el género.' };
     const z = whoZ(bmi, sex, age.m);
-    const [label, color] = z < -3 ? ['Delgadez severa','#3b82f6'] : z < -2 ? ['Delgadez','#60a5fa'] : z <= 1 ? ['Peso normal','#22c55e'] : z <= 2 ? ['Sobrepeso','#facc15'] : ['Obesidad','#ef4444'];
+    const [label, color] = z < -3 ? ['Delgadez severa','#7f9bd6'] : z < -2 ? ['Delgadez','#8aaedb'] : z <= 1 ? ['Peso normal','#7fb38a'] : z <= 2 ? ['Sobrepeso','#d8c06e'] : ['Obesidad','#d98585'];
     return { bmi, z, label, color, kind:'child', pos: clamp((z + 3)/6, 0, 1), gauge: GAUGE_CHILD,
       note:`Menor de 19 años: se compara con ${sex === 'F' ? 'niñas' : 'niños'} de su misma edad (tablas OMS 2007). Puntaje z: ${z.toFixed(1).replace('.', ',')}.${age.approx ? ' Edad aproximada.' : ''}` };
   }
@@ -2145,7 +2148,7 @@ const CAT = {
   u17:    { name:'Aficionado · Sub-17 (15 y 16 años) · Hombres y mujeres', min:44, l:[[46,'Alfiler'],[48,'Minimosca'],[50,'Mosca'],[52,'Gallo ligero'],[54,'Gallo'],[57,'Pluma'],[60,'Ligero'],[63,'Superligero'],[66,'Wélter'],[70,'Superwélter'],[75,'Mediano'],[80,'Semipesado'],[null,'Pesado']] },
   pro:    { name:'Profesional · Hombres y mujeres', min:0, l:[[47.6,'Mínimo',105],[49,'Minimosca',108],[50.8,'Mosca',112],[52.2,'Supermosca',115],[53.5,'Gallo',118],[55.3,'Supergallo',122],[57.2,'Pluma',126],[59,'Superpluma',130],[61.2,'Ligero',135],[63.5,'Superligero',140],[66.7,'Wélter',147],[69.9,'Superwélter',154],[72.6,'Mediano',160],[76.2,'Supermediano',168],[79.4,'Semipesado',175],[90.7,'Crucero',200],[null,'Pesado']] },
 };
-const CAT_COLORS = ['#38bdf8','#22d3ee','#2dd4bf','#34d399','#4ade80','#a3e635','#facc15','#fbbf24','#fb923c','#f97316','#f87171','#ef4444','#e11d48','#db2777','#c026d3','#9333ea','#7c3aed'];
+const CAT_COLORS = ['#7aa9d1','#80c3cc','#7ec0b5','#82c0a2','#8cc59a','#b6cc80','#d8c06e','#dcbd78','#e0a57c','#dc9a6e','#dc9696','#d98585','#cf8090','#c98399','#b98cc4','#a58fcf','#9a8bd0'];
 function catGroupName(sys, ageY){
   if (sys === 'pro') return 'Profesional';
   if (ageY == null) return 'Élite (19 a 40 años)';
@@ -2353,7 +2356,7 @@ function renderWeight(){
   const a = ageOf(me);
   const need = [];
   if (!me.height) need.push('altura'); if (!me.sex) need.push('género'); if (!a) need.push('edad');
-  $('#wtCards').innerHTML = (need.length ? `<button class="calcard" data-open="me" style="--c:#8b5cf6"><span class="calic">👤</span><span class="l"><b>COMPLETA TU PERFIL</b><small>Falta: ${need.join(', ')}. Así el IMC y la categoría salen exactos.</small></span><span class="arrow">›</span></button>` : '')
+  $('#wtCards').innerHTML = (need.length ? `<button class="calcard" data-open="me" style="--c:#9d8fd0"><span class="calic">👤</span><span class="l"><b>COMPLETA TU PERFIL</b><small>Falta: ${need.join(', ')}. Así el IMC y la categoría salen exactos.</small></span><span class="arrow">›</span></button>` : '')
     + bmiCardHTML(lw && me.height ? bmiInfo(lw.kg, me.height, me.sex, a) : null, { missing: !lw ? 'Registra tu peso para calcular el IMC.' : 'Agrega tu altura en Mi perfil para calcular el IMC.' })
     + catCardHTML(lw ? lw.kg : 0, me.sex, a, me.cat);
   $('#wtCards').querySelectorAll('[data-open]').forEach(b => b.addEventListener('click', () => go(b.dataset.open)));
@@ -2368,11 +2371,11 @@ function renderWeight(){
     const d = pts.map((p,i) => (i?'L':'M') + x(i).toFixed(1) + ' ' + y(p.kg).toFixed(1)).join(' ');
     const area = d + ` L${x(pts.length-1).toFixed(1)} ${H0-padY} L${x(0).toFixed(1)} ${H0-padY} Z`;
     $('#wtChart').innerHTML = `<svg viewBox="0 0 ${W0} ${H0}" class="wtsvg">
-      <defs><linearGradient id="wtg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#22c55e" stop-opacity=".35"/><stop offset="1" stop-color="#22c55e" stop-opacity="0"/></linearGradient></defs>
-      ${wGoal ? `<line x1="${padX}" x2="${W0-padX}" y1="${y(wGoal)}" y2="${y(wGoal)}" stroke="#facc15" stroke-dasharray="5 5" stroke-width="1.5"/><text x="${padX}" y="${y(wGoal)-5}" text-anchor="start" fill="#ca8a04" font-size="11" font-weight="700">META ${fmtKg(wGoal)}</text>` : ''}
+      <defs><linearGradient id="wtg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7fb38a" stop-opacity=".35"/><stop offset="1" stop-color="#7fb38a" stop-opacity="0"/></linearGradient></defs>
+      ${wGoal ? `<line x1="${padX}" x2="${W0-padX}" y1="${y(wGoal)}" y2="${y(wGoal)}" stroke="#d8c06e" stroke-dasharray="5 5" stroke-width="1.5"/><text x="${padX}" y="${y(wGoal)-5}" text-anchor="start" fill="#b89a4e" font-size="11" font-weight="700">META ${fmtKg(wGoal)}</text>` : ''}
       <path d="${area}" fill="url(#wtg)"/>
-      <path d="${d}" fill="none" stroke="#22c55e" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="wtline"/>
-      ${pts.map((p,i) => `<circle cx="${x(i)}" cy="${y(p.kg)}" r="${i===pts.length-1?5:3}" fill="${i===pts.length-1?'var(--text)':'#22c55e'}"/>`).join('')}
+      <path d="${d}" fill="none" stroke="#7fb38a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="wtline"/>
+      ${pts.map((p,i) => `<circle cx="${x(i)}" cy="${y(p.kg)}" r="${i===pts.length-1?5:3}" fill="${i===pts.length-1?'var(--text)':'#7fb38a'}"/>`).join('')}
       <text x="${padX}" y="${H0-3}" fill="#71717a" font-size="11" font-weight="700">${shortDate(pts[0].date)}</text>
       <text x="${W0-padX}" y="${H0-3}" text-anchor="end" fill="#71717a" font-size="11" font-weight="700">${shortDate(pts[pts.length-1].date)}</text>
     </svg>`;
@@ -2389,7 +2392,7 @@ function openWeightForm(){
     <p class="hint" style="margin-top:-4px">Toca el número para escribirlo, o usa + y − (mantén presionado para avanzar rápido).</p>
     ${me.height ? '' : `<div class="field"><span>Tu altura (cm) · para el IMC</span><div class="stepper" id="wkH"></div></div>`}
     <label class="field"><span>Fecha</span><input type="date" id="wkDate" value="${rec.date}" max="${todayISO()}"></label>
-    <div class="btnrow"><button class="btn" id="wkCancel">CANCELAR</button><button class="btn pri" id="wkSave" style="--bc:#22c55e">GUARDAR</button></div>`, sh => {
+    <div class="btnrow"><button class="btn" id="wkCancel">CANCELAR</button><button class="btn pri" id="wkSave" style="--bc:#7fb38a">GUARDAR</button></div>`, sh => {
     makeStepper(sh.querySelector('#wkNum'), { get:() => rec.kg, set:v => rec.kg = Math.round(v*10)/10, min:15, max:300, step:0.1, fmt:v => fmt1(v), input:true, label:'Peso en kilos' });
     if (!me.height) makeStepper(sh.querySelector('#wkH'), { get:() => rec.h, set:v => rec.h = Math.round(v), min:80, max:230, input:true, label:'Altura' });
     sh.querySelector('#wkCancel').addEventListener('click', closeForm);
@@ -2407,7 +2410,7 @@ function openGoalForm(){
   openForm(`<h3 class="ftitle">MI META DE PESO</h3>
     <div class="field"><span>Meta (kg)</span><div class="stepper big" id="wgNum"></div></div>
     <p class="hint">Tip: si quieres dar una categoría, pon como meta su límite. Mira las categorías en Mi peso.</p>
-    <div class="btnrow">${wGoal ? '<button class="btn" id="wgClear" style="color:#f87171">QUITAR META</button>' : '<button class="btn" id="wgCancel">CANCELAR</button>'}<button class="btn pri" id="wgSave" style="--bc:#facc15;color:#111">GUARDAR</button></div>`, sh => {
+    <div class="btnrow">${wGoal ? '<button class="btn" id="wgClear" style="color:#dc9696">QUITAR META</button>' : '<button class="btn" id="wgCancel">CANCELAR</button>'}<button class="btn pri" id="wgSave" style="--bc:#d8c06e;color:#111">GUARDAR</button></div>`, sh => {
     makeStepper(sh.querySelector('#wgNum'), { get:() => g.v, set:v => g.v = Math.round(v*10)/10, min:15, max:300, step:0.1, fmt:v => fmt1(v), input:true, label:'Meta en kilos' });
     sh.querySelector('#wgSave').addEventListener('click', () => { const inp = sh.querySelector('#wgNum input'); if (inp) inp.blur(); wGoal = g.v; saveW(); closeForm(); renderWeight(); toast('Meta guardada'); });
     const c = sh.querySelector('#wgCancel'); if (c) c.addEventListener('click', closeForm);
@@ -2422,8 +2425,8 @@ function openGoalForm(){
 function dayItems(mode, ds){
   const out = [];
   events.personal.filter(e => e.date === ds).sort((a,b) => (a.time||'').localeCompare(b.time||'')).forEach(e => out.push({ kind:'event', e, color: evColor('personal', e.type) }));
-  sessLog.filter(h => h.d === ds).forEach(h => out.push({ kind:'session', h, color:'#22c55e' }));
-  weights.filter(w => w.date === ds).forEach(w => out.push({ kind:'weight', w, color:'#facc15' }));
+  sessLog.filter(h => h.d === ds).forEach(h => out.push({ kind:'session', h, color:'#7fb38a' }));
+  weights.filter(w => w.date === ds).forEach(w => out.push({ kind:'weight', w, color:'#d8c06e' }));
   return out;
 }
 function sessLine(h){
@@ -2449,9 +2452,9 @@ function renderCalendar(){
   $$('#calGrid [data-day]').forEach(b => b.addEventListener('click', () => { calSel = b.dataset.day; hapticTap(); renderCalendar(); }));
   // resumen del mes
   const s = monthTrainSummary(k);
-  $('#calSummary').innerHTML = `<div class="kpis" style="margin-top:12px"><div class="kpi" style="--kc:#22c55e"><b>${s.tr}</b><span>Días entrenados</span></div><div class="kpi" style="--kc:#ef4444"><b>${s.ms}</b><span>Faltas</span></div>
+  $('#calSummary').innerHTML = `<div class="kpis" style="margin-top:12px"><div class="kpi" style="--kc:#7fb38a"><b>${s.tr}</b><span>Días entrenados</span></div><div class="kpi" style="--kc:#d98585"><b>${s.ms}</b><span>Faltas</span></div>
     ${s.pct != null ? `<div class="kpi wide" style="--kc:var(--mode)"><b>${s.pct}%</b><span>Cumplimiento de tus días de entreno</span></div>` : ''}</div>
-    <div class="legend"><span><i style="background:#22c55e"></i>Entrené</span><span><i style="background:#ef4444"></i>Falté</span><span><i style="background:#64748b"></i>Descanso</span><span><i style="border:1.5px dashed #22c55e;background:transparent"></i>Día de entreno</span></div>
+    <div class="legend"><span><i style="background:#7fb38a"></i>Entrené</span><span><i style="background:#d98585"></i>Falté</span><span><i style="background:#64748b"></i>Descanso</span><span><i style="border:1.5px dashed #7fb38a;background:transparent"></i>Día de entreno</span></div>
     ${me.plan.length ? '' : `<button class="linkbtn" data-open="me">Elige tus días de entreno para que se cuenten las faltas solas</button>`}`;
   $('#calSummary').querySelectorAll('[data-open]').forEach(b => b.addEventListener('click', () => go(b.dataset.open)));
   // panel del día
@@ -2459,15 +2462,15 @@ function renderCalendar(){
   $('#calDayTitle').textContent = niceDate(calSel).toUpperCase();
   const st = dayStatus(calSel), fut = calSel > t;
   const pre = `<div class="daymarks">
-      <button data-mk="tr" style="--c:#22c55e" class="${st === 'tr' ? 'on' : ''}" ${fut ? 'disabled' : ''}>✓ ENTRENÉ</button>
-      <button data-mk="miss" style="--c:#ef4444" class="${st === 'ms' ? 'on' : ''}" ${fut ? 'disabled' : ''}>✗ FALTÉ</button>
+      <button data-mk="tr" style="--c:#7fb38a" class="${st === 'tr' ? 'on' : ''}" ${fut ? 'disabled' : ''}>✓ ENTRENÉ</button>
+      <button data-mk="miss" style="--c:#d98585" class="${st === 'ms' ? 'on' : ''}" ${fut ? 'disabled' : ''}>✗ FALTÉ</button>
       <button data-mk="rest" style="--c:#64748b" class="${st === 'rs' ? 'on' : ''}">😴 DESCANSO</button></div>
       ${st === 'auto' ? '<p class="hint">Falta automática: era uno de tus días de entreno y no hay registro. Márcalo como descanso si no tocaba.</p>' : ''}
       ${window.SF && !fut ? SF.dayStripHTML(calSel) : ''}`;
   $('#calDayList').innerHTML = pre + (items.length ? items.map(it => {
     if (it.kind === 'event'){ const e = it.e; return `<button class="evrow" data-ev="${e.id}" style="--c:${it.color}"><i></i><span class="l"><b>${esc(e.title)}</b><small>${evLabel(mode,e.type)}${e.time?' · '+e.time:''}${e.participants?' · '+e.participants+' participantes':''}${e.notes?' · '+esc(e.notes):''}</small></span><span class="arrow">›</span></button>`; }
-    if (it.kind === 'session') return `<div class="evrow" style="--c:${it.h.t === 'gym' ? '#8b5cf6' : it.h.t === 'cardio' ? '#06b6d4' : '#22c55e'}"><i></i><span class="l"><b>✓ ${esc(it.h.p)}</b><small>${sessLine(it.h)}</small></span><button class="xbtn" data-hl="${sessLog.indexOf(it.h)}">×</button></div>`;
-    return `<div class="evrow" style="--c:#facc15"><i></i><span class="l"><b>⚖️ ${fmtKg(it.w.kg)} kg</b><small>Peso registrado</small></span></div>`;
+    if (it.kind === 'session') return `<div class="evrow" style="--c:${it.h.t === 'gym' ? '#9d8fd0' : it.h.t === 'cardio' ? '#6fb0b6' : '#7fb38a'}"><i></i><span class="l"><b>✓ ${esc(it.h.p)}</b><small>${sessLine(it.h)}</small></span><button class="xbtn" data-hl="${sessLog.indexOf(it.h)}">×</button></div>`;
+    return `<div class="evrow" style="--c:#d8c06e"><i></i><span class="l"><b>⚖️ ${fmtKg(it.w.kg)} kg</b><small>Peso registrado</small></span></div>`;
   }).join('') : `<p class="empty">Nada para este día. Toca “+ EVENTO” para agregar algo.</p>`);
   const dl = $('#calDayList');
   dl.querySelectorAll('[data-ev]').forEach(b => b.addEventListener('click', () => openEventForm(b.dataset.ev)));
@@ -2488,9 +2491,9 @@ function renderCalendar(){
 function boxerFace(){ return boxerSVG('talk').replace('viewBox="0 0 124 162"', 'viewBox="34 14 64 64"'); }
 /* MechaRidds boxeador: el guía que boxea en el timer (se viste en Ajustes → Guía) */
 const LOOK_OPTS = {
-  shirt:  { t:'Camiseta',    o:[['negro','Negra','#1d1b24'],['rojo','Roja','#e11d1d'],['azul','Azul','#2563eb'],['blanco','Blanca','#f4f4f5'],['morado','Morada','#8b5cf6'],['dorado','Dorada','#eab308']] },
-  shorts: { t:'Pantaloneta', o:[['morado','Morada','#6d28d9'],['negro','Negra','#111827'],['azul','Azul','#1e40af'],['rojo','Roja','#b91c1c'],['blanco','Blanca','#e5e7eb'],['dorado','Dorada','#ca8a04']] },
-  gloves: { t:'Guantes',     o:[['verde','Verdes','#74d14c'],['rojo','Rojos','#e11d1d'],['azul','Azules','#2563eb'],['negro','Negros','#27272a'],['blanco','Blancos','#f4f4f5'],['dorado','Dorados','#eab308']] },
+  shirt:  { t:'Camiseta',    o:[['negro','Negra','#1d1b24'],['rojo','Roja','#cf7c7c'],['azul','Azul','#7b93cf'],['blanco','Blanca','#f4f4f5'],['morado','Morada','#9d8fd0'],['dorado','Dorada','#cdb262']] },
+  shorts: { t:'Pantaloneta', o:[['morado','Morada','#9285c4'],['negro','Negra','#111827'],['azul','Azul','#6f83b8'],['rojo','Roja','#b86a6a'],['blanco','Blanca','#e5e7eb'],['dorado','Dorada','#b89a4e']] },
+  gloves: { t:'Guantes',     o:[['verde','Verdes','#8cbf72'],['rojo','Rojos','#cf7c7c'],['azul','Azules','#7b93cf'],['negro','Negros','#27272a'],['blanco','Blancos','#f4f4f5'],['dorado','Dorados','#cdb262']] },
 };
 const LOOK_DEFAULT = { shirt:'negro', shorts:'morado', gloves:'verde' };
 const lookOf = () => { const l = Object.assign({}, LOOK_DEFAULT, S.look || {}); Object.keys(LOOK_OPTS).forEach(k => { if (!LOOK_OPTS[k].o.some(o => o[0] === l[k])) l[k] = LOOK_DEFAULT[k]; }); return l; };
@@ -2525,7 +2528,7 @@ function boxerSVG(cls, lk){
     <g class="bx-head">
       <rect x="56" y="54" width="12" height="12" rx="3" fill="${metal}" stroke="${metal2}"/>
       <g transform="translate(31 6.8) scale(.62)">${M.head()}</g>
-      <path class="bx-sweat" d="M40 26 q-3 5 0 7 q3 -2 0 -7z" fill="#7dd3fc"/>
+      <path class="bx-sweat" d="M40 26 q-3 5 0 7 q3 -2 0 -7z" fill="#a3c7de"/>
     </g>
     <g class="bx-armF"><g transform="translate(70 74) rotate(-29.7)"><line class="bx-limb" x1="0" y1="0" x2="16.1" y2="0" stroke="${skin}" stroke-width="9"/></g>
       <circle cx="70" cy="74" r="5.5" fill="${skin}"/>
@@ -2668,9 +2671,9 @@ function setDisc(d){
 const pl = (n, a, b) => `${n} ${n === 1 ? a : b}`;
 const hsecHead = (ic, t, sub, c) => `<div class="hh" style="--c:${c}"><span class="hic">${ic}</span><span><b>${t}</b><small>${sub}</small></span></div>`;
 const hsec = (ic, t, sub, c, inner) => `<section class="hsec" style="--c:${c}">${hsecHead(ic, t, sub, c)}${inner}</section>`;
-const toolTiles = () => `<button class="tile" style="--c:#ef4444;--i:1" data-open="timer"><span>⏱️</span><b>TIMER</b><small>Rounds y descansos</small></button>
-  <button class="tile" style="--c:#16a34a;--i:2" data-open="traffic"><span>🚦</span><b>SEMÁFORO</b><small>Se ve de lejos</small></button>
-  <button class="tile" style="--c:#8b5cf6;--i:3" data-open="roulette"><span>🎡</span><b>RULETAS</b><small>Sparring, combos, castigo</small></button>`;
+const toolTiles = () => `<button class="tile" style="--c:#d98585;--i:1" data-open="timer"><span>⏱️</span><b>TIMER</b><small>Rounds y descansos</small></button>
+  <button class="tile" style="--c:#6fa87c;--i:2" data-open="traffic"><span>🚦</span><b>SEMÁFORO</b><small>Se ve de lejos</small></button>
+  <button class="tile" style="--c:#9d8fd0;--i:3" data-open="roulette"><span>🎡</span><b>RULETAS</b><small>Sparring, combos, castigo</small></button>`;
 
 /* =========================================================
    AJUSTES EXTRA: GUÍA, COPIA DE SEGURIDAD
@@ -2751,6 +2754,7 @@ function bootApp(){ setMode('sparring'); go(S.askAtStart ? 'home' : 'train'); re
 <script src="js/sf-data.js"></script>
 <script src="js/sf-tecnica.js"></script>
 <script src="js/sf-core.js"></script>
+<script src="js/sf-period.js"></script>
 <script src="js/sf-train.js"></script>
 <script src="js/sf-gym.js"></script>
 <script src="js/sf-nutri.js"></script>

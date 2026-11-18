@@ -38,7 +38,7 @@ const BARS = {
   train:    [['home','INICIO','home'],['train:box','BOXEO','box'],['train:gym','GIMNASIO','gym'],['train:cardio','CARDIO','cardio'],['settings','AJUSTES','settings']],
   nutri:    [['home','INICIO','home'],['nutri:diary','DIARIO','diary'],['nutri:plan','PLAN','plan'],['nutri:water','AGUA','water'],['settings','AJUSTES','settings']],
   progress: [['home','INICIO','home'],['progress:sum','RESUMEN','sum'],['progress:body','CUERPO','body'],['progress:med','MEDALLAS','med'],['settings','AJUSTES','settings']],
-  health:   [['home','INICIO','home'],['health:steps','PASOS','steps'],['health:heart','CORAZÓN','heart'],['health:sleep','SUEÑO','sleep'],['settings','AJUSTES','settings']],
+  health:   [['home','INICIO','home'],['health:sum','RESUMEN','health'],['health:steps','PASOS','steps'],['health:heart','CORAZÓN','heart'],['health:sleep','SUEÑO','sleep'],['settings','AJUSTES','settings']],
   goals:    [['home','INICIO','home'],['goals:today','HOY','plan'],['goals:target','MI META','goal'],['goals:streak','RACHAS','flame'],['settings','AJUSTES','settings']],
   week:     [['home','INICIO','home'],['week','MI SEMANA','week'],['calendar','CALENDARIO','cal'],['settings','AJUSTES','settings']],
   settings: [['home','INICIO','home'],['me','MI PERFIL','body'],['settings','AJUSTES','settings']],
@@ -73,6 +73,8 @@ function activeKey(sec){
 renderNav = function(){
   const sec = sectionOf(current);
   if (sec !== 'settings') lastSec = sec;
+  // Cada sección tiene su color sobrio (css/sf.css · 4.3)
+  document.documentElement.dataset.sec = sec || 'home'; document.documentElement.dataset.view = current;
   const box = $('#navBtns');
   // En el Inicio la barra de abajo es la racha
   if (sec === 'home'){
@@ -116,5 +118,5 @@ window.SFBack = function(){
 };
 // Con la barra nueva, Ajustes siempre vuelve a su sitio
 NAV_PARENT.settings = undefined; NAV_PARENT.me = 'settings'; BACK_TO.me = 'settings';
-window.SFNav = { tab: { nutri: 'diary', progress: 'sum', health: 'steps', goals: 'today' }, go: navTo, sectionOf, lastSec: () => lastSec };
+window.SFNav = { tab: { nutri: 'diary', progress: 'sum', health: 'sum', goals: 'today' }, go: navTo, sectionOf, lastSec: () => lastSec };
 })();

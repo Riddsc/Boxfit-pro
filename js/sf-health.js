@@ -15,13 +15,13 @@ const HC = plugin('HealthConnect');
 let hr = load('sf_hr', []);                  // mediciones: [{ id, ts, bpm, src:'cam'|'hc'|'man', ctx:'rest'|'post'|'other' }]
 let hcState = load('sf_hc', { on: false, at: 0 });
 const saveHR = () => save('sf_hr', hr);
-const TITLES = { steps: 'PASOS Y ACTIVIDAD', heart: 'CORAZÓN', sleep: 'SUEÑO' };
-SF.view('health', 'PASOS Y ACTIVIDAD', { render, back: true });
+const TITLES = { sum: 'MI SALUD', steps: 'PASOS Y ACTIVIDAD', heart: 'CORAZÓN', sleep: 'SUEÑO' };
+SF.view('health', 'MI SALUD', { render, back: true });
 
 function render(){
   const tab = SFNav.tab.health, body = $('#healthBody');
   $('#healthTitle').textContent = TITLES[tab];
-  if (tab === 'heart') renderHeart(body); else if (tab === 'sleep') renderSleep(body); else renderSteps(body);
+  if (tab === 'heart') renderHeart(body); else if (tab === 'sleep') renderSleep(body); else if (tab === 'steps') renderSteps(body); else renderSum(body);
 }
 
 /* ---------- Puntos cardio ---------- */
@@ -49,32 +49,52 @@ function renderSteps(body){
   let s30 = 0, n30 = 0; for (let i = 0; i < 30; i++){ const v = SF.steps()[addDays(t, -i)] || 0; if (v){ s30 += v; n30++; } }
   body.innerHTML = `
     <div class="sect sfgfit">
-      <div class="rg">${SF.ring(b.min / G.min, '#22c55e', 170, 14)}<div class="r2">${SF.ring(pts / Math.max(1, Math.round(150 / 7)), '#0ea5e9', 132, 14)}</div>
-        <div class="sfringin"><b style="color:#22c55e">${b.min}</b><small>MIN. DE MOVIMIENTO</small><b style="color:#0ea5e9;margin-top:4px">${pts}</b><small>PUNTOS CARDIO</small></div></div>
+      <div class="rg">${SF.ring(b.min / G.min, '#7fb38a', 170, 14)}<div class="r2">${SF.ring(pts / Math.max(1, Math.round(150 / 7)), '#6fa8c4', 132, 14)}</div>
+        <div class="sfringin"><b style="color:#7fb38a">${b.min}</b><small>MIN. DE MOVIMIENTO</small><b style="color:#6fa8c4;margin-top:4px">${pts}</b><small>PUNTOS CARDIO</small></div></div>
       <div class="three"><div><b>${nf(st)}</b><small>Pasos</small></div><div><b>${n1(st * stride() / 1000)}</b><small>km</small></div><div><b>${nf(b.active)}</b><small>kcal activas</small></div></div>
-      <div class="trk"><i style="width:${clamp(st / G.steps * 100, 0, 100)}%;background:#38bdf8"></i></div>
+      <div class="trk"><i style="width:${clamp(st / G.steps * 100, 0, 100)}%;background:#7aa9d1"></i></div>
       <p class="hint" style="text-align:center">${st >= G.steps ? '¡Meta de pasos cumplida! 👟' : 'Faltan ' + nf(G.steps - st) + ' pasos para tu meta de ' + nf(G.steps)}</p>
       <div class="btnrow"><button class="btn" id="hsEdit">✏️ PASOS</button><button class="btn" id="hsGoals">🎯 METAS</button></div>
     </div>
-    <div class="sect"><h4>PASOS POR HORA · HOY</h4>${hh.some(v => v) ? SF.bars(hours, '#38bdf8', 0, '') : `<p class="empty">${S.stepSensor || hcState.on ? 'Abre la app de vez en cuando y aquí se irán repartiendo tus pasos por hora.' : 'Activa el contador del teléfono o conecta Health Connect para ver tus pasos por hora.'}</p>`}</div>
-    <div class="sect"><h4>PASOS · 7 DÍAS</h4>${SF.bars(week, '#38bdf8', G.steps, '')}<p class="hint">${n30 ? 'Promedio de los últimos 30 días: <b>' + nf(s30 / n30) + '</b> pasos al día.' : ''}</p></div>
+    ${stepsPeriodHTML()}
     <div class="sect"><h4>PUNTOS CARDIO · SEMANA</h4>
-      <div class="sfweekpts"><div class="ringbox">${SF.ring(wp / 150, '#0ea5e9', 96, 10, `<b>${wp}</b><small>de 150</small>`)}</div>
+      <div class="sfweekpts"><div class="ringbox">${SF.ring(wp / 150, '#6fa8c4', 96, 10, `<b>${wp}</b><small>de 150</small>`)}</div>
         <p>La OMS recomienda <b>150 minutos</b> de actividad moderada a la semana. Ganas <b>1 punto</b> por minuto moderado (caminar rápido, pesas) y <b>2</b> por minuto intenso (boxeo, correr).${wp >= 150 ? ' <b>¡Meta semanal cumplida!</b>' : ''}</p></div>
-      ${SF.bars(ptsWeek, '#0ea5e9', 0, '')}</div>
+      ${SF.bars(ptsWeek, '#6fa8c4', 0, '')}</div>
     ${hcCardHTML()}
-    <div class="sect"><div class="row" style="border:0"><div class="l"><b>Contar pasos con el teléfono</b><small>Usa el sensor del celular; los suma cada vez que abres la app</small></div><button class="switch ${S.stepSensor ? 'on' : ''}" id="hsSensor"></button></div></div>`;
+    <div class="sect"><h4>PASOS AUTOMÁTICOS</h4><div class="row" style="border:0"><span class="pic" style="--c:var(--mode)">👟</span><div class="l"><b>Contar pasos con el teléfono</b><small>${S.stepSensor ? 'Se cuentan solos, aunque la app esté cerrada, con el sensor del celular (casi no gasta batería).' : 'Apagado: actívalo y el teléfono los cuenta solo, como Google.'}</small></div><button class="switch ${S.stepSensor ? 'on' : ''}" id="hsSensor"></button></div>
+      ${S.stepSensor ? '<div id="hsBatt"></div>' : ''}</div>`;
   body.querySelector('#hsEdit').addEventListener('click', () => SF.openStepsForm());
   body.querySelector('#hsGoals').addEventListener('click', () => SF.openGoalsForm());
   body.querySelector('#hsSensor').addEventListener('click', async e => { const bt = e.currentTarget, on = !bt.classList.contains('on'); bt.classList.toggle('on', on); const ok = await SF.enableSteps(on); if (on && !ok) bt.classList.remove('on'); else render(); });
   bindHC(body);
+  SFPeriod.bind(body, 'steps', () => render());
+  battCheck(body);
+}
+function stepsPeriodHTML(){
+  const p = SFPeriod.get('steps', 'd'), G = SF.G, st = SF.steps(), val = d => st[d] || 0;
+  const data = SFPeriod.buckets(p, val, { hours: d => SF.stepHours()[d], agg: 'sum' }), sm = SFPeriod.stats(p, val);
+  const head = p === 'd' ? `<b>${nf(val(todayISO()))}</b><small>pasos hoy</small>` : `<b>${nf(sm.avg)}</b><small>${sm.days ? 'pasos al día en promedio' : 'sin pasos en este periodo'}</small>`;
+  const empty = p === 'd' && !data.some(x => x.v);
+  return `<div class="sect"><h4>PASOS · ${SFPeriod.title(p).toUpperCase()}</h4>${SFPeriod.seg('steps', 'd')}<div class="sfperhead">${head}</div>
+    ${empty ? `<p class="empty">${S.stepSensor || hcState.on ? 'Tus pasos de hoy irán apareciendo aquí hora por hora.' : 'Activa los pasos automáticos o conecta Health Connect para ver tus pasos por hora.'}</p>` : SF.bars(data, '#7aa9d1', p === 'd' ? 0 : G.steps, '')}
+    <p class="hint">${SFPeriod.unitNote(p)}${sm.best && p !== 'd' ? ' · Mejor día: <b>' + nf(sm.best) + '</b>' : ''}</p></div>`;
+}
+// Algunos teléfonos (Xiaomi, Samsung, Huawei…) frenan las apps cerradas para ahorrar batería
+async function battCheck(body){
+  const box = body.querySelector('#hsBatt'), P = SF.stepsPlugin(); if (!box || !P) return;
+  try {
+    const r = await P.batteryOk(); if (r && r.ok) return;
+    box.innerHTML = `<div class="sfbatt"><b>¿Los pasos no avanzan con la app cerrada?</b><small>Tu teléfono puede estar frenándola para ahorrar batería. Toca abajo y elige <b>Permitir</b> o <b>Sin restricciones</b>.</small><button class="smallbtn go" id="hsBattGo">PERMITIR EN SEGUNDO PLANO</button></div>`;
+    box.querySelector('#hsBattGo').addEventListener('click', () => P.openBattery());
+  } catch(e){}
 }
 
 /* ---------- Health Connect (reloj, Google Fit, Samsung Health…) ---------- */
 const HC_TYPES = ['Steps', 'HeartRateSeries', 'RestingHeartRate'];
 function hcCardHTML(){
   return `<div class="sect"><h4>RELOJ Y OTRAS APPS · HEALTH CONNECT</h4>
-    <div class="row" style="border:0"><span class="pic" style="--c:#0ea5e9">⌚</span><div class="l"><b>${hcState.on ? 'Conectado' : 'Sin conectar'}</b><small>${hcState.on ? 'Último dato: ' + (hcState.at ? niceDate(iso(new Date(hcState.at))).toLowerCase() : 'todavía nada') : 'Si usas reloj o pulsera (o Google Fit, Samsung Health), BoxFit lee de ahí tus pasos y tu pulso. Solo lee: nunca escribe.'}</small></div>
+    <div class="row" style="border:0"><span class="pic" style="--c:#6fa8c4">⌚</span><div class="l"><b>${hcState.on ? 'Conectado' : 'Sin conectar'}</b><small>${hcState.on ? 'Último dato: ' + (hcState.at ? niceDate(iso(new Date(hcState.at))).toLowerCase() : 'todavía nada') : 'Si usas reloj o pulsera (o Google Fit, Samsung Health), BoxFit lee de ahí tus pasos y tu pulso. Solo lee: nunca escribe.'}</small></div>
       <button class="smallbtn ${hcState.on ? '' : 'go'}" id="hcBtn">${hcState.on ? 'ACTUALIZAR' : 'CONECTAR'}</button></div>
     ${hcState.on ? '<button class="linkbtn" id="hcOff">Desconectar</button>' : ''}</div>`;
 }
@@ -129,40 +149,69 @@ function restingHR(){
 }
 const maxHR = () => Math.round(208 - 0.7 * SF.ageY());
 function zones(){
-  const mx = maxHR(), rs = restingHR(), z = [[50, 60, 'Muy suave', 'Recuperación', '#94a3b8'], [60, 70, 'Suave', 'Quema de grasa y base', '#22c55e'], [70, 80, 'Moderada', 'Resistencia aeróbica', '#eab308'], [80, 90, 'Intensa', 'Rounds y sparring', '#f97316'], [90, 100, 'Máxima', 'Sprints y explosión', '#ef4444']];
+  const mx = maxHR(), rs = restingHR(), z = [[50, 60, 'Muy suave', 'Recuperación', '#94a3b8'], [60, 70, 'Suave', 'Quema de grasa y base', '#7fb38a'], [70, 80, 'Moderada', 'Resistencia aeróbica', '#cdb262'], [80, 90, 'Intensa', 'Rounds y sparring', '#dc9a6e'], [90, 100, 'Máxima', 'Sprints y explosión', '#d98585']];
   return z.map(([a, b, n, u, c]) => { const f = p => Math.round(rs ? rs + (mx - rs) * p / 100 : mx * p / 100); return { a: f(a), b: f(b), n, u, c, pa: a, pb: b }; });
 }
-function hrClass(bpm){ return bpm < 50 ? ['Bajo', '#38bdf8'] : bpm <= 100 ? ['Normal en reposo', '#22c55e'] : ['Alto para estar en reposo', '#f59e0b']; }
+function hrClass(bpm){ return bpm < 50 ? ['Bajo', '#7aa9d1'] : bpm <= 100 ? ['Normal en reposo', '#7fb38a'] : ['Alto para estar en reposo', '#d6a660']; }
 function renderHeart(body){
   const last = hr[hr.length - 1], rs = restingHR(), mx = maxHR(), zs = zones();
-  const pts = hr.filter(x => x.ctx === 'rest').slice(-30).map(x => ({ x: shortDate(iso(new Date(x.ts))), v: x.bpm }));
+  const per = SFPeriod.get('heart', 'm'), since = per === 'd' ? parseISO(todayISO()).getTime() : Date.now() - SFPeriod.DAYS[per] * 864e5;
+  const inPer = hr.filter(x => x.ts >= since && (per === 'd' || x.ctx === 'rest'));
+  const pts = (per === 'q' || per === 'y' ? weeklyRest(inPer) : inPer.map(x => ({ x: per === 'd' ? pad2(new Date(x.ts).getHours()) + ':' + pad2(new Date(x.ts).getMinutes()) : shortDate(iso(new Date(x.ts))), v: x.bpm }))).slice(-60);
+  const pv = inPer.map(x => x.bpm), pAvg = pv.length ? Math.round(pv.reduce((a, b) => a + b, 0) / pv.length) : 0;
   body.innerHTML = `
     <div class="sect sfheart">
       <div class="big"><span class="hb">❤️</span><b>${last ? last.bpm : '—'}</b><small>lpm</small></div>
       <p class="hint" style="text-align:center">${last ? (last.ctx === 'rest' ? hrClass(last.bpm)[0] + ' · ' : '') + niceDate(iso(new Date(last.ts))).toLowerCase() + ' ' + pad2(new Date(last.ts).getHours()) + ':' + pad2(new Date(last.ts).getMinutes()) + ' · ' + ({ cam: 'con la cámara', hc: 'del reloj', man: 'anotado a mano' })[last.src] : 'Todavía no hay mediciones'}</p>
-      <button class="btn pri" id="hmCam" style="width:100%;flex:none;--bc:#ef4444;margin-bottom:8px">📷 MEDIR CON LA CÁMARA</button>
+      <button class="btn pri" id="hmCam" style="width:100%;flex:none;--bc:#d98585;margin-bottom:8px">📷 MEDIR CON LA CÁMARA</button>
       <div class="btnrow"><button class="btn" id="hmMan">✏️ ANOTAR</button><button class="btn" id="hmHC">⌚ RELOJ</button></div>
     </div>
-    <div class="kpis"><div class="kpi" style="--kc:#22c55e"><b>${rs || '—'}</b><span>Pulso en reposo</span></div><div class="kpi" style="--kc:#ef4444"><b>${mx}</b><span>Pulso máximo estimado</span></div></div>
-    <div class="sect"><h4>PULSO EN REPOSO</h4><div style="padding-bottom:8px">${SF.lineChart(pts, '#ef4444', { fmt: v => Math.round(v) + ' lpm', minSpan: 8, empty: 'Mide tu pulso en reposo (sentado, tranquilo, mejor al despertar) al menos 2 días para ver la gráfica.' })}</div>
+    <div class="kpis"><div class="kpi" style="--kc:#7fb38a"><b>${rs || '—'}</b><span>Pulso en reposo</span></div><div class="kpi" style="--kc:#d98585"><b>${mx}</b><span>Pulso máximo estimado</span></div></div>
+    <div class="sect"><h4>${per === 'd' ? 'PULSO · HOY' : 'PULSO EN REPOSO · ' + SFPeriod.title(per).toUpperCase()}</h4>${SFPeriod.seg('heart', 'm')}
+      <div class="sfperhead">${pAvg ? `<b>${pAvg} <span style="font-size:.5em">lpm</span></b><small>${per === 'd' ? 'promedio de hoy' : 'promedio'} · ${Math.min(...pv)}–${Math.max(...pv)}</small>` : '<b>—</b><small>sin mediciones en este periodo</small>'}</div><div style="padding-bottom:8px">${SF.lineChart(pts, '#d98585', { fmt: v => Math.round(v) + ' lpm', minSpan: 8, empty: 'Mide tu pulso en reposo (sentado, tranquilo, mejor al despertar) al menos 2 días para ver la gráfica.' })}</div>
       <p class="hint">Un pulso en reposo que baja con las semanas es señal de mejor forma física. Si sube varios días seguidos, puede ser cansancio, poco sueño o que te estás enfermando.</p></div>
     <div class="sect"><h4>ZONAS DE ENTRENAMIENTO</h4>${zs.map(z => `<div class="sfzone" style="--c:${z.c}"><i></i><span class="l"><b>${z.n} · ${z.pa}-${z.pb}%</b><small>${z.u}</small></span><em>${z.a}-${z.b}</em></div>`).join('')}
       <p class="hint">${rs ? 'Calculadas con tu pulso en reposo (método de Karvonen).' : 'Mide tu pulso en reposo y las zonas se ajustan mejor a ti.'} En los rounds de boxeo lo normal es estar en zona intensa.</p></div>
     <div class="sect"><h4>MEDICIONES</h4>${hr.slice().reverse().filter(x => x.src !== 'hc' || x.ctx === 'rest').slice(0, 12).map(x => `<div class="row"><span class="l"><b>${x.bpm} lpm</b><small>${niceDate(iso(new Date(x.ts)))} ${pad2(new Date(x.ts).getHours())}:${pad2(new Date(x.ts).getMinutes())} · ${({ rest: 'En reposo', post: 'Después de entrenar', other: 'Otro momento' })[x.ctx]}</small></span>${x.src !== 'hc' ? `<button class="xbtn" data-hd="${x.id}">×</button>` : '<small>⌚</small>'}</div>`).join('') || '<p class="empty">Sin mediciones.</p>'}</div>
     ${SFPets.says(null, 'La medición con la cámara es aproximada: sirve para seguir tu tendencia, no para diagnosticar. Si sientes dolor en el pecho, mareo o palpitaciones raras, busca atención médica.')}`;
+  SFPeriod.bind(body, 'heart', () => render());
   body.querySelector('#hmCam').addEventListener('click', openCamera);
   body.querySelector('#hmMan').addEventListener('click', openManual);
   body.querySelector('#hmHC').addEventListener('click', async () => { if (!hcState.on){ if (await connectHC()) await syncHC(true); } else await syncHC(true); render(); });
   body.querySelectorAll('[data-hd]').forEach(b => b.addEventListener('click', async () => { if (await confirmDlg('¿Borrar medición?', '', 'BORRAR')){ hr = hr.filter(x => x.id !== b.dataset.hd); saveHR(); render(); } }));
 }
-function addHR(bpm, src, ctx){ hr.push({ id: uid(), ts: Date.now(), bpm: Math.round(bpm), src, ctx }); saveHR(); }
+function addHR(bpm, src, ctx){ hr.push({ id: uid(), ts: Date.now(), bpm: Math.round(bpm), src, ctx }); saveHR(); if (ctx === 'rest') setTimeout(() => hrCheck(Math.round(bpm)), 450); }
+// Promedio semanal del pulso en reposo (para 3 meses y año)
+function weeklyRest(list){
+  const by = {}; list.forEach(x => { const k = SF.mondayOf(iso(new Date(x.ts))); (by[k] = by[k] || []).push(x.bpm); });
+  return Object.keys(by).sort().map(k => ({ x: shortDate(k), v: Math.round(by[k].reduce((a, b) => a + b, 0) / by[k].length) }));
+}
+/* ---------- Revisiones de salud: pulso alto o bajo en reposo (solo informativo) ---------- */
+const HR_HI = 100, HR_LO = 50;
+const checkOn = k => S['hr' + k] !== false;
+function alerts(days){ const from = Date.now() - days * 864e5; return hr.filter(x => x.ts >= from && x.ctx === 'rest' && x.src !== 'hc'); }
+function hrCheck(bpm){
+  const hi = bpm > HR_HI && checkOn('Hi'), lo = bpm < HR_LO && checkOn('Lo');
+  if (!hi && !lo) return;
+  openForm(`<div class="sfalert ${hi ? 'hi' : 'lo'}"><div class="ic">${hi ? '💓' : '💙'}</div><h3 class="ftitle">${hi ? 'PULSO ALTO EN REPOSO' : 'PULSO BAJO EN REPOSO'}</h3>
+    <div class="big"><b>${bpm}</b> lpm</div>
+    <p>${hi ? `Está por encima de ${HR_HI} lpm. Puede pasar por café, estrés, calor, fiebre o porque no estabas del todo en reposo.` : `Está por debajo de ${HR_LO} lpm. En personas muy entrenadas puede ser normal.`}</p>
+    <p class="hint">Mide de nuevo en 5 minutos, sentado y tranquilo. ${hi ? 'Si se repite seguido o tienes dolor en el pecho, mareo o falta de aire' : 'Si te sientes mareado, débil o te desmayas'}, consulta a un médico. Esto es solo informativo, no un diagnóstico.</p>
+    <button class="btn pri" id="alOk" style="width:100%">ENTENDIDO</button></div>`, sh => sh.querySelector('#alOk').addEventListener('click', closeForm));
+}
+function checksHTML(){
+  const a = alerts(30), nHi = a.filter(x => x.bpm > HR_HI).length, nLo = a.filter(x => x.bpm < HR_LO).length;
+  const row = (k, ic, t, n) => `<div class="row"><span class="pic" style="--c:var(--mode)">${ic}</span><div class="l"><b>${t}</b><small>${checkOn(k) ? (n ? (n === 1 ? '1 aviso en 30 días' : n + ' avisos en 30 días') : 'Activado · sin avisos') : 'Apagado'}</small></div><button class="switch ${checkOn(k) ? 'on' : ''}" data-chk="${k}"></button></div>`;
+  return `<div class="sect"><h4>REVISIONES DE SALUD</h4>${row('Hi', '💓', 'Pulso alto en reposo', nHi)}${row('Lo', '💙', 'Pulso bajo en reposo', nLo)}
+    <p class="hint">Te aviso si una medición en reposo sale por encima de ${HR_HI} o por debajo de ${HR_LO} lpm. Es solo informativo.</p></div>`;
+}
 const ctxSeg = (id, cur) => `<div class="seg" id="${id}"><button type="button" data-c="rest" class="${cur === 'rest' ? 'on' : ''}">EN REPOSO</button><button type="button" data-c="post" class="${cur === 'post' ? 'on' : ''}">TRAS ENTRENAR</button><button type="button" data-c="other" class="${cur === 'other' ? 'on' : ''}">OTRO</button></div>`;
 function bindCtx(sh, id, st){ sh.querySelectorAll('#' + id + ' [data-c]').forEach(b => b.addEventListener('click', () => { st.ctx = b.dataset.c; sh.querySelectorAll('#' + id + ' [data-c]').forEach(x => x.classList.toggle('on', x === b)); })); }
 function openManual(){
   const st = { bpm: 70, ctx: 'rest' };
   openForm(`<h3 class="ftitle">✏️ ANOTAR PULSO</h3><p class="hint">Por ejemplo, el que te marca un tensiómetro o un oxímetro.</p>
     <div class="field"><span>Pulsaciones por minuto</span><div class="stepper big" id="mhB"></div></div>${ctxSeg('mhC', st.ctx)}
-    <div class="btnrow"><button class="btn" id="mhX">CANCELAR</button><button class="btn pri" id="mhOk" style="--bc:#ef4444">GUARDAR</button></div>`, sh => {
+    <div class="btnrow"><button class="btn" id="mhX">CANCELAR</button><button class="btn pri" id="mhOk" style="--bc:#d98585">GUARDAR</button></div>`, sh => {
     makeStepper(sh.querySelector('#mhB'), { get: () => st.bpm, set: v => st.bpm = Math.round(v), min: 30, max: 220, input: true, label: 'Pulso' });
     bindCtx(sh, 'mhC', st);
     sh.querySelector('#mhX').addEventListener('click', closeForm);
@@ -184,10 +233,10 @@ async function openCamera(){
   const st = { ctx: 'rest' };
   openForm(`<h3 class="ftitle">📷 MEDIR EL PULSO</h3>
     <p class="hint" id="cmTip">Tapa con la yema del dedo índice la cámara de atrás <b>y el flash</b>, sin apretar. Quédate quieto unos 30 segundos.</p>
-    <div class="sfcam"><div class="ringbox" id="cmRing">${SF.ring(0, '#ef4444', 150, 12, '<b id="cmBpm">—</b><small id="cmSt">PREPARANDO</small>')}</div><canvas id="cmWave" width="320" height="70"></canvas></div>
+    <div class="sfcam"><div class="ringbox" id="cmRing">${SF.ring(0, '#d98585', 150, 12, '<b id="cmBpm">—</b><small id="cmSt">PREPARANDO</small>')}</div><canvas id="cmWave" width="320" height="70"></canvas></div>
     ${ctxSeg('cmC', st.ctx)}
     <video id="cmV" playsinline muted style="width:1px;height:1px;opacity:0;position:absolute"></video>
-    <div class="btnrow"><button class="btn" id="cmX">CANCELAR</button><button class="btn pri" id="cmOk" style="--bc:#ef4444" disabled>GUARDAR</button></div>`, async sh => {
+    <div class="btnrow"><button class="btn" id="cmX">CANCELAR</button><button class="btn pri" id="cmOk" style="--bc:#d98585" disabled>GUARDAR</button></div>`, async sh => {
     bindCtx(sh, 'cmC', st);
     sh.querySelector('#cmX').addEventListener('click', () => { stopCam(); closeForm(); });
     let result = null;
@@ -281,16 +330,146 @@ function drawWave(c, cv, sig){
   const last = sig.slice(-120); if (last.length < 10) return;
   const f = filtered(last); if (f.length < 5) return;
   const mx = Math.max(...f.map(x => Math.abs(x.s))) || 1;
-  c.strokeStyle = '#ef4444'; c.lineWidth = 2.5; c.lineJoin = 'round'; c.beginPath();
+  c.strokeStyle = '#d98585'; c.lineWidth = 2.5; c.lineJoin = 'round'; c.beginPath();
   f.forEach((x, i) => { const px = i / (f.length - 1) * W, py = H / 2 + (x.s / mx) * (H / 2 - 4); i ? c.lineTo(px, py) : c.moveTo(px, py); });
   c.stroke();
 }
 
 /* ---------- Sueño (Satronho Somnia) ---------- */
+/* ---------- Sueño: horario y noches (con o sin Satronho Somnia) ---------- */
+let slp = Object.assign({ goal: 0, bed: '', wake: '', nights: {} }, load('sf_slp', {}));
+const saveSlp = () => save('sf_slp', slp);
+const toMin = hhmm => { const [h, m] = (hhmm || '0:0').split(':').map(Number); return h * 60 + (m || 0); };
+const fromMin = m => { m = ((m % 1440) + 1440) % 1440; return pad2(Math.floor(m / 60)) + ':' + pad2(m % 60); };
+const durOf = (s0, e0) => { const d = toMin(e0) - toMin(s0); return d <= 0 ? d + 1440 : d; };
+const clock = hhmm => { if (!hhmm) return '—'; const [h, m] = hhmm.split(':').map(Number); if (window.SF_LG === 'en'){ return ((h + 11) % 12 + 1) + ':' + pad2(m) + (h < 12 ? ' AM' : ' PM'); } return pad2(h) + ':' + pad2(m); };
+// Minutos dormidos de la noche que terminó ese día: lo anotado manda; si no, lo que trajo Somnia
+function sleepMin(d){ const n = slp.nights[d]; if (n) return durOf(n.s, n.e); const so = window.SFSomnia ? SFSomnia.nights()[d] : null; return so ? so.a : 0; }
+function nightCount(){ const k = new Set(Object.keys(slp.nights)); if (window.SFSomnia) Object.keys(SFSomnia.nights()).forEach(x => k.add(x)); return k.size; }
+function lastNight(){ for (let i = 0; i < 3; i++){ const d = addDays(todayISO(), -i), m = sleepMin(d); if (m) return { d, m, man: !!slp.nights[d], n: slp.nights[d] || null }; } return null; }
+const goalMsg = g => g < 420 ? ['warn', 'Los adultos necesitan al menos 7 horas para recuperarse bien, y más si entrenas fuerte.'] : g > 540 ? ['warn', 'Más de 9 horas seguidas no suele hacer falta. Si siempre necesitas tanto, coméntalo con un médico.'] : ['ok', 'Es una meta saludable: este descanso te ayuda a estar fresco y con energía todo el día.'];
+
 function renderSleep(body){
-  const has = SFSomnia.has();
-  body.innerHTML = `${has ? SFSomnia.card() : ''}${has ? SFSomnia.progressHTML(30) : inviteHTML()}${SFSomnia.settingsHTML()}`;
+  const has = SFSomnia.has(), ln = lastNight(), g = slp.goal || 480;
+  const setup = !slp.wake ? (S.slpLater ? `<div class="sect"><div class="row" style="border:0"><span class="pic" style="--c:var(--mode)">🛏️</span><div class="l"><b>Tu horario de sueño</b><small>Sin configurar</small></div><button class="smallbtn go" id="slSet">CONFIGURAR</button></div></div>`
+    : `<div class="sect sfslsetup"><small class="kick">SUEÑO</small><h3>Arma tu horario</h3><p>Dime a qué hora planeas dormir y despertar, y cuántas horas quieres dormir. Así sabrás si descansas lo que tu cuerpo necesita para entrenar.</p>
+      <div class="art">${SFArt.planetScene ? SFArt.orbit(150) : ''}</div>
+      <div class="btnrow"><button class="btn" id="slLater">AHORA NO</button><button class="btn pri" id="slSet">CONTINUAR</button></div></div>`)
+    : `<div class="sect"><h4>TU HORARIO</h4>
+      <div class="sfsched"><div><small>Hora de dormir</small><b>${clock(slp.bed)}</b></div><div><small>Despertar</small><b>${clock(slp.wake)}</b></div><div><small>Meta</small><b>${hm(g)}</b></div></div>
+      <button class="linkbtn" id="slSet">Cambiar horario</button></div>`;
+  const pct = ln ? Math.min(100, Math.round(ln.m / g * 100)) : 0;
+  const night = `<div class="sect sfnight"><h4>${ln && ln.d === todayISO() ? 'ANOCHE' : 'ÚLTIMA NOCHE'}</h4>
+    ${ln ? `<div class="big"><b>${hm(ln.m)}</b><small>${ln.m >= g ? 'cumpliste tu meta 🌙' : 'de ' + hm(g) + ' de meta'}</small></div>
+      <div class="trk"><i style="width:${pct}%;background:var(--mode)"></i></div>
+      <p class="hint">${ln.man ? 'Anotado: <span data-notr>' + clock(ln.n.s) + ' → ' + clock(ln.n.e) + (ln.n.q ? ' · ' + ['', '😫', '😕', '😐', '🙂', '😄'][ln.n.q] : '') + '</span>' : 'De Satronho Somnia'} · <span data-notr>${niceDate(ln.d).toLowerCase()}</span></p>`
+      : '<p class="empty">Sin datos de sueño todavía. Anota cómo dormiste o sincroniza Satronho Somnia.</p>'}
+    <button class="btn" id="slAdd" style="width:100%">＋ ANOTAR NOCHE</button></div>`;
+  const per = SFPeriod.get('sleep', 'w'), data = SFPeriod.buckets(per, d => Math.round(sleepMin(d) / 6) / 10, { agg: 'avg' }), st = SFPeriod.stats(per, sleepMin);
+  const chart = per === 'd' ? '' : `<div class="sect"><h4>SUEÑO · ${SFPeriod.title(per).toUpperCase()}</h4>${SFPeriod.seg('sleep', 'w', ['w', 'm', 'q', 'y'])}
+    <div class="sfperhead">${st.days ? `<b>${hm(st.avg)}</b><small>promedio · ${st.days === 1 ? '1 noche' : st.days + ' noches'}</small>` : '<b>—</b><small>sin noches en este periodo</small>'}</div>
+    ${SF.bars(data.map(x => ({ ...x, t: n1(x.v) })), '#9d8fd0', g / 60, 'h')}<p class="hint">Horas dormidas · la línea es tu meta</p></div>`;
+  body.innerHTML = `${setup}${night}${chart}${has ? SFSomnia.card() + SFSomnia.progressHTML(30) : inviteHTML()}${SFSomnia.settingsHTML()}`;
   SFSomnia.bind(body);
+  const on = (id, f) => { const e = body.querySelector(id); if (e) e.addEventListener('click', f); };
+  on('#slSet', openSchedule); on('#slLater', () => { S.slpLater = true; saveSettings(); render(); }); on('#slAdd', () => openNight());
+  SFPeriod.bind(body, 'sleep', () => render());
+}
+function openSchedule(){
+  const st = { goal: slp.goal || 480, wake: slp.wake || '06:30', bed: slp.bed || '', bedTouched: !!slp.bed, rem: !!SFRemind.REM().sleep };
+  const autoBed = () => fromMin(toMin(st.wake) - st.goal - 15);   // 15 min para quedarse dormido
+  if (!st.bed) st.bed = autoBed();
+  openForm(`<small class="kick">SUEÑO</small><h3 class="ftitle">¿CUÁNTO QUIERES DORMIR?</h3>
+    <div class="sfdur"><div><div class="stepper big" id="sdH"></div><small>Horas</small></div><div><div class="stepper big" id="sdM"></div><small>Minutos</small></div></div>
+    <p class="sfgoalmsg" id="sdMsg"></p>
+    <div class="field"><span>Despertar</span><input type="time" id="sdWake" value="${st.wake}"></div>
+    <div class="field"><span>Hora de dormir</span><input type="time" id="sdBed" value="${st.bed}"><small class="hint">Incluye 15 minutos para quedarte dormido.</small></div>
+    <div class="row" style="border:0"><div class="l"><b>Avisarme media hora antes</b><small>Una notificación para ir bajando el ritmo</small></div><button class="switch ${st.rem ? 'on' : ''}" id="sdRem"></button></div>
+    <div class="btnrow"><button class="btn" id="sdX">CANCELAR</button><button class="btn pri" id="sdOk">GUARDAR</button></div>`, sh => {
+    const msg = () => { const [k, t] = goalMsg(st.goal); const m = sh.querySelector('#sdMsg'); m.className = 'sfgoalmsg ' + k; m.innerHTML = 'ⓘ ' + t; if (!st.bedTouched){ st.bed = autoBed(); sh.querySelector('#sdBed').value = st.bed; } };
+    makeStepper(sh.querySelector('#sdH'), { get: () => Math.floor(st.goal / 60), set: v => { st.goal = Math.round(v) * 60 + st.goal % 60; msg(); }, min: 4, max: 12, label: 'Horas' });
+    makeStepper(sh.querySelector('#sdM'), { get: () => st.goal % 60, set: v => { st.goal = Math.floor(st.goal / 60) * 60 + Math.round(v); msg(); }, min: 0, max: 45, step: 15, label: 'Minutos' });
+    msg();
+    sh.querySelector('#sdWake').addEventListener('change', e => { st.wake = e.target.value || st.wake; msg(); });
+    sh.querySelector('#sdBed').addEventListener('change', e => { st.bed = e.target.value || st.bed; st.bedTouched = true; });
+    sh.querySelector('#sdRem').addEventListener('click', e => { st.rem = !st.rem; e.currentTarget.classList.toggle('on', st.rem); });
+    sh.querySelector('#sdX').addEventListener('click', closeForm);
+    sh.querySelector('#sdOk').addEventListener('click', async () => {
+      slp.goal = st.goal; slp.wake = st.wake; slp.bed = st.bed; saveSlp();
+      const r = SFRemind.REM(); r.sleep = st.rem; S.rem = r; saveSettings();
+      closeForm(); toast('Horario guardado 🌙'); render();
+      if (st.rem && !(await SFRemind.ask())){ r.sleep = false; S.rem = r; saveSettings(); } else SFRemind.sync();
+    });
+  });
+}
+function openNight(d0){
+  const d = d0 || todayISO(), old = slp.nights[d];
+  const st = { d, s: old ? old.s : (slp.bed || '23:00'), e: old ? old.e : (slp.wake || '06:30'), q: old ? old.q || 0 : 0 };
+  openForm(`<h3 class="ftitle">🌙 ¿CÓMO DORMISTE?</h3>
+    <div class="field"><span>Día en que despertaste</span><input type="date" id="snD" value="${st.d}" max="${todayISO()}"></div>
+    <div class="sfdur"><div class="field"><span>Me dormí</span><input type="time" id="snS" value="${st.s}"></div><div class="field"><span>Desperté</span><input type="time" id="snE" value="${st.e}"></div></div>
+    <p class="sfgoalmsg ok" id="snDur"></p>
+    <div class="field"><span>¿Qué tal descansaste?</span><div class="sfq">${['😫', '😕', '😐', '🙂', '😄'].map((x, i) => `<button type="button" data-q="${i + 1}" class="${st.q === i + 1 ? 'on' : ''}">${x}</button>`).join('')}</div></div>
+    <div class="btnrow">${old ? '<button class="btn" id="snDel">BORRAR</button>' : '<button class="btn" id="snX">CANCELAR</button>'}<button class="btn pri" id="snOk">GUARDAR</button></div>`, sh => {
+    const upd = () => { sh.querySelector('#snDur').textContent = TF('Dormiste {s}', hm(durOf(st.s, st.e))); };
+    upd();
+    sh.querySelector('#snD').addEventListener('change', e => { if (e.target.value && e.target.value <= todayISO()) st.d = e.target.value; });
+    sh.querySelector('#snS').addEventListener('change', e => { st.s = e.target.value || st.s; upd(); });
+    sh.querySelector('#snE').addEventListener('change', e => { st.e = e.target.value || st.e; upd(); });
+    sh.querySelectorAll('[data-q]').forEach(b => b.addEventListener('click', () => { st.q = +b.dataset.q; sh.querySelectorAll('[data-q]').forEach(x => x.classList.toggle('on', x === b)); hapticTap(); }));
+    const x = sh.querySelector('#snX'); if (x) x.addEventListener('click', closeForm);
+    const del = sh.querySelector('#snDel'); if (del) del.addEventListener('click', () => { delete slp.nights[d]; saveSlp(); closeForm(); render(); });
+    sh.querySelector('#snOk').addEventListener('click', () => {
+      if (old && st.d !== d) delete slp.nights[d];
+      slp.nights[st.d] = { s: st.s, e: st.e, q: st.q || 0 };
+      const ks = Object.keys(slp.nights).sort(); ks.slice(0, Math.max(0, ks.length - 400)).forEach(k => delete slp.nights[k]);
+      saveSlp(); closeForm(); toast('Noche guardada 🌙'); render();
+    });
+  });
+}
+
+/* ---------- Resumen de salud (como «Health» de Google) ---------- */
+function renderSum(body){
+  const t = todayISO(), st = SF.steps(), b = SF.dayBurn(t), ln = lastNight(), lw = typeof lastWeight === 'function' ? lastWeight() : null, w = SF.water()[t] || 0;
+  const hrToday = hr.some(x => iso(new Date(x.ts)) === t), wkW = lw && lw.date >= addDays(t, -6);
+  const vit = [[st[t] > 0, '👟', 'Pasos'], [hrToday, '❤️', 'Pulso'], [ln && ln.d >= addDays(t, -1), '🌙', 'Sueño'], [wkW, '⚖️', 'Peso'], [w > 0, '💧', 'Agua']];
+  const nV = vit.filter(v => v[0]).length;
+  const cnt = (n, one, many) => n === 1 ? one : TF(many, nf(n));
+  const foodDays = Object.keys(load('sf_food', {})).length, waterDays = Object.values(SF.water()).filter(v => v > 0).length, stepDays = Object.values(st).filter(v => v > 0).length;
+  const area = (go, ic, tl, n, c) => `<button class="sfarea" data-go="${go}" style="--c:${c}"><span class="ai">${ic}</span><span class="al"><b>${tl}</b><small>${n}</small></span></button>`;
+  body.innerHTML = `
+    <div class="sect sfvitals"><h4>ESTADO DE HOY</h4>
+      <div class="vt"><b>${TF('{s} de 5', nV)}</b><small>${nV === 5 ? '¡Todo registrado hoy!' : nV ? 'datos registrados hoy' : 'Aún sin datos de hoy'}</small></div>
+      <div class="vrow">${vit.map(v => `<span class="${v[0] ? 'on' : ''}"><i>${v[1]}</i><small>${v[2]}</small></span>`).join('')}</div></div>
+    <div class="sect"><h4>ÁREAS</h4><div class="sfareas">
+      ${area('health:heart', '❤️', 'Corazón', cnt(hr.length, '1 medición', '{s} mediciones'), '#d98585')}
+      ${area('health:steps', '👟', 'Actividad', cnt(stepDays, '1 día con pasos', '{s} días con pasos'), '#7aa9d1')}
+      ${area('health:sleep', '🌙', 'Sueño', cnt(nightCount(), '1 noche', '{s} noches'), '#9d8fd0')}
+      ${area('progress:body', '⚖️', 'Peso', cnt(weights.length, '1 registro', '{s} registros'), '#d6a660')}
+      ${area('nutri:diary', '🍎', 'Nutrición', cnt(foodDays, '1 día anotado', '{s} días anotados'), '#7fb38a')}
+      ${area('nutri:water', '💧', 'Hidratación', cnt(waterDays, '1 día', '{s} días'), '#6fb0b6')}
+    </div></div>
+    ${checksHTML()}
+    ${recordsHTML()}
+    ${SFPets.says(null, nV < 3 ? 'Con unos pocos datos al día (pasos, pulso, sueño) te muestro cómo va tu salud. ¡No hace falta un reloj!' : 'Vas muy bien. Revisa cada área para ver tu tendencia.')}`;
+  body.querySelectorAll('[data-go]').forEach(x => x.addEventListener('click', () => { hapticTap(); SFNav.go(x.dataset.go); }));
+  body.querySelectorAll('[data-chk]').forEach(x => x.addEventListener('click', () => { const k = 'hr' + x.dataset.chk; S[k] = !checkOn(x.dataset.chk); saveSettings(); hapticTap(); render(); }));
+  body.querySelectorAll('[data-rec]').forEach(x => x.addEventListener('click', () => { hapticTap(); SFNav.go(x.dataset.rec); }));
+}
+// Mis récords personales
+function recordsHTML(){
+  const st = SF.steps(); let bs = null; Object.entries(st).forEach(([d, v]) => { if (!bs || v > bs[1]) bs = [d, v]; });
+  let bk = null; new Set(sessLog.map(h => h.d)).forEach(d => { const a = SF.dayBurn(d).active; if (!bk || a > bk[1]) bk = [d, a]; });
+  let bl = null, br = null; sessLog.forEach(h => { const m = SF.minOf(h); if (!bl || m > bl[1]) bl = [h.d, m]; if (h.r && (!br || h.r > br[1])) br = [h.d, h.r]; });
+  const s = SF.streaks(), prs = SFGym.prCount();
+  const rows = [];
+  if (bs && bs[1]) rows.push(['👟', 'Más pasos en un día', nf(bs[1]), niceDate(bs[0]).toLowerCase(), 'health:steps']);
+  if (bk && bk[1]) rows.push(['🔥', 'Más kcal activas en un día', nf(bk[1]) + ' kcal', niceDate(bk[0]).toLowerCase(), 'progress:sum']);
+  if (bl && bl[1]) rows.push(['⏱️', 'Entreno más largo', hm(bl[1]), niceDate(bl[0]).toLowerCase(), 'progress:sum']);
+  if (br) rows.push(['🥊', 'Más rounds en un entreno', String(br[1]), niceDate(br[0]).toLowerCase(), 'progress:sum']);
+  if (s.bestDay) rows.push(['📅', 'Mejor racha', s.bestDay === 1 ? '1 día' : TF('{s} días', s.bestDay), 'racha de entrenos', 'goals:streak']);
+  if (prs) rows.push(['🏋️', 'Récords de pesas', String(prs), 'en tus ejercicios', 'train:gym']);
+  return `<div class="sect"><h4>🏆 MIS RÉCORDS</h4>${rows.length ? rows.map(r => `<button class="row sfrec" data-rec="${r[4]}"><span class="pic" style="--c:var(--mode)">${r[0]}</span><span class="l"><b>${r[1]}</b><small>${r[3]}</small></span><em>${r[2]}</em></button>`).join('') : '<p class="empty">Tus récords aparecerán aquí cuando entrenes y camines.</p>'}</div>`;
 }
 function inviteHTML(){
   return `<div class="sect sfinvite"><div class="orb">${SFArt.orbit(150)}</div>
@@ -300,7 +479,7 @@ function inviteHTML(){
 }
 
 Object.assign(GUIDE, {
-  health: () => ({ t: 'tu salud', b: [`<p>Como en las apps de salud de Google: abajo cambias entre <b>Pasos</b>, <b>Corazón</b> y <b>Sueño</b>.</p>`, `<ul><li><b>Puntos cardio:</b> 1 por minuto moderado y 2 por minuto intenso; la meta es 150 a la semana.</li><li><b>Corazón:</b> mide tu pulso con la cámara o tráelo de tu reloj.</li><li><b>Sueño:</b> cruza tus noches de Satronho Somnia.</li></ul>`] }),
+  health: () => ({ t: 'tu salud', b: [`<p>Como en las apps de salud de Google: abajo cambias entre <b>Resumen</b>, <b>Pasos</b>, <b>Corazón</b> y <b>Sueño</b>.</p>`, `<ul><li><b>Resumen:</b> lo que registraste hoy, tus áreas, los avisos de pulso y tus récords.</li><li><b>Pasos:</b> se cuentan solos, aunque la app esté cerrada. Arriba eliges día, semana, mes, 3 meses o año.</li><li><b>Corazón:</b> mide tu pulso con la cámara o tráelo de tu reloj.</li><li><b>Sueño:</b> arma tu horario, anota tus noches o crúzalas con Satronho Somnia.</li></ul>`] }),
 });
-window.SFHealth = { _calc: (s, st) => calcBpm(s, st), render, syncHC, restingHR, maxHR, cardioPts, weekPts, lastHR: () => hr[hr.length - 1] || null, hcOn: () => hcState.on };
+window.SFHealth = { _hrCheck: b => hrCheck(b), sleepPlan: () => slp, sleepMin, lastNight, _calc: (s, st) => calcBpm(s, st), render, syncHC, restingHR, maxHR, cardioPts, weekPts, lastHR: () => hr[hr.length - 1] || null, hcOn: () => hcState.on };
 })();

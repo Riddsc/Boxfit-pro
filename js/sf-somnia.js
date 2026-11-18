@@ -46,7 +46,7 @@ function readiness(){
   const q = n.sc != null ? n.sc / 100 : clamp(n.a / need, 0, 1);
   const load = clamp(SF.dayBurn(addDays(t, -1)).train / Math.max(200, SF.G.kcal * 2), 0, 1);
   const v = Math.round((q * 0.6 + clamp(avg3 / need, 0, 1) * 0.25 + (1 - load) * 0.15) * 100);
-  return { v, n, txt: v >= 80 ? ['Recuperado', 'Dormiste bien: hoy puedes darle duro.', '#22c55e'] : v >= 60 ? ['Normal', 'Entrena normal y oye a tu cuerpo.', '#f59e0b'] : ['Cansado', 'Dormiste poco: mejor técnica o algo suave, y acuéstate temprano.', '#ef4444'] };
+  return { v, n, txt: v >= 80 ? ['Recuperado', 'Dormiste bien: hoy puedes darle duro.', '#7fb38a'] : v >= 60 ? ['Normal', 'Entrena normal y oye a tu cuerpo.', '#d6a660'] : ['Cansado', 'Dormiste poco: mejor técnica o algo suave, y acuéstate temprano.', '#d98585'] };
 }
 
 /* ---------- Tarjeta de Hoy ---------- */
@@ -58,9 +58,9 @@ function card(){
       <div class="l"><b style="color:${r.txt[2]}">${r.txt[0].toUpperCase()}</b><small>${r.txt[1]}</small>
         <div class="st"><span>🌙 <b>${hm(n.a)}</b></span>${n.sc != null ? `<span>⭐ <b>${n.sc}</b> puntos</span>` : ''}${n.dp ? `<span>Profundo <b>${hm(n.dp)}</b></span>` : ''}${n.rm ? `<span>REM <b>${hm(n.rm)}</b></span>` : ''}</div></div></div></div>`; }
   if (has()){ const days = Math.floor((Date.now() - (sl.at || 0)) / 864e5);
-    return `<button class="calcard" id="smSync" style="--c:#8b5cf6"><span class="calic">🌙</span><span class="l"><b>¿CÓMO DORMISTE ANOCHE?</b><small>${days >= 1 ? 'Último cruce hace ' + days + ' día' + (days === 1 ? '' : 's') + '. ' : ''}Toca para traer tu sueño de Somnia.</small></span><span class="arrow">›</span></button>`; }
+    return `<button class="calcard" id="smSync" style="--c:#9d8fd0"><span class="calic">🌙</span><span class="l"><b>¿CÓMO DORMISTE ANOCHE?</b><small>${days >= 1 ? 'Último cruce hace ' + days + ' día' + (days === 1 ? '' : 's') + '. ' : ''}Toca para traer tu sueño de Somnia.</small></span><span class="arrow">›</span></button>`; }
   if (S.somniaHide) return '';
-  return `<div class="calcard" style="--c:#8b5cf6"><span class="calic">🌙</span><button class="l" id="smSync" style="text-align:left"><b>CRUZA TU SUEÑO CON SOMNIA</b><small>Trae tus noches de Satronho Somnia y te digo qué tan recuperado estás para entrenar.</small></button><button class="xbtn" id="smHide" aria-label="Ocultar">×</button></div>`;
+  return `<div class="calcard" style="--c:#9d8fd0"><span class="calic">🌙</span><button class="l" id="smSync" style="text-align:left"><b>CRUZA TU SUEÑO CON SOMNIA</b><small>Trae tus noches de Satronho Somnia y te digo qué tan recuperado estás para entrenar.</small></button><button class="xbtn" id="smHide" aria-label="Ocultar">×</button></div>`;
 }
 
 /* ---------- En Progreso ---------- */
@@ -72,18 +72,18 @@ function progressHTML(period){
   const av = (l, k) => l.reduce((a, x) => a + (x[k] || 0), 0) / l.length;
   const pts = []; for (let i = Math.min(period, 30) - 1; i >= 0; i--){ const d = addDays(t, -i), n = night(d); if (n) pts.push({ x: shortDate(d), v: n.a / 60 }); }
   const cmp = tr.length >= 3 && no.length >= 3 ? (() => { const d = av(tr, 'a') - av(no, 'a'); const sc = tr.every(x => x.sc != null) && no.every(x => x.sc != null) ? av(tr, 'sc') - av(no, 'sc') : null;
-    return `<div class="note" style="--c:#8b5cf6;margin:0 0 12px">🥊 <span>Las noches después de entrenar duermes <b>${Math.abs(d) < 8 ? 'casi lo mismo' : hm(Math.abs(d)) + (d > 0 ? ' más' : ' menos')}</b>${sc != null && Math.abs(sc) >= 3 ? ` y tu puntaje ${sc > 0 ? 'sube' : 'baja'} <b>${Math.round(Math.abs(sc))} puntos</b>` : ''} (${tr.length} noches con entreno, ${no.length} sin).</span></div>`; })()
+    return `<div class="note" style="--c:#9d8fd0;margin:0 0 12px">🥊 <span>Las noches después de entrenar duermes <b>${Math.abs(d) < 8 ? 'casi lo mismo' : hm(Math.abs(d)) + (d > 0 ? ' más' : ' menos')}</b>${sc != null && Math.abs(sc) >= 3 ? ` y tu puntaje ${sc > 0 ? 'sube' : 'baja'} <b>${Math.round(Math.abs(sc))} puntos</b>` : ''} (${tr.length} noches con entreno, ${no.length} sin).</span></div>`; })()
     : '<p class="hint">Con 3 noches después de entrenar y 3 sin entrenar te digo cómo cambia tu sueño.</p>';
   return `<div class="sect"><h4>SUEÑO · SATRONHO SOMNIA</h4>
     <div class="sfall"><div><b>${hm(av(ns, 'a'))}</b><small>promedio</small></div><div><b>${ns.some(x => x.sc != null) ? Math.round(av(ns.filter(x => x.sc != null), 'sc')) : '—'}</b><small>puntaje</small></div><div><b>${ns.length}</b><small>noches</small></div><div><b>${sl.need || 8} h</b><small>necesitas</small></div></div>
-    <div style="padding:6px 0 10px">${SF.lineChart(pts, '#8b5cf6', { goal: sl.need || 8, fmt: v => n1(v) + ' h', minSpan: 2, empty: 'Con 2 noches o más verás la gráfica.' })}</div>${cmp}</div>`;
+    <div style="padding:6px 0 10px">${SF.lineChart(pts, '#9d8fd0', { goal: sl.need || 8, fmt: v => n1(v) + ' h', minSpan: 2, empty: 'Con 2 noches o más verás la gráfica.' })}</div>${cmp}</div>`;
 }
 
 /* ---------- En Más ---------- */
 function settingsHTML(){
   return `<div class="sect sfsomnia"><h4>SATRONHO SOMNIA · SUEÑO</h4>
     <div class="row" style="border:0"><span class="sfsomico">🌙</span><div class="l"><b>${has() ? Object.keys(sl.nights).length + ' noches cruzadas' : 'Cruza tu sueño con tus entrenos'}</b><small>${has() ? 'Último cruce: <span data-notr>' + niceDate(iso(new Date(sl.at))).toLowerCase() + '</span>' : 'Somnia te dice cómo dormiste; BoxFit, qué tan recuperado estás para entrenar. Somnia también aprende si entrenar te cambia el ronquido.'}</small></div></div>
-    <button class="btn pri" id="smSync" style="width:100%;--bc:#8b5cf6;margin-bottom:8px">🔄 SINCRONIZAR CON SOMNIA</button>
+    <button class="btn pri" id="smSync" style="width:100%;--bc:#9d8fd0;margin-bottom:8px">🔄 SINCRONIZAR CON SOMNIA</button>
     <div class="btnrow" style="margin-bottom:12px"><button class="btn" id="smOpen" style="font-size:17px">📂 ABRIR ARCHIVO DE SOMNIA</button><button class="btn" id="smSend" style="font-size:17px">📤 ENVIAR MIS ENTRENOS</button></div>
     <p class="hint">Todo pasa dentro del teléfono, sin internet. Necesitas Satronho Somnia 4.5 o más nueva. Si el botón de sincronizar no abre Somnia, usa los archivos: en Somnia ve a <b>Más › Satronho BoxFit</b>.</p></div>`;
 }
@@ -110,7 +110,7 @@ fileIn.addEventListener('change', async e => {
   done(n);
 });
 function done(n){
-  waiting = 0; Sound.win(); confetti('#8b5cf6'); toast(`🌙 ${n} noche${n === 1 ? '' : 's'} de Somnia cruzada${n === 1 ? '' : 's'}`);
+  waiting = 0; Sound.win(); confetti('#9d8fd0'); toast(`🌙 ${n} noche${n === 1 ? '' : 's'} de Somnia cruzada${n === 1 ? '' : 's'}`);
   if (current === 'home') SFToday.render(); else if (current === 'settings') renderSettings(); else if (current === 'progress') SFProgress.render();
 }
 // Respuesta de Somnia por enlace: satronhoboxfit://cruce?d=<datos>
@@ -126,5 +126,5 @@ if (AppP){
   if (AppP.getLaunchUrl) AppP.getLaunchUrl().then(r => { if (r && r.url) setTimeout(() => onUrl(r.url), 800); }).catch(() => {});
 }
 
-window.SFSomnia = { has, card, bind, progressHTML, settingsHTML, readiness, importPack, pack, onUrl };
+window.SFSomnia = { nights: () => (sl && sl.nights) || {}, has, card, bind, progressHTML, settingsHTML, readiness, importPack, pack, onUrl };
 })();

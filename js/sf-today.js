@@ -7,7 +7,7 @@
    ========================================================= */
 (function(){
 const { nf, n1, hm, G } = SF;
-const K = '#ff5a36', MI = '#22c55e', ST = '#38bdf8';
+const K = '#d98a78', MI = '#7fb38a', ST = '#7aa9d1';
 const first = () => me.name ? me.name.trim().split(/\s+/)[0] : '';
 
 function greeting(s){
@@ -33,24 +33,57 @@ function render(){
   const t = todayISO(), s = SF.streaks(), b = SF.dayBurn(t), food = SFNutri.dayTotals(t), goal = SFNutri.dayGoal(t), w = SF.water()[t] || 0;
   const rd = window.SFSomnia ? SFSomnia.readiness() : null, lh = SFHealth.lastHR(), pts = SFHealth.cardioPts(t);
   const wkTrain = sessLog.filter(h => h.d >= SF.mondayOf(t)).length, tp = SFPlan.todayPlan(), gi = SFPlan.goalInfo(), miss = SF.profileMissing();
-  const btn = (id, ic, title, line, c, i, cls) => `<button class="sfhub ${cls || ''}" data-hub="${id}" style="--c:${c};--i:${i}"><span class="ic">${ic}</span><b>${title}</b><small>${line}</small></button>`;
+  const btn = (id, ic, title, val, line, c, i, cls) => `<button class="sfhub ${cls || ''}" data-hub="${id}" style="--c:${c};--i:${i}"><span class="ic">${ic}</span><b>${title}</b>${val ? `<em class="val">${val}</em>` : ''}<small>${line}</small></button>`;
+  const left = Math.max(0, goal.k - food.k), lw = lastWeight(), md = Object.keys(SF.medals()).length;
   body.innerHTML = `
     ${greeting(s)}
     ${SFTrain.liveBannerHTML()}
     ${SFGym.isLive() ? `<button class="sflive" id="hmGym" style="width:100%"><span class="ic">🏋️</span><span class="l"><small>RUTINA DE PESAS EN CURSO</small><b>Toca para seguir</b></span><span class="arrow">›</span></button>` : ''}
     <div class="sfhubs">
-      ${btn('train', '🥊', 'ENTRENAR', wkTrain === 1 ? '1 entreno esta semana' : `${wkTrain} entrenos esta semana`, '#ff5a36', 1)}
-      ${btn('nutri', '🍽️', 'COMIDA', `${nf(food.k)} de ${nf(goal.k)} kcal · 💧 ${n1(w / 1000)} L`, '#22c55e', 2)}
-      ${btn('progress', '📈', 'PROGRESO', lastWeight() ? `${fmtKg(lastWeight().kg)} kg · ${Object.keys(SF.medals()).length} medallas` : `${Object.keys(SF.medals()).length} medallas`, '#8b5cf6', 3)}
-      ${btn('health', '❤️', 'SALUD', `${nf(b.steps)} pasos${lh ? ' · ' + lh.bpm + ' lpm' : ''}${rd ? ' · 🌙 ' + rd.v : ''}`, '#0ea5e9', 4)}
-      ${btn('week', '🗓️', 'ARMA TU SEMANA', tp ? 'Hoy toca: ' + SFPlan.TYPES[tp.t][0].toLowerCase() : 'Elige qué entrenas cada día', '#eab308', 5, 'wide')}
-      ${btn('goals', '🎯', 'METAS', gi ? `${nf(b.active)} de ${nf(G.kcal)} kcal · ${gi.done ? 'meta lograda' : gi.daysLeft + ' días para tu meta'}` : `${nf(b.active)} de ${nf(G.kcal)} kcal activas hoy`, '#f97316', 6, 'wide')}
-      ${btn('settings', '⚙️', 'AJUSTES', miss.length ? 'Completa tu perfil' : 'Perfil, acompañante, idioma y más', '#64748b', 7, 'wide slim')}
-    </div>`;
+      ${btn('train', '🥊', 'ENTRENAR', String(wkTrain), wkTrain === 1 ? 'entreno esta semana' : 'entrenos esta semana', 'var(--s-train)', 1)}
+      ${btn('nutri', '🍽️', 'COMIDA', nf(left), `kcal restantes · 💧 ${n1(w / 1000)} L`, 'var(--s-nutri)', 2)}
+      ${btn('progress', '📈', 'PROGRESO', lw ? fmtKg(lw.kg) + ' kg' : String(md), lw ? (md === 1 ? '1 medalla' : md + ' medallas') : (md === 1 ? 'medalla' : 'medallas'), 'var(--s-progress)', 3)}
+      ${btn('health', '❤️', 'SALUD', nf(b.steps), `pasos${lh ? ' · ' + lh.bpm + ' lpm' : ''}${rd ? ' · 🌙 ' + rd.v : ''}`, 'var(--s-health)', 4)}
+      ${btn('week', '🗓️', 'ARMA TU SEMANA', '', tp ? 'Hoy toca: ' + SFPlan.TYPES[tp.t][0].toLowerCase() : 'Elige qué entrenas cada día', 'var(--s-week)', 5, 'wide')}
+      ${btn('goals', '🎯', 'METAS', '', gi ? `${nf(b.active)} de ${nf(G.kcal)} kcal · ${gi.done ? 'meta lograda' : gi.daysLeft + ' días para tu meta'}` : `${nf(b.active)} de ${nf(G.kcal)} kcal activas hoy`, 'var(--s-goals)', 6, 'wide')}
+      ${btn('settings', '⚙️', 'AJUSTES', '', miss.length ? 'Completa tu perfil' : 'Perfil, acompañante, idioma y más', 'var(--s-settings)', 7, 'wide slim')}
+    </div>
+    ${setupHTML(miss)}`;
+  bindSetup(body);
   body.querySelectorAll('[data-hub]').forEach(x => x.addEventListener('click', () => { hapticTap(); go(x.dataset.hub); }));
   const gy = body.querySelector('#hmGym'); if (gy) gy.addEventListener('click', () => go('gymLive'));
   SFTrain.bindLiveBanner(body);
   if (current === 'home') renderNav();
+}
+// Lista de bienvenida (como la de Google): se va sola cuando todo está listo o si la ocultas
+function setupItems(miss){
+  return [
+    ['me', '👤', 'Completa tu perfil', 'Con tu peso, altura, edad y género las calorías salen exactas', !miss.length],
+    ['steps', '👟', 'Activa los pasos automáticos', 'El teléfono los cuenta solo, aunque la app esté cerrada', !!S.stepSensor],
+    ['goals', '🎯', 'Pon tus metas del día', 'Calorías activas, minutos y pasos a tu medida', load('sf_goals', null) != null],
+    ['sleep', '🌙', 'Arma tu horario de sueño', 'Cuánto quieres dormir y a qué hora te levantas', !!(SFHealth.sleepPlan() || {}).wake],
+  ];
+}
+function setupHTML(miss){
+  if (S.setupHide) return '';
+  const it = setupItems(miss), done = it.filter(x => x[4]).length;
+  if (done === it.length) return '';
+  const open = S.setupOpen !== false;
+  return `<div class="sfsetup ${open ? 'open' : ''}"><button class="hd" id="suTog"><span class="cnt" data-notr>${done}/${it.length}</span><b>¡Bienvenido! Arranquemos</b><span class="chev">${open ? '⌃' : '⌄'}</span></button>
+    ${open ? `${it.map(x => `<button class="it ${x[4] ? 'ok' : ''}" data-su="${x[0]}"><span class="ic">${x[1]}</span><span class="l"><b>${x[2]}</b><small>${x[3]}</small></span><span class="ck">${x[4] ? '✓' : ''}</span></button>`).join('')}
+    <button class="btn" id="suHide" style="width:100%;margin-top:8px">OCULTAR</button>` : ''}</div>`;
+}
+function bindSetup(body){
+  const tg = body.querySelector('#suTog'); if (!tg) return;
+  tg.addEventListener('click', () => { S.setupOpen = S.setupOpen === false; saveSettings(); hapticTap(); render(); });
+  const hd = body.querySelector('#suHide'); if (hd) hd.addEventListener('click', () => { S.setupHide = true; saveSettings(); render(); });
+  body.querySelectorAll('[data-su]').forEach(b => b.addEventListener('click', async () => {
+    hapticTap(); const k = b.dataset.su;
+    if (k === 'me') go('me');
+    else if (k === 'steps'){ if (!S.stepSensor && await SF.enableSteps(true)) render(); else SFNav.go('health:steps'); }
+    else if (k === 'goals') SF.openGoalsForm();
+    else SFNav.go('health:sleep');
+  }));
 }
 // La barra de abajo del Inicio: la racha
 function streakBar(){
@@ -71,7 +104,7 @@ function renderToday(body){
   const t = todayISO(), b = SF.dayBurn(t), s = SF.streaks(), miss = SF.profileMissing();
   const week = []; for (let i = 6; i >= 0; i--){ const d = addDays(t, -i); week.push({ l: WD[parseISO(d).getDay()], v: SF.dayBurn(d).active, hi: d === t }); }
   body.innerHTML = `
-    ${miss.length ? `<button class="calcard" data-open="me" style="--c:#8b5cf6"><span class="calic">👤</span><span class="l"><b>COMPLETA TU PERFIL</b><small>Falta: ${miss.join(', ')}. Con eso tus calorías salen exactas.</small></span><span class="arrow">›</span></button>` : ''}
+    ${miss.length ? `<button class="calcard" data-open="me" style="--c:#9d8fd0"><span class="calic">👤</span><span class="l"><b>COMPLETA TU PERFIL</b><small>Falta: ${miss.join(', ')}. Con eso tus calorías salen exactas.</small></span><span class="arrow">›</span></button>` : ''}
     <button class="sect sfrings" id="gtRings" aria-label="Metas del día">
       <div class="rg"><div class="r1">${SF.ring(b.active / G.kcal, K, 150, 14)}</div><div class="r2">${SF.ring(b.min / G.min, MI, 110, 14)}</div><div class="r3">${SF.ring(b.steps / G.steps, ST, 70, 14)}</div></div>
       <div class="lg">
@@ -80,15 +113,15 @@ function renderToday(body){
         <div style="--c:${ST}"><b>${nf(b.steps)}<small> / ${nf(G.steps)}</small></b><span>👟 Pasos</span></div>
       </div>
     </button>
-    <button class="btn pri" id="gtEdit" style="width:100%;flex:none;margin-bottom:14px;--bc:#f97316">🎯 CAMBIAR MIS METAS DEL DÍA</button>
+    <button class="btn pri" id="gtEdit" style="width:100%;flex:none;margin-bottom:14px;--bc:#dc9a6e">🎯 CAMBIAR MIS METAS DEL DÍA</button>
     <div class="sfquickrow">
-      <button id="gtWater" style="--c:#38bdf8"><span>💧</span>+ AGUA</button>
-      <button id="gtFood" style="--c:#22c55e"><span>🍽️</span>+ COMIDA</button>
-      <button id="gtAct" style="--c:#f59e0b"><span>📝</span>+ ACTIVIDAD</button>
-      <button id="gtSteps" style="--c:#0ea5e9"><span>👟</span>PASOS</button>
+      <button id="gtWater" style="--c:#7aa9d1"><span>💧</span>+ AGUA</button>
+      <button id="gtFood" style="--c:#7fb38a"><span>🍽️</span>+ COMIDA</button>
+      <button id="gtAct" style="--c:#d6a660"><span>📝</span>+ ACTIVIDAD</button>
+      <button id="gtSteps" style="--c:#6fa8c4"><span>👟</span>PASOS</button>
     </div>
     <div class="sect"><h4>DIARIO DE HOY</h4>
-      ${b.acts.length ? b.acts.map(h => `<div class="evrow" style="--c:${h.t === 'gym' ? '#8b5cf6' : h.t === 'cardio' ? '#06b6d4' : '#f97316'}"><i></i><span class="l"><b>${(SF.ACT[h.a] || {}).ic || (h.t === 'gym' ? '🏋️' : '🥊')} ${esc(h.p)}</b><small>${hm(SF.minOf(h))}${h.r ? ' · ' + h.r + ' rounds' : ''}${h.sets ? ' · ' + h.sets + ' series' : ''}${h.note ? ' · ' + esc(h.note) : ''}</small></span><em class="kc">${nf(SF.kcalOf(h))}<small> kcal</small></em><button class="xbtn" data-hl="${sessLog.indexOf(h)}">×</button></div>`).join('')
+      ${b.acts.length ? b.acts.map(h => `<div class="evrow" style="--c:${h.t === 'gym' ? '#9d8fd0' : h.t === 'cardio' ? '#6fb0b6' : '#dc9a6e'}"><i></i><span class="l"><b>${(SF.ACT[h.a] || {}).ic || (h.t === 'gym' ? '🏋️' : '🥊')} ${esc(h.p)}</b><small>${hm(SF.minOf(h))}${h.r ? ' · ' + h.r + ' rounds' : ''}${h.sets ? ' · ' + h.sets + ' series' : ''}${h.note ? ' · ' + esc(h.note) : ''}</small></span><em class="kc">${nf(SF.kcalOf(h))}<small> kcal</small></em><button class="xbtn" data-hl="${sessLog.indexOf(h)}">×</button></div>`).join('')
         : `<p class="empty">${s.restToday ? 'Hoy es descanso. Si entrenas igual, aquí aparece.' : 'Aún no hay entrenos hoy. Dale al timer, a una rutina o anota una actividad.'}</p>`}
     </div>
     <div class="sect"><h4>CALORÍAS ACTIVAS · 7 DÍAS</h4>${SF.bars(week, K, G.kcal, '')}</div>`;
@@ -105,8 +138,8 @@ function renderTarget(body){
   const lw = lastWeight();
   body.innerHTML = `${SFPlan.goalCardHTML()}
     <div class="tiles">
-      <button class="tile" style="--c:#22c55e;--i:1" id="gmW"><span>⚖️</span><b>MI PESO</b><small>${lw ? fmtKg(lw.kg) + ' kg' : 'Regístralo'}</small></button>
-      <button class="tile" style="--c:#8b5cf6;--i:2" id="gmN"><span>🍽️</span><b>PLAN DE COMIDA</b><small>${nf(SFNutri.targets().k)} kcal al día</small></button></div>
+      <button class="tile" style="--c:#7fb38a;--i:1" id="gmW"><span>⚖️</span><b>MI PESO</b><small>${lw ? fmtKg(lw.kg) + ' kg' : 'Regístralo'}</small></button>
+      <button class="tile" style="--c:#9d8fd0;--i:2" id="gmN"><span>🍽️</span><b>PLAN DE COMIDA</b><small>${nf(SFNutri.targets().k)} kcal al día</small></button></div>
     ${SFPets.says(null, 'Una buena meta tiene fecha y es realista: bajar o subir más de 1 % de tu peso por semana te hace perder músculo y fuerza.')}`;
   SFPlan.bindGoalCard(body);
   body.querySelector('#gmW').addEventListener('click', () => go('weight'));
@@ -122,11 +155,11 @@ function renderStreak(body){
       <div class="l"><b>${s.day === 1 ? '1 DÍA DE RACHA' : s.day + ' DÍAS DE RACHA'}</b><small>${s.today ? '¡Hoy ya sumaste!' : s.restToday ? 'Hoy es descanso: la racha sigue viva' : s.day ? 'Entrena hoy para no perderla' : 'Entrena hoy y enciéndela'}</small>
         <div class="wk">${weekDots()}</div></div></div>
     <div class="sect">
-      ${row('🔥', 'Racha de entrenos', s.day, s.bestDay === 1 ? 'Tu mejor racha: 1 día' : `Tu mejor racha: ${s.bestDay} días`, '#f97316')}
-      ${row('📅', 'Semanas cumpliendo', s.week, `Esta semana: ${s.weekDone} de ${s.weekGoal} entrenos`, '#8b5cf6')}
-      ${row('🥗', 'Días anotando comida', s.food, 'Seguidos, contando hoy o ayer', '#22c55e')}
-      ${row('💧', 'Días cumpliendo el agua', s.water, 'Seguidos, contando hoy o ayer', '#38bdf8')}
-      <div class="row"><span class="pic" style="--c:#38bdf8">🧊</span><span class="l"><b>Comodín semanal</b><small>${!s.freezeOn ? 'Apagado.' : s.freezeUsed ? 'Ya lo usaste esta semana.' : 'Disponible esta semana.'} Si un día se te pasa entrenar, salva tu racha. Hay uno por semana.</small></span><button class="switch ${s.freezeOn ? 'on' : ''}" id="skFreeze"></button></div>
+      ${row('🔥', 'Racha de entrenos', s.day, s.bestDay === 1 ? 'Tu mejor racha: 1 día' : `Tu mejor racha: ${s.bestDay} días`, '#dc9a6e')}
+      ${row('📅', 'Semanas cumpliendo', s.week, `Esta semana: ${s.weekDone} de ${s.weekGoal} entrenos`, '#9d8fd0')}
+      ${row('🥗', 'Días anotando comida', s.food, 'Seguidos, contando hoy o ayer', '#7fb38a')}
+      ${row('💧', 'Días cumpliendo el agua', s.water, 'Seguidos, contando hoy o ayer', '#7aa9d1')}
+      <div class="row"><span class="pic" style="--c:#7aa9d1">🧊</span><span class="l"><b>Comodín semanal</b><small>${!s.freezeOn ? 'Apagado.' : s.freezeUsed ? 'Ya lo usaste esta semana.' : 'Disponible esta semana.'} Si un día se te pasa entrenar, salva tu racha. Hay uno por semana.</small></span><button class="switch ${s.freezeOn ? 'on' : ''}" id="skFreeze"></button></div>
     </div>
     ${SFPets.says('samy', me.plan.length ? 'Los días que no son de entreno en tu semana cuentan como descanso y no rompen la racha.' : free === 1 ? 'Como entrenas 6 días por semana, te perdono 1 día libre cada semana sin romper la racha.' : `Como entrenas ${s.weekGoal} días por semana, te perdono ${free} días libres cada semana sin romper la racha.`)}
     <button class="btn" id="skMed" style="width:100%;flex:none;margin-bottom:10px">🏅 MIS MEDALLAS (${n})</button>

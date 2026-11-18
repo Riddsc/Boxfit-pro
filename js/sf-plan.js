@@ -7,7 +7,7 @@
    ========================================================= */
 (function(){
 const { nf, n1 } = SF;
-const TYPES = { rest: ['Descanso', '😴', '#64748b'], box: ['Boxeo', '🥊', '#ff5a36'], gym: ['Gimnasio', '🏋️', '#8b5cf6'], cardio: ['Cardio', '🏃', '#06b6d4'], free: ['Libre', '✨', '#22c55e'] };
+const TYPES = { rest: ['Descanso', '😴', '#64748b'], box: ['Boxeo', '🥊', '#d98a78'], gym: ['Gimnasio', '🏋️', '#9d8fd0'], cardio: ['Cardio', '🏃', '#6fb0b6'], free: ['Libre', '✨', '#7fb38a'] };
 const DOW = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
 const ORDER = [1, 2, 3, 4, 5, 6, 0];
 let plan = load('sf_wplan', null);      // { days: { 0..6: { t, rid } } }
@@ -41,7 +41,7 @@ function bindStrip(root){ const b = root.querySelector('#plStrip'); if (b) b.add
 // Tarjeta del Inicio
 function homeCard(){
   const t = todayISO();
-  if (!plan) return `<button class="calcard" id="plHome" style="--c:#22c55e"><span class="calic">🗓️</span><span class="l"><b>ARMA TU SEMANA</b><small>Elige qué entrenas cada día. Te sugiero un plan y lo cambias a tu gusto.</small></span><span class="arrow">›</span></button>`;
+  if (!plan) return `<button class="calcard" id="plHome" style="--c:#7fb38a"><span class="calic">🗓️</span><span class="l"><b>ARMA TU SEMANA</b><small>Elige qué entrenas cada día. Te sugiero un plan y lo cambias a tu gusto.</small></span><span class="arrow">›</span></button>`;
   const x = todayPlan(t), y = todayPlan(addDays(t, -1)), yd = addDays(t, -1);
   const missedY = y && y.t !== 'rest' && !trainedOn(yd) && pmarks[yd] !== 'rest';
   return `<button class="calcard" id="plHome" style="--c:${TYPES[x.t][2]}"><span class="calic">${TYPES[x.t][1]}</span><span class="l"><b>HOY TOCA: ${esc(label(x).replace(/^\S+ /, '').toUpperCase())}</b><small>${trainedOn(t) ? '¡Listo por hoy! 💪' : x.t === 'rest' ? 'Descansar también es entrenar.' : 'Toca para ver tu semana.'}${missedY ? ' Ayer tocaba ' + TYPES[y.t][0].toLowerCase() + ' y no quedó registrado.' : ''}</small></span><span class="arrow">›</span></button>`;
@@ -54,7 +54,7 @@ function openPlanEditor(){
   openForm(`<h3 class="ftitle">🗓️ MI SEMANA</h3><p class="hint">Toca un día para cambiar lo que toca. Los días de descanso no rompen tu racha. Puedes empezar con un plan sugerido y ajustarlo.</p>
     <div class="sfchips" id="peSug"><button type="button" data-sg="box">🥊 Sugerido boxeo</button><button type="button" data-sg="gym">🏋️ Sugerido gimnasio</button><button type="button" data-sg="mix">🔀 Mixto</button></div>
     <div id="peDays"></div>
-    <div class="btnrow" style="margin-top:10px">${plan ? '<button class="btn" id="peOff" style="color:#f87171">QUITAR PLAN</button>' : '<button class="btn" id="peC">CANCELAR</button>'}<button class="btn pri" id="peOk" style="--bc:var(--mode)">GUARDAR</button></div>`, sh => {
+    <div class="btnrow" style="margin-top:10px">${plan ? '<button class="btn" id="peOff" style="color:#dc9696">QUITAR PLAN</button>' : '<button class="btn" id="peC">CANCELAR</button>'}<button class="btn pri" id="peOk" style="--bc:var(--mode)">GUARDAR</button></div>`, sh => {
     const draw = () => {
       sh.querySelector('#peDays').innerHTML = ORDER.map(d => { const x = P.days[d] || { t: 'rest' };
         return `<div class="sfpday" style="--c:${TYPES[x.t][2]}"><b>${DOW[d]}</b><div class="opts">${Object.entries(TYPES).map(([k, v]) => `<button type="button" data-d="${d}" data-t="${k}" class="${x.t === k ? 'on' : ''}" title="${v[0]}">${v[1]}</button>`).join('')}</div>
@@ -83,10 +83,10 @@ function goalInfo(){
   return { now, daysLeft, toGo, pct, rate, risky: Math.abs(rate) > maxSafe + 0.01, done: Math.abs(toGo) < 0.25, over: daysLeft < 0 };
 }
 function goalCardHTML(){
-  if (!goal) return `<button class="calcard" id="gmEdit" style="--c:#f59e0b"><span class="calic">🎯</span><span class="l"><b>MODO META</b><small>Ponte una meta de peso con fecha (o el pesaje de una pelea) y te digo cómo vas.</small></span><span class="arrow">›</span></button>`;
+  if (!goal) return `<button class="calcard" id="gmEdit" style="--c:#d6a660"><span class="calic">🎯</span><span class="l"><b>MODO META</b><small>Ponte una meta de peso con fecha (o el pesaje de una pelea) y te digo cómo vas.</small></span><span class="arrow">›</span></button>`;
   const g = goalInfo();
   return `<div class="sect sfgoal"><div class="hd"><span class="calic">${goal.type === 'fight' ? '🥊' : '🎯'}</span><span class="l"><b>${esc((goal.name || (goal.type === 'fight' ? 'Pesaje de pelea' : 'Mi meta')).toUpperCase())}</b><small>${fmtKg(goal.target)} kg · ${niceDate(goal.date)}</small></span><button class="smallbtn" id="gmEdit">CAMBIAR</button></div>
-    <div class="trk"><i style="width:${g.pct * 100}%;background:#f59e0b"></i></div>
+    <div class="trk"><i style="width:${g.pct * 100}%;background:#d6a660"></i></div>
     <div class="sfall"><div><b>${fmtKg(g.now)}</b><small>hoy</small></div><div><b>${g.done ? '✓' : (g.toGo > 0 ? '+' : '−') + fmtKg(Math.abs(g.toGo))}</b><small>${g.done ? 'logrado' : 'kg faltan'}</small></div><div><b>${g.over ? '—' : g.daysLeft}</b><small>días</small></div><div><b>${g.done || g.over ? '—' : n1(Math.abs(g.rate))}</b><small>kg/semana</small></div></div>
     ${g.done ? '<p class="hint">🎉 ¡Llegaste a tu meta! Ahora a mantenerla.</p>' : g.over ? '<p class="hint">La fecha ya pasó. Cámbiala o pon una meta nueva.</p>'
       : `${g.risky ? `<p class="warn">⚠️ Necesitarías ${n1(Math.abs(g.rate))} kg por semana: es más de lo recomendado (1 % de tu peso). ${goal.type === 'fight' ? 'Para una pelea, hazlo con tu entrenador y nunca a punta de deshidratarte.' : 'Dale más tiempo para no perder músculo.'}</p>` : ''}
@@ -107,7 +107,7 @@ function openGoal(){
     <label class="field"><span>Nombre (opcional)</span><input id="gmN" maxlength="30" value="${esc(G0.name || '')}" placeholder="Ej: Torneo departamental"></label>
     <div class="frow"><div class="field"><span>Peso meta (kg)</span><div class="stepper" id="gmK"></div></div><label class="field"><span id="gmDl">Fecha</span><input type="date" id="gmD" value="${G0.date}" min="${addDays(todayISO(), 1)}"></label></div>
     ${lw ? `<p class="hint">Peso de hoy: ${fmtKg(lw.kg)} kg. Ve registrando tu peso para que la meta se actualice.</p>` : '<p class="hint">Registra tu peso en Progreso › Cuerpo para seguir la meta.</p>'}
-    <div class="btnrow">${goal ? '<button class="btn" id="gmDel" style="color:#f87171">QUITAR META</button>' : '<button class="btn" id="gmC">CANCELAR</button>'}<button class="btn pri" id="gmOk" style="--bc:#f59e0b">GUARDAR</button></div>`, sh => {
+    <div class="btnrow">${goal ? '<button class="btn" id="gmDel" style="color:#dc9696">QUITAR META</button>' : '<button class="btn" id="gmC">CANCELAR</button>'}<button class="btn pri" id="gmOk" style="--bc:#d6a660">GUARDAR</button></div>`, sh => {
     const paint = () => { sh.querySelectorAll('#gmT [data-t]').forEach(b => b.classList.toggle('on', b.dataset.t === G0.type)); sh.querySelector('#gmDl').textContent = G0.type === 'fight' ? 'Día del pesaje' : 'Fecha'; };
     sh.querySelectorAll('#gmT [data-t]').forEach(b => b.addEventListener('click', () => { G0.type = b.dataset.t; paint(); }));
     makeStepper(sh.querySelector('#gmK'), { get: () => G0.target, set: v => G0.target = Math.round(v * 10) / 10, min: 30, max: 200, step: 0.5, input: true, fmt: v => fmtKg(v), label: 'Peso meta' });
@@ -127,8 +127,8 @@ function openGoal(){
 
 /* ---------- Calentamiento sugerido (opcional, nunca bloquea) ---------- */
 const EXTRA_WARM = [
-  { id: 'wgym', name: 'Calentamiento para pesas', color: '#8b5cf6', items: [{ n: 'Bicicleta o elíptica suave', s: 180 }, { n: 'Movilidad de hombros', s: 45 }, { n: 'Movilidad de cadera', s: 45 }, { n: 'Sentadillas sin peso', s: 40 }, { n: 'Flexiones suaves', s: 30 }, { n: 'Puente de glúteo', s: 30 }, { n: 'Series de aproximación con poco peso', s: 90 }] },
-  { id: 'wcar', name: 'Calentamiento para cardio', color: '#06b6d4', items: [{ n: 'Caminar a paso vivo', s: 120 }, { n: 'Círculos de tobillos y rodillas', s: 40 }, { n: 'Zancadas suaves', s: 40 }, { n: 'Talones al glúteo', s: 30 }, { n: 'Rodillas arriba', s: 30 }, { n: 'Trote muy suave', s: 90 }] },
+  { id: 'wgym', name: 'Calentamiento para pesas', color: '#9d8fd0', items: [{ n: 'Bicicleta o elíptica suave', s: 180 }, { n: 'Movilidad de hombros', s: 45 }, { n: 'Movilidad de cadera', s: 45 }, { n: 'Sentadillas sin peso', s: 40 }, { n: 'Flexiones suaves', s: 30 }, { n: 'Puente de glúteo', s: 30 }, { n: 'Series de aproximación con poco peso', s: 90 }] },
+  { id: 'wcar', name: 'Calentamiento para cardio', color: '#6fb0b6', items: [{ n: 'Caminar a paso vivo', s: 120 }, { n: 'Círculos de tobillos y rodillas', s: 40 }, { n: 'Zancadas suaves', s: 40 }, { n: 'Talones al glúteo', s: 30 }, { n: 'Rodillas arriba', s: 30 }, { n: 'Trote muy suave', s: 90 }] },
 ];
 EXTRA_WARM.forEach(w => { if (!bhWarmups.some(x => x.id === w.id)) bhWarmups.push(JSON.parse(JSON.stringify(w))); });
 saveBH();
@@ -176,7 +176,7 @@ function renderWeek(){
       <div class="row"><div class="l"><b>Sugerir calentamiento</b><small>Aparece antes de entrenar. Siempre es opcional y se salta con un toque.</small></div><button class="switch ${S.warmSug !== false ? 'on' : ''}" id="wkWarm"></button></div>
       ${['box', 'gym', 'cardio'].map(k => `<div class="row"><div class="l"><b>${({ box: 'Para boxeo', gym: 'Para pesas', cardio: 'Para cardio' })[k]}</b><small>${esc(warmFor(k).name)}</small></div><button class="smallbtn" data-wp="${k}">CAMBIAR</button></div>`).join('')}
     </div>
-    ${P ? '<button class="btn" id="wkOff" style="width:100%;flex:none;color:#f87171">QUITAR MI PLAN</button>' : ''}`;
+    ${P ? '<button class="btn" id="wkOff" style="width:100%;flex:none;color:#dc9696">QUITAR MI PLAN</button>' : ''}`;
   const ensure = () => { if (!plan) plan = suggest(S.disc === 'gym' ? 'gym' : 'box'); };
   body.querySelectorAll('[data-sg]').forEach(b => b.addEventListener('click', () => { plan = suggest(b.dataset.sg); saveP(); hapticTap(); toast('Plan sugerido listo: cámbialo a tu gusto'); keep(); }));
   body.querySelectorAll('[data-t]').forEach(b => b.addEventListener('click', () => { ensure(); plan.days[b.dataset.d] = { t: b.dataset.t }; saveP(); hapticTap(); keep(); }));
