@@ -598,3 +598,12 @@ nav button.on span{position:relative;z-index:2}
 .sfcount small{color:var(--muted);font-weight:800;letter-spacing:.12em}
 .btnrow.three{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
 .btnrow.three .btn{font-size:clamp(15px,4.4vw,20px);padding-left:4px;padding-right:4px}
+/* 4.3.3 · pulso: elegir cámara; con la de adelante la pantalla blanca hace de luz */
+.sfcammode{margin:0 0 8px}
+.sfcammode button{font-size:13px!important;letter-spacing:.02em}
+#cmNext{display:block;margin:0 auto 6px;font-size:14px;color:var(--mode)}
+body.ppgwhite #formModal{background:#fff!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+body.ppgwhite #formModal .sheet{background:#fff!important;color:#17161c!important;box-shadow:none!important;border-color:#fff!important}
+body.ppgwhite #formModal .sheet .hint,body.ppgwhite #formModal .sheet small{color:#55525c!important}
+body.ppgwhite .sfstatusbg{background:#fff!important}
+body.ppgwhite #formModal .sheet{--text:#17161c;--muted:#55525c;--dim:#77737f;--panel:#fff;--panel2:#f0eff3;--line:#e2e0e6}

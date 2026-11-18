@@ -230,38 +230,66 @@ function stopCam(){
   try { cam.stream.getTracks().forEach(t => { try { const pr = t.applyConstraints({ advanced: [{ torch: false }] }); if (pr && pr.catch) pr.catch(() => {}); } catch(e){} t.stop(); }); } catch(e){}
   keepAwake(false); cam = null;
 }
+const TIP_BACK = 'Acuesta el dedo índice sobre la barra de cámaras, sin apretar: que tape la <b>cámara principal</b> (la más grande) y, si alcanza, también el flash. Si el flash te queda lejos (como en los Pixel), no pasa nada: mide cerca de una ventana o una lámpara. Apoya la mano y quédate quieto.';
+const TIP_FRONT = 'Tapa con la yema la <b>cámara de adelante</b> (el puntico de arriba de la pantalla), sin apretar. La pantalla se pone blanca y sirve de luz. Apoya el teléfono y quédate quieto.';
 async function openCamera(){
-  const st = { ctx: 'rest' };
+  const st = { ctx: 'rest', mode: S.ppgMode === 'front' ? 'front' : 'back' };
   openForm(`<h3 class="ftitle">📷 MEDIR EL PULSO</h3>
-    <p class="hint" id="cmTip">Tapa con la yema del dedo índice la cámara de atrás <b>y el flash</b>, sin apretar. Apoya la mano y quédate quieto unos 20 a 40 segundos.</p>
+    <div class="seg sfcammode"><button type="button" data-cm="back" class="${st.mode === 'back' ? 'on' : ''}">📷 CÁMARA DE ATRÁS</button><button type="button" data-cm="front" class="${st.mode === 'front' ? 'on' : ''}">🤳 DE ADELANTE</button></div>
+    <p class="hint" id="cmTip">${st.mode === 'front' ? TIP_FRONT : TIP_BACK}</p>
     <div class="sfcam"><div class="ringbox" id="cmRing">${SF.ring(0, '#d98585', 150, 12, '<b id="cmBpm">—</b><small id="cmSt">PREPARANDO</small>')}</div><canvas id="cmWave" width="320" height="70"></canvas>
       <div class="cmlive"><video id="cmV" playsinline muted autoplay></video><div><b id="cmQ">Señal: —</b><small id="cmFps" data-notr></small></div></div></div>
+    <button class="linkbtn" id="cmNext" style="display:none"></button>
     ${ctxSeg('cmC', st.ctx)}
-
     <button class="linkbtn" id="cmDbg" style="display:none">📤 Guardar los datos de la medición para revisarla</button>
     <button class="linkbtn" id="cmCount">¿No funciona en tu teléfono? Cuenta el pulso a mano en 15 s</button>
     <div class="btnrow"><button class="btn" id="cmX">CANCELAR</button><button class="btn pri" id="cmOk" style="--bc:#d98585" disabled>GUARDAR</button></div>`, async sh => {
     bindCtx(sh, 'cmC', st);
-    sh.querySelector('#cmCount').addEventListener('click', () => { stopCam(); openCount(st.ctx); });
+    const close = () => { stopCam(); document.body.classList.remove('ppgwhite'); };
+    sh.querySelector('#cmCount').addEventListener('click', () => { close(); openCount(st.ctx); });
     sh.querySelector('#cmDbg').addEventListener('click', () => { if (lastTry) saveFile('pulso-satronho-' + Date.now() + '.json', JSON.stringify(lastTry), 'application/json'); });
-    sh.querySelector('#cmX').addEventListener('click', () => { stopCam(); closeForm(); });
-    let result = null, quality = 0;
-    sh.querySelector('#cmOk').addEventListener('click', () => { if (!result) return; stopCam(); addHR(result, 'cam', st.ctx, quality < 0.6); closeForm(); toast(`❤️ ${result} lpm guardado`); render(); });
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' }, width: { ideal: 176 }, height: { ideal: 144 }, frameRate: { ideal: 30 } }, audio: false });
-      const v = sh.querySelector('#cmV'); v.srcObject = stream; await v.play();
-      const track = stream.getVideoTracks()[0];
-      try { const cp = track.getCapabilities ? track.getCapabilities() : {}; if (cp.torch){ await track.applyConstraints({ advanced: [{ torch: true }] }); st.torch = true; } else sh.querySelector('#cmTip').innerHTML += ' <b>Este teléfono no deja prender el flash desde la app: mide con buena luz.</b>'; } catch(e){}
-      keepAwake(true);
-      cam = { stream, stop: false, torch: !!st.torch };
-      measure(sh, v, (bpm, q) => { result = bpm; quality = q; sh.querySelector('#cmOk').disabled = false; });
-    } catch(e){
-      sh.querySelector('#cmSt').textContent = 'SIN CÁMARA';
-      sh.querySelector('#cmTip').innerHTML = 'No pude usar la cámara. Revisa que la app tenga permiso de cámara en los ajustes del teléfono, o anota el pulso a mano.';
-    }
+    sh.querySelector('#cmX').addEventListener('click', () => { close(); closeForm(); });
+    let result = null, quality = 0, backs = [];
+    sh.querySelector('#cmOk').addEventListener('click', () => { if (!result) return; close(); addHR(result, 'cam', st.ctx, quality < 0.6); closeForm(); toast(`❤️ ${result} lpm guardado`); render(); });
+    const v = sh.querySelector('#cmV');
+    // Abre la cámara elegida (atrás con flash, otra cámara de atrás, o la de adelante con la pantalla blanca de luz)
+    const start = async () => {
+      stopCam(); result = null; sh.querySelector('#cmOk').disabled = true;
+      sh.querySelector('#cmTip').innerHTML = st.mode === 'front' ? TIP_FRONT : TIP_BACK;
+      sh.querySelector('#cmSt').textContent = 'PREPARANDO'; sh.querySelector('#cmBpm').textContent = '—';
+      document.body.classList.toggle('ppgwhite', st.mode === 'front');
+      const bi = (S.ppgBack || 0) % Math.max(1, backs.length), dev = st.mode === 'back' && backs.length > 1 ? backs[bi] : null;
+      const video = dev ? { deviceId: { exact: dev.deviceId } } : { facingMode: { ideal: st.mode === 'front' ? 'user' : 'environment' } };
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: Object.assign(video, { width: { ideal: 176 }, height: { ideal: 144 }, frameRate: { ideal: 30 } }), audio: false });
+        v.srcObject = stream; await v.play();
+        const track = stream.getVideoTracks()[0]; st.torch = false;
+        if (st.mode === 'back'){
+          try { const cp = track.getCapabilities ? track.getCapabilities() : {}; if (cp.torch){ await track.applyConstraints({ advanced: [{ torch: true }] }); st.torch = true; } else sh.querySelector('#cmTip').innerHTML += ' <b>Esta cámara no deja prender el flash desde la app: mide con buena luz.</b>'; } catch(e){}
+          if (!backs.length){   // la lista de cámaras trae nombres solo después del permiso
+            try { backs = (await navigator.mediaDevices.enumerateDevices()).filter(d => d.kind === 'videoinput' && !/front|frontal|user|delant/i.test(d.label)); } catch(e){}
+          }
+          const nx = sh.querySelector('#cmNext');
+          if (backs.length > 1){ nx.style.display = ''; nx.textContent = TF('🔄 Probar otra cámara de atrás ({s})', (bi + 1) + '/' + backs.length); } else nx.style.display = 'none';
+        } else sh.querySelector('#cmNext').style.display = 'none';
+        keepAwake(true);
+        cam = { stream, stop: false, torch: st.torch, mode: st.mode };
+        measure(sh, v, (bpm, q) => { result = bpm; quality = q; sh.querySelector('#cmOk').disabled = false; });
+      } catch(e){
+        sh.querySelector('#cmSt').textContent = 'SIN CÁMARA';
+        sh.querySelector('#cmTip').innerHTML = 'No pude usar la cámara. Revisa que la app tenga permiso de cámara en los ajustes del teléfono, o cuenta el pulso a mano.';
+      }
+    };
+    sh.querySelectorAll('[data-cm]').forEach(b => b.addEventListener('click', () => {
+      if (st.mode === b.dataset.cm) return;
+      st.mode = b.dataset.cm; S.ppgMode = st.mode; saveSettings(); hapticTap();
+      sh.querySelectorAll('[data-cm]').forEach(x => x.classList.toggle('on', x === b)); start();
+    }));
+    sh.querySelector('#cmNext').addEventListener('click', () => { S.ppgBack = ((S.ppgBack || 0) + 1) % Math.max(1, backs.length); saveSettings(); hapticTap(); start(); });
+    start();
   });
-  const _cf = closeForm; // si se cierra el formulario de otra forma, se apaga la cámara
-  const watch = setInterval(() => { if (!$('#formModal').classList.contains('show')){ stopCam(); clearInterval(watch); } }, 500);
+  // si se cierra el formulario de otra forma, se apaga la cámara y la luz blanca
+  const watch = setInterval(() => { if (!$('#formModal').classList.contains('show')){ stopCam(); document.body.classList.remove('ppgwhite'); clearInterval(watch); } }, 500);
 }
 function measure(sh, video, done){
   const CW = 64, CH = 48, c = document.createElement('canvas'); c.width = CW; c.height = CH;
@@ -286,7 +314,7 @@ function measure(sh, video, done){
     const fps = Math.round(frames.length / 2);
     $s('#cmFps').textContent = fps + ' fps';
     // dedo sobre la cámara: la imagen se ve roja (o casi blanca y rojiza si el flash satura)
-    const finger = r > 50 && r >= g * 1.12 && r >= b * 1.12;
+    const finger = r > 22 && r >= g * 1.12 && r >= b * 1.12;
     if (!finger){
       if (!lostSince) lostSince = now;
       if (now - lostSince > 900){ fingerSince = 0; sig.length = 0; $s('#cmSt').textContent = 'PON EL DEDO'; $s('#cmBpm').textContent = '—'; $s('#cmQ').textContent = 'Señal: —'; paintRing(0); }
@@ -311,7 +339,7 @@ function measure(sh, video, done){
       $s('#cmTip').innerHTML = fps < 12 ? 'Tu cámara está entregando muy pocas imágenes por segundo. Prueba con más luz o cuenta el pulso a mano.' : 'No logré leer bien el pulso. Apoya la mano en la mesa, tapa la cámara y el flash con la yema (sin apretar) y no hables mientras mide.';
       if (tries >= 2) $s('#cmCount').classList.add('hl');
       // datos crudos de este intento, por si hay que revisar por qué no lee en ese teléfono
-      lastTry = { app: 'satronho-boxfit', kind: 'pulso', v: 1, ua: navigator.userAgent, fps, w: video.videoWidth, h: video.videoHeight, torch: !!cam.torch, at: new Date().toISOString(), s: sig.map(x => [Math.round(x.t), +x.r.toFixed(2), +x.g.toFixed(2)]) };
+      lastTry = { app: 'satronho-boxfit', kind: 'pulso', v: 1, mode: cam.mode, ua: navigator.userAgent, fps, w: video.videoWidth, h: video.videoHeight, torch: !!cam.torch, at: new Date().toISOString(), s: sig.map(x => [Math.round(x.t), +x.r.toFixed(2), +x.g.toFixed(2)]) };
       $s('#cmDbg').style.display = '';
       sig.length = 0; fingerSince = 0;
     }

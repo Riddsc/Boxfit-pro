@@ -45,8 +45,8 @@ jobs:
         # Permisos (pasos, recordatorios) y el enlace satronhoboxfit:// para el cruce con Satronho Somnia
         python3 scripts/patch-manifest.py android/app/src/main/AndroidManifest.xml
         npx cap sync android
-        # Versión 4.3.2 (mismo paquete: se instala encima de Boxfit Pro sin perder los datos)
-        sed -i 's/versionCode 1$/versionCode 45/; s/versionName "1.0"/versionName "4.3.2"/' android/app/build.gradle
+        # Versión 4.3.3 (mismo paquete: se instala encima de Boxfit Pro sin perder los datos)
+        sed -i 's/versionCode 1$/versionCode 46/; s/versionName "1.0"/versionName "4.3.3"/' android/app/build.gradle
         # Health Connect pide Android 8+ y compilar con Android 16 (API 36) y el plugin de Gradle 8.9.1, como en Somnia
         sed -i -E 's/minSdkVersion = [0-9]+/minSdkVersion = 26/; s/compileSdkVersion = [0-9]+/compileSdkVersion = 36/' android/variables.gradle
         sed -i -E 's/com\.android\.tools\.build:gradle:[0-9.]+/com.android.tools.build:gradle:8.9.1/' android/build.gradle
