@@ -585,3 +585,16 @@ nav{border-color:color-mix(in srgb,var(--mode) 30%,var(--line))!important}
 nav .ind{background:var(--mode)!important;border-color:transparent!important;opacity:1}
 nav button.on,nav button.on span,nav button.on svg{color:var(--on-mode)!important}
 nav button.on span{position:relative;z-index:2}
+/* 4.3.2 · pulso: vista previa de la cámara visible y conteo a mano */
+.sfcam .cmlive{display:flex;align-items:center;gap:12px;justify-content:center;margin-top:8px}
+.sfcam .cmlive video{width:58px;height:58px;border-radius:50%;object-fit:cover;background:#000;border:3px solid #d98585}
+.sfcam .cmlive div{display:flex;flex-direction:column;text-align:left}
+.sfcam .cmlive b{font-size:15px}
+.sfcam .cmlive small{color:var(--muted);font-size:12px;font-weight:700}
+#cmCount{display:block;margin:4px auto 8px;font-size:14px}
+#cmCount.hl{color:#d98585;font-weight:800;text-decoration:underline}
+.sfcount{text-align:center;margin:10px 0 14px}
+.sfcount b{display:block;font-family:var(--display);font-size:84px;font-weight:400;line-height:1}
+.sfcount small{color:var(--muted);font-weight:800;letter-spacing:.12em}
+.btnrow.three{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.btnrow.three .btn{font-size:clamp(15px,4.4vw,20px);padding-left:4px;padding-right:4px}

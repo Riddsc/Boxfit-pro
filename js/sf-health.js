@@ -164,7 +164,7 @@ function renderHeart(body){
       <div class="big"><span class="hb">❤️</span><b>${last ? last.bpm : '—'}</b><small>lpm</small></div>
       <p class="hint" style="text-align:center">${last ? (last.ctx === 'rest' ? hrClass(last.bpm)[0] + ' · ' : '') + niceDate(iso(new Date(last.ts))).toLowerCase() + ' ' + pad2(new Date(last.ts).getHours()) + ':' + pad2(new Date(last.ts).getMinutes()) + ' · ' + ({ cam: 'con la cámara', hc: 'del reloj', man: 'anotado a mano' })[last.src] : 'Todavía no hay mediciones'}</p>
       <button class="btn pri" id="hmCam" style="width:100%;flex:none;--bc:#d98585;margin-bottom:8px">📷 MEDIR CON LA CÁMARA</button>
-      <div class="btnrow"><button class="btn" id="hmMan">✏️ ANOTAR</button><button class="btn" id="hmHC">⌚ RELOJ</button></div>
+      <div class="btnrow three"><button class="btn" id="hmCnt">⏱️ CONTAR</button><button class="btn" id="hmMan">✏️ ANOTAR</button><button class="btn" id="hmHC">⌚ RELOJ</button></div>
     </div>
     <div class="kpis"><div class="kpi" style="--kc:#7fb38a"><b>${rs || '—'}</b><span>Pulso en reposo</span></div><div class="kpi" style="--kc:#d98585"><b>${mx}</b><span>Pulso máximo estimado</span></div></div>
     <div class="sect"><h4>${per === 'd' ? 'PULSO · HOY' : 'PULSO EN REPOSO · ' + SFPeriod.title(per).toUpperCase()}</h4>${SFPeriod.seg('heart', 'm')}
@@ -177,6 +177,7 @@ function renderHeart(body){
   SFPeriod.bind(body, 'heart', () => render());
   body.querySelector('#hmCam').addEventListener('click', openCamera);
   body.querySelector('#hmMan').addEventListener('click', openManual);
+  body.querySelector('#hmCnt').addEventListener('click', () => openCount());
   body.querySelector('#hmHC').addEventListener('click', async () => { if (!hcState.on){ if (await connectHC()) await syncHC(true); } else await syncHC(true); render(); });
   body.querySelectorAll('[data-hd]').forEach(b => b.addEventListener('click', async () => { if (await confirmDlg('¿Borrar medición?', '', 'BORRAR')){ hr = hr.filter(x => x.id !== b.dataset.hd); saveHR(); render(); } }));
 }
@@ -222,22 +223,27 @@ function openManual(){
 /* Medición con la cámara (fotopletismografía): con el flash prendido, el color del
    dedo cambia un poquito con cada latido. Se mide el rojo promedio ~30 veces por
    segundo, se filtra y se cuentan los picos. */
-let cam = null;
+let cam = null, lastTry = null;
 function stopCam(){
   if (!cam) return;
   cam.stop = true;
-  try { cam.stream.getTracks().forEach(t => { try { t.applyConstraints({ advanced: [{ torch: false }] }); } catch(e){} t.stop(); }); } catch(e){}
+  try { cam.stream.getTracks().forEach(t => { try { const pr = t.applyConstraints({ advanced: [{ torch: false }] }); if (pr && pr.catch) pr.catch(() => {}); } catch(e){} t.stop(); }); } catch(e){}
   keepAwake(false); cam = null;
 }
 async function openCamera(){
   const st = { ctx: 'rest' };
   openForm(`<h3 class="ftitle">📷 MEDIR EL PULSO</h3>
     <p class="hint" id="cmTip">Tapa con la yema del dedo índice la cámara de atrás <b>y el flash</b>, sin apretar. Apoya la mano y quédate quieto unos 20 a 40 segundos.</p>
-    <div class="sfcam"><div class="ringbox" id="cmRing">${SF.ring(0, '#d98585', 150, 12, '<b id="cmBpm">—</b><small id="cmSt">PREPARANDO</small>')}</div><canvas id="cmWave" width="320" height="70"></canvas></div>
+    <div class="sfcam"><div class="ringbox" id="cmRing">${SF.ring(0, '#d98585', 150, 12, '<b id="cmBpm">—</b><small id="cmSt">PREPARANDO</small>')}</div><canvas id="cmWave" width="320" height="70"></canvas>
+      <div class="cmlive"><video id="cmV" playsinline muted autoplay></video><div><b id="cmQ">Señal: —</b><small id="cmFps" data-notr></small></div></div></div>
     ${ctxSeg('cmC', st.ctx)}
-    <video id="cmV" playsinline muted style="width:1px;height:1px;opacity:0;position:absolute"></video>
+
+    <button class="linkbtn" id="cmDbg" style="display:none">📤 Guardar los datos de la medición para revisarla</button>
+    <button class="linkbtn" id="cmCount">¿No funciona en tu teléfono? Cuenta el pulso a mano en 15 s</button>
     <div class="btnrow"><button class="btn" id="cmX">CANCELAR</button><button class="btn pri" id="cmOk" style="--bc:#d98585" disabled>GUARDAR</button></div>`, async sh => {
     bindCtx(sh, 'cmC', st);
+    sh.querySelector('#cmCount').addEventListener('click', () => { stopCam(); openCount(st.ctx); });
+    sh.querySelector('#cmDbg').addEventListener('click', () => { if (lastTry) saveFile('pulso-satronho-' + Date.now() + '.json', JSON.stringify(lastTry), 'application/json'); });
     sh.querySelector('#cmX').addEventListener('click', () => { stopCam(); closeForm(); });
     let result = null, quality = 0;
     sh.querySelector('#cmOk').addEventListener('click', () => { if (!result) return; stopCam(); addHR(result, 'cam', st.ctx, quality < 0.6); closeForm(); toast(`❤️ ${result} lpm guardado`); render(); });
@@ -245,9 +251,9 @@ async function openCamera(){
       const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' }, width: { ideal: 176 }, height: { ideal: 144 }, frameRate: { ideal: 30 } }, audio: false });
       const v = sh.querySelector('#cmV'); v.srcObject = stream; await v.play();
       const track = stream.getVideoTracks()[0];
-      try { const cp = track.getCapabilities ? track.getCapabilities() : {}; if (cp.torch) await track.applyConstraints({ advanced: [{ torch: true }] }); else sh.querySelector('#cmTip').innerHTML += ' <b>Este teléfono no deja prender el flash desde la app: mide con buena luz.</b>'; } catch(e){}
+      try { const cp = track.getCapabilities ? track.getCapabilities() : {}; if (cp.torch){ await track.applyConstraints({ advanced: [{ torch: true }] }); st.torch = true; } else sh.querySelector('#cmTip').innerHTML += ' <b>Este teléfono no deja prender el flash desde la app: mide con buena luz.</b>'; } catch(e){}
       keepAwake(true);
-      cam = { stream, stop: false };
+      cam = { stream, stop: false, torch: !!st.torch };
       measure(sh, v, (bpm, q) => { result = bpm; quality = q; sh.querySelector('#cmOk').disabled = false; });
     } catch(e){
       sh.querySelector('#cmSt').textContent = 'SIN CÁMARA';
@@ -258,49 +264,93 @@ async function openCamera(){
   const watch = setInterval(() => { if (!$('#formModal').classList.contains('show')){ stopCam(); clearInterval(watch); } }, 500);
 }
 function measure(sh, video, done){
-  const c = document.createElement('canvas'); c.width = 40; c.height = 30;
+  const CW = 64, CH = 48, c = document.createElement('canvas'); c.width = CW; c.height = CH;
   const ctx = c.getContext('2d', { willReadFrequently: true });
   const wave = sh.querySelector('#cmWave'), wctx = wave.getContext('2d');
-  const sig = [], MIN = 20000, MAX = 40000, SETTLE = 2500;
-  let fingerSince = 0, lostSince = 0;
+  const sig = [], MIN = 20000, MAX = 40000, SETTLE = 2000;
+  let fingerSince = 0, lostSince = 0, lastSum = -1, frames = [], tries = 0;
   const $s = q => sh.querySelector(q);
-  const step = () => {
+  // Se lee cada cuadro nuevo de la cámara (los repetidos se saltan) con su hora exacta
+  const tick = () => {
     if (!cam || cam.stop) return;
-    ctx.drawImage(video, 0, 0, 40, 30);
-    const d = ctx.getImageData(0, 0, 40, 30).data; let r = 0, g = 0, b = 0;
+    requestAnimationFrame(tick);
+    if (video.readyState < 2 || !video.videoWidth) return;
+    ctx.drawImage(video, 0, 0, CW, CH);
+    const d = ctx.getImageData(CW / 4, CH / 4, CW / 2, CH / 2).data;   // centro de la imagen
+    let r = 0, g = 0, b = 0;
     for (let i = 0; i < d.length; i += 4){ r += d[i]; g += d[i + 1]; b += d[i + 2]; }
+    const sum = r + g + b; if (sum === lastSum) return; lastSum = sum;  // mismo cuadro
     const n = d.length / 4; r /= n; g /= n; b /= n;
-    // dedo sobre la cámara: la imagen se ve roja (o casi blanca y rojiza si el flash satura)
-    const finger = r > 60 && r >= g * 1.15 && r >= b * 1.15;
     const now = performance.now();
+    frames.push(now); while (frames.length && now - frames[0] > 2000) frames.shift();
+    const fps = Math.round(frames.length / 2);
+    $s('#cmFps').textContent = fps + ' fps';
+    // dedo sobre la cámara: la imagen se ve roja (o casi blanca y rojiza si el flash satura)
+    const finger = r > 50 && r >= g * 1.12 && r >= b * 1.12;
     if (!finger){
       if (!lostSince) lostSince = now;
-      if (now - lostSince > 800){ fingerSince = 0; sig.length = 0; $s('#cmSt').textContent = 'PON EL DEDO'; $s('#cmBpm').textContent = '—'; paintRing(0); }
-    } else {
-      lostSince = 0;
-      if (!fingerSince) fingerSince = now;
-      if (now - fingerSince > SETTLE) sig.push({ t: now, r, g });
-      const el = sig.length ? now - sig[0].t : 0;
-      paintRing(el / MIN);
-      $s('#cmSt').textContent = el ? 'MIDIENDO…' : 'QUIETO…';
-      if (el > 10000 && sig.length % 10 === 0){
-        const live = calcBpm(sig, false);
-        if (live){ $s('#cmBpm').textContent = live.bpm; if (el >= MIN && live.frac >= 0.7) return finish(live); }
-      }
-      if (el >= MAX){
-        const fin = calcBpm(sig, true);
-        if (fin) return finish(fin);
-        $s('#cmSt').textContent = 'REPETIR'; $s('#cmBpm').textContent = '—';
-        $s('#cmTip').innerHTML = 'No logré leer bien el pulso. Apoya la mano en la mesa, tapa la cámara y el flash con la yema (sin apretar) y no hables mientras mide.';
-        sig.length = 0; fingerSince = 0;
-      }
+      if (now - lostSince > 900){ fingerSince = 0; sig.length = 0; $s('#cmSt').textContent = 'PON EL DEDO'; $s('#cmBpm').textContent = '—'; $s('#cmQ').textContent = 'Señal: —'; paintRing(0); }
+      drawWave(wctx, wave, sig); return;
+    }
+    lostSince = 0;
+    if (!fingerSince) fingerSince = now;
+    if (now - fingerSince > SETTLE) sig.push({ t: now, r, g });
+    const el = sig.length ? now - sig[0].t : 0;
+    paintRing(el / MIN);
+    $s('#cmSt').textContent = el ? 'MIDIENDO…' : 'QUIETO…';
+    if (el > 9000 && sig.length % 8 === 0){
+      const live = calcBpm(sig, false);
+      $s('#cmQ').textContent = live ? (live.frac >= 0.7 ? 'Señal: buena' : 'Señal: regular') : 'Señal: débil, no te muevas';
+      if (live){ $s('#cmBpm').textContent = live.bpm; if (el >= MIN && live.frac >= 0.65) return finish(live); }
+    }
+    if (el >= MAX){
+      const fin = calcBpm(sig, true);
+      if (fin) return finish(fin);
+      tries++;
+      $s('#cmSt').textContent = 'REPETIR'; $s('#cmBpm').textContent = '—';
+      $s('#cmTip').innerHTML = fps < 12 ? 'Tu cámara está entregando muy pocas imágenes por segundo. Prueba con más luz o cuenta el pulso a mano.' : 'No logré leer bien el pulso. Apoya la mano en la mesa, tapa la cámara y el flash con la yema (sin apretar) y no hables mientras mide.';
+      if (tries >= 2) $s('#cmCount').classList.add('hl');
+      // datos crudos de este intento, por si hay que revisar por qué no lee en ese teléfono
+      lastTry = { app: 'satronho-boxfit', kind: 'pulso', v: 1, ua: navigator.userAgent, fps, w: video.videoWidth, h: video.videoHeight, torch: !!cam.torch, at: new Date().toISOString(), s: sig.map(x => [Math.round(x.t), +x.r.toFixed(2), +x.g.toFixed(2)]) };
+      $s('#cmDbg').style.display = '';
+      sig.length = 0; fingerSince = 0;
     }
     drawWave(wctx, wave, sig);
-    if (video.requestVideoFrameCallback) video.requestVideoFrameCallback(step); else requestAnimationFrame(step);
   };
   const finish = res => { $s('#cmBpm').textContent = res.bpm; $s('#cmSt').textContent = 'LISTO'; paintRing(1); drawWave(wctx, wave, sig); Sound.bell(1); vibrate(200); stopCam(); done(res.bpm, res.frac); };
   const paintRing = p => { const fg = sh.querySelector('#cmRing .fg'); if (!fg) return; const c0 = +fg.style.getPropertyValue('--c0') || 440; fg.style.animation = 'none'; fg.setAttribute('stroke-dashoffset', (c0 * (1 - clamp(p, 0, 1))).toFixed(1)); };
-  step();
+  requestAnimationFrame(tick);
+}
+// Contar el pulso a mano: 15 segundos con dos dedos en la muñeca o el cuello, y se multiplica por 4
+function openCount(ctx0){
+  const st = { ctx: ctx0 || 'rest', beats: 18, left: 15, run: null };
+  openForm(`<h3 class="ftitle">⏱️ CONTAR EL PULSO</h3>
+    <p class="hint">Pon dos dedos (índice y medio) en la muñeca, bajo el pulgar, o a un lado del cuello. Cuando empiece, cuenta cada latido hasta que suene.</p>
+    <div class="sfcount"><b id="ccT">15</b><small id="ccS">SEGUNDOS</small></div>
+    <button class="btn pri" id="ccGo" style="width:100%;--bc:#d98585">▶ EMPEZAR</button>
+    <div id="ccRes" style="display:none"><div class="field"><span>¿Cuántos latidos contaste?</span><div class="stepper big" id="ccB"></div></div>
+      <p class="sfgoalmsg ok" id="ccBpm"></p>${ctxSeg('ccC', st.ctx)}
+      <div class="btnrow"><button class="btn" id="ccX">CANCELAR</button><button class="btn pri" id="ccOk" style="--bc:#d98585">GUARDAR</button></div></div>`, sh => {
+    const upd = () => { sh.querySelector('#ccBpm').textContent = TF('Tu pulso: {s} lpm', st.beats * 4); };
+    sh.querySelector('#ccGo').addEventListener('click', e => {
+      e.currentTarget.style.display = 'none'; Sound.bell(1); vibrate(80); keepAwake(true);
+      const t0 = Date.now();
+      st.run = setInterval(() => {
+        const left = Math.max(0, 15 - Math.floor((Date.now() - t0) / 1000));
+        const tEl = sh.querySelector('#ccT'); if (!tEl){ clearInterval(st.run); keepAwake(false); return; }
+        tEl.textContent = left;
+        if (left <= 0){
+          clearInterval(st.run); keepAwake(false); Sound.bell(2); vibrate(250);
+          sh.querySelector('#ccS').textContent = 'LISTO';
+          sh.querySelector('#ccRes').style.display = '';
+          makeStepper(sh.querySelector('#ccB'), { get: () => st.beats, set: v => { st.beats = Math.round(v); upd(); }, min: 6, max: 55, input: true, label: 'Latidos' });
+          bindCtx(sh, 'ccC', st); upd();
+          sh.querySelector('#ccX').addEventListener('click', closeForm);
+          sh.querySelector('#ccOk').addEventListener('click', () => { sh.querySelectorAll('input').forEach(i => i.blur()); const bpm = st.beats * 4; addHR(bpm, 'man', st.ctx); closeForm(); toast(`❤️ ${bpm} lpm guardado`); render(); });
+        }
+      }, 200);
+    });
+  });
 }
 // Pulso por cámara (4.3.1): canal rojo y verde, ventanas de 8 s y mediana. Más estable con el ritmo
 // natural del corazón, la respiración y el flash que satura el rojo.
@@ -342,7 +392,7 @@ function calcBpm(sig, final){
   let pick = null;
   ['r', 'g'].forEach(k => {
     const x = ppgPrep(ppgResample(sig, k)), W = 8 * PPG_FS, S = 2 * PPG_FS, ok = [];
-    for (let s = 0; s + W <= x.length; s += S){ const r = ppgAc(x.slice(s, s + W)); if (r && r.q >= 0.3) ok.push(r); }
+    for (let s = 0; s + W <= x.length; s += S){ const r = ppgAc(x.slice(s, s + W)); if (r && r.q >= 0.25) ok.push(r); }
     const wins = Math.max(1, Math.floor((x.length - W) / S) + 1);
     if (ok.length < 2) return;
     const med = ok.map(r => r.bpm).sort((a, b) => a - b)[Math.floor(ok.length / 2)];
@@ -352,7 +402,7 @@ function calcBpm(sig, final){
     if (!pick || cand.frac * cand.q > pick.frac * pick.q) pick = cand;
   });
   if (!pick || pick.bpm < 38 || pick.bpm > 200) return null;
-  if (pick.frac < (final ? 0.45 : 0.5) || pick.n < 3) return null;
+  if (pick.frac < (final ? 0.4 : 0.5) || pick.n < 3) return null;
   return pick;
 }
 function drawWave(c, cv, sig){
