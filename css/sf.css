@@ -607,3 +607,5 @@ body.ppgwhite #formModal .sheet{background:#fff!important;color:#17161c!importan
 body.ppgwhite #formModal .sheet .hint,body.ppgwhite #formModal .sheet small{color:#55525c!important}
 body.ppgwhite .sfstatusbg{background:#fff!important}
 body.ppgwhite #formModal .sheet{--text:#17161c;--muted:#55525c;--dim:#77737f;--panel:#fff;--panel2:#f0eff3;--line:#e2e0e6}
+.sfhrrow{width:100%;text-align:left}
+.sfhrrow .ed{font-size:16px;opacity:.7}

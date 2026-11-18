@@ -163,6 +163,7 @@ function renderHeart(body){
     <div class="sect sfheart">
       <div class="big"><span class="hb">❤️</span><b>${last ? last.bpm : '—'}</b><small>lpm</small></div>
       <p class="hint" style="text-align:center">${last ? (last.ctx === 'rest' ? hrClass(last.bpm)[0] + ' · ' : '') + niceDate(iso(new Date(last.ts))).toLowerCase() + ' ' + pad2(new Date(last.ts).getHours()) + ':' + pad2(new Date(last.ts).getMinutes()) + ' · ' + ({ cam: 'con la cámara', hc: 'del reloj', man: 'anotado a mano' })[last.src] : 'Todavía no hay mediciones'}</p>
+      ${last && last.src !== 'hc' ? `<button class="linkbtn" id="hmEdit" style="display:block;margin:-4px auto 8px">✏️ Cambiar o repetir esta medición</button>` : ''}
       <button class="btn pri" id="hmCam" style="width:100%;flex:none;--bc:#d98585;margin-bottom:8px">📷 MEDIR CON LA CÁMARA</button>
       <div class="btnrow three"><button class="btn" id="hmCnt">⏱️ CONTAR</button><button class="btn" id="hmMan">✏️ ANOTAR</button><button class="btn" id="hmHC">⌚ RELOJ</button></div>
     </div>
@@ -172,16 +173,36 @@ function renderHeart(body){
       <p class="hint">Un pulso en reposo que baja con las semanas es señal de mejor forma física. Si sube varios días seguidos, puede ser cansancio, poco sueño o que te estás enfermando.</p></div>
     <div class="sect"><h4>ZONAS DE ENTRENAMIENTO</h4>${zs.map(z => `<div class="sfzone" style="--c:${z.c}"><i></i><span class="l"><b>${z.n} · ${z.pa}-${z.pb}%</b><small>${z.u}</small></span><em>${z.a}-${z.b}</em></div>`).join('')}
       <p class="hint">${rs ? 'Calculadas con tu pulso en reposo (método de Karvonen).' : 'Mide tu pulso en reposo y las zonas se ajustan mejor a ti.'} En los rounds de boxeo lo normal es estar en zona intensa.</p></div>
-    <div class="sect"><h4>MEDICIONES</h4>${hr.slice().reverse().filter(x => x.src !== 'hc' || x.ctx === 'rest').slice(0, 12).map(x => `<div class="row"><span class="l"><b>${x.bpm} lpm</b><small>${niceDate(iso(new Date(x.ts)))} ${pad2(new Date(x.ts).getHours())}:${pad2(new Date(x.ts).getMinutes())} · ${({ rest: 'En reposo', post: 'Después de entrenar', other: 'Otro momento' })[x.ctx]}</small></span>${x.src !== 'hc' ? `<button class="xbtn" data-hd="${x.id}">×</button>` : '<small>⌚</small>'}</div>`).join('') || '<p class="empty">Sin mediciones.</p>'}</div>
+    <div class="sect"><h4>MEDICIONES</h4><p class="hint" style="margin-top:0">Toca una medición para cambiarla, repetirla o borrarla.</p>${hr.slice().reverse().filter(x => x.src !== 'hc' || x.ctx === 'rest').slice(0, 12).map(x => x.src !== 'hc' ? `<button class="row sfhrrow" data-he="${x.id}"><span class="l"><b>${x.bpm} lpm</b><small>${hrWhen(x)}</small></span><span class="ed">✏️</span></button>` : `<div class="row"><span class="l"><b>${x.bpm} lpm</b><small>${hrWhen(x)}</small></span><small>⌚</small></div>`).join('') || '<p class="empty">Sin mediciones.</p>'}</div>
     ${SFPets.says(null, 'La medición con la cámara es aproximada: sirve para seguir tu tendencia, no para diagnosticar. Si sientes dolor en el pecho, mareo o palpitaciones raras, busca atención médica.')}`;
   SFPeriod.bind(body, 'heart', () => render());
-  body.querySelector('#hmCam').addEventListener('click', openCamera);
+  body.querySelector('#hmCam').addEventListener('click', () => openCamera());
+  const he = body.querySelector('#hmEdit'); if (he) he.addEventListener('click', () => openEditHR(last.id));
+  body.querySelectorAll('[data-he]').forEach(b => b.addEventListener('click', () => { hapticTap(); openEditHR(b.dataset.he); }));
   body.querySelector('#hmMan').addEventListener('click', openManual);
   body.querySelector('#hmCnt').addEventListener('click', () => openCount());
   body.querySelector('#hmHC').addEventListener('click', async () => { if (!hcState.on){ if (await connectHC()) await syncHC(true); } else await syncHC(true); render(); });
-  body.querySelectorAll('[data-hd]').forEach(b => b.addEventListener('click', async () => { if (await confirmDlg('¿Borrar medición?', '', 'BORRAR')){ hr = hr.filter(x => x.id !== b.dataset.hd); saveHR(); render(); } }));
 }
-function addHR(bpm, src, ctx, noCheck){ hr.push({ id: uid(), ts: Date.now(), bpm: Math.round(bpm), src, ctx }); saveHR(); if (ctx === 'rest' && !noCheck) setTimeout(() => hrCheck(Math.round(bpm)), 450); }
+const hrWhen = x => `<span data-notr>${niceDate(iso(new Date(x.ts)))} ${pad2(new Date(x.ts).getHours())}:${pad2(new Date(x.ts).getMinutes())}</span> · ${({ rest: 'En reposo', post: 'Después de entrenar', other: 'Otro momento' })[x.ctx] || ''}`;
+// Cambiar, repetir o borrar una medición ya guardada
+let replaceId = null;
+function openEditHR(id){
+  const x = hr.find(h => h.id === id); if (!x) return;
+  const st = { bpm: x.bpm, ctx: x.ctx || 'rest' };
+  openForm(`<h3 class="ftitle">✏️ EDITAR MEDICIÓN</h3><p class="hint">${hrWhen(x)}${x.src === 'cam' ? ' · 📷' : x.src === 'man' ? ' · ✏️' : ''}</p>
+    <div class="field"><span>Pulsaciones por minuto</span><div class="stepper big" id="ehB"></div></div>${ctxSeg('ehC', st.ctx)}
+    <p class="hint">¿Quieres medir otra vez? La nueva lectura reemplaza a esta.</p>
+    <div class="btnrow"><button class="btn" id="ehCam">📷 REPETIR</button><button class="btn" id="ehCnt">⏱️ CONTAR</button></div>
+    <div class="btnrow" style="margin-top:8px"><button class="btn" id="ehDel" style="--bc:#d98585">BORRAR</button><button class="btn pri" id="ehOk" style="--bc:#d98585">GUARDAR</button></div>`, sh => {
+    makeStepper(sh.querySelector('#ehB'), { get: () => st.bpm, set: v => st.bpm = Math.round(v), min: 30, max: 220, input: true, label: 'Pulso' });
+    bindCtx(sh, 'ehC', st);
+    sh.querySelector('#ehCam').addEventListener('click', () => openCamera(id));
+    sh.querySelector('#ehCnt').addEventListener('click', () => openCount(st.ctx, id));
+    sh.querySelector('#ehDel').addEventListener('click', async () => { closeForm(); if (await confirmDlg('¿Borrar medición?', '', 'BORRAR')){ hr = hr.filter(h => h.id !== id); saveHR(); toast('Medición borrada'); } render(); });
+    sh.querySelector('#ehOk').addEventListener('click', () => { sh.querySelectorAll('input').forEach(i => i.blur()); x.bpm = st.bpm; x.ctx = st.ctx; saveHR(); closeForm(); toast('Medición actualizada'); render(); });
+  });
+}
+function addHR(bpm, src, ctx, noCheck){ const old = replaceId && hr.find(h => h.id === replaceId); replaceId = null; if (old) Object.assign(old, { ts: Date.now(), bpm: Math.round(bpm), src, ctx }); else hr.push({ id: uid(), ts: Date.now(), bpm: Math.round(bpm), src, ctx }); saveHR(); if (ctx === 'rest' && !noCheck) setTimeout(() => hrCheck(Math.round(bpm)), 450); }
 // Promedio semanal del pulso en reposo (para 3 meses y año)
 function weeklyRest(list){
   const by = {}; list.forEach(x => { const k = SF.mondayOf(iso(new Date(x.ts))); (by[k] = by[k] || []).push(x.bpm); });
@@ -209,6 +230,7 @@ function checksHTML(){
 const ctxSeg = (id, cur) => `<div class="seg" id="${id}"><button type="button" data-c="rest" class="${cur === 'rest' ? 'on' : ''}">EN REPOSO</button><button type="button" data-c="post" class="${cur === 'post' ? 'on' : ''}">TRAS ENTRENAR</button><button type="button" data-c="other" class="${cur === 'other' ? 'on' : ''}">OTRO</button></div>`;
 function bindCtx(sh, id, st){ sh.querySelectorAll('#' + id + ' [data-c]').forEach(b => b.addEventListener('click', () => { st.ctx = b.dataset.c; sh.querySelectorAll('#' + id + ' [data-c]').forEach(x => x.classList.toggle('on', x === b)); })); }
 function openManual(){
+  replaceId = null;
   const st = { bpm: 70, ctx: 'rest' };
   openForm(`<h3 class="ftitle">✏️ ANOTAR PULSO</h3><p class="hint">Por ejemplo, el que te marca un tensiómetro o un oxímetro.</p>
     <div class="field"><span>Pulsaciones por minuto</span><div class="stepper big" id="mhB"></div></div>${ctxSeg('mhC', st.ctx)}
@@ -232,9 +254,10 @@ function stopCam(){
 }
 const TIP_BACK = 'Acuesta el dedo índice sobre la barra de cámaras, sin apretar: que tape la <b>cámara principal</b> (la más grande) y, si alcanza, también el flash. Si el flash te queda lejos (como en los Pixel), no pasa nada: mide cerca de una ventana o una lámpara. Apoya la mano y quédate quieto.';
 const TIP_FRONT = 'Tapa con la yema la <b>cámara de adelante</b> (el puntico de arriba de la pantalla), sin apretar. La pantalla se pone blanca y sirve de luz. Apoya el teléfono y quédate quieto.';
-async function openCamera(){
-  const st = { ctx: 'rest', mode: S.ppgMode === 'front' ? 'front' : 'back' };
-  openForm(`<h3 class="ftitle">📷 MEDIR EL PULSO</h3>
+async function openCamera(rep){
+  replaceId = rep || null;
+  const st = { ctx: (rep && (hr.find(h => h.id === rep) || {}).ctx) || 'rest', mode: S.ppgMode === 'front' ? 'front' : 'back' };
+  openForm(`<h3 class="ftitle">${rep ? '📷 MEDIR DE NUEVO' : '📷 MEDIR EL PULSO'}</h3>
     <div class="seg sfcammode"><button type="button" data-cm="back" class="${st.mode === 'back' ? 'on' : ''}">📷 CÁMARA DE ATRÁS</button><button type="button" data-cm="front" class="${st.mode === 'front' ? 'on' : ''}">🤳 DE ADELANTE</button></div>
     <p class="hint" id="cmTip">${st.mode === 'front' ? TIP_FRONT : TIP_BACK}</p>
     <div class="sfcam"><div class="ringbox" id="cmRing">${SF.ring(0, '#d98585', 150, 12, '<b id="cmBpm">—</b><small id="cmSt">PREPARANDO</small>')}</div><canvas id="cmWave" width="320" height="70"></canvas>
@@ -246,11 +269,11 @@ async function openCamera(){
     <div class="btnrow"><button class="btn" id="cmX">CANCELAR</button><button class="btn pri" id="cmOk" style="--bc:#d98585" disabled>GUARDAR</button></div>`, async sh => {
     bindCtx(sh, 'cmC', st);
     const close = () => { stopCam(); document.body.classList.remove('ppgwhite'); };
-    sh.querySelector('#cmCount').addEventListener('click', () => { close(); openCount(st.ctx); });
+    sh.querySelector('#cmCount').addEventListener('click', () => { close(); openCount(st.ctx, rep); });
     sh.querySelector('#cmDbg').addEventListener('click', () => { if (lastTry) saveFile('pulso-satronho-' + Date.now() + '.json', JSON.stringify(lastTry), 'application/json'); });
     sh.querySelector('#cmX').addEventListener('click', () => { close(); closeForm(); });
     let result = null, quality = 0, backs = [];
-    sh.querySelector('#cmOk').addEventListener('click', () => { if (!result) return; close(); addHR(result, 'cam', st.ctx, quality < 0.6); closeForm(); toast(`❤️ ${result} lpm guardado`); render(); });
+    sh.querySelector('#cmOk').addEventListener('click', () => { if (!result) return; close(); addHR(result, 'cam', st.ctx, quality < 0.6); closeForm(); toast(rep ? `❤️ ${result} lpm · medición actualizada` : `❤️ ${result} lpm guardado`); render(); });
     const v = sh.querySelector('#cmV');
     // Abre la cámara elegida (atrás con flash, otra cámara de atrás, o la de adelante con la pantalla blanca de luz)
     const start = async () => {
@@ -350,7 +373,8 @@ function measure(sh, video, done){
   requestAnimationFrame(tick);
 }
 // Contar el pulso a mano: 15 segundos con dos dedos en la muñeca o el cuello, y se multiplica por 4
-function openCount(ctx0){
+function openCount(ctx0, rep){
+  replaceId = rep || null;
   const st = { ctx: ctx0 || 'rest', beats: 18, left: 15, run: null };
   openForm(`<h3 class="ftitle">⏱️ CONTAR EL PULSO</h3>
     <p class="hint">Pon dos dedos (índice y medio) en la muñeca, bajo el pulgar, o a un lado del cuello. Cuando empiece, cuenta cada latido hasta que suene.</p>
